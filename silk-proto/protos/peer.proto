@@ -1,0 +1,17 @@
+syntax = "proto3";
+package protos;
+
+import "common.proto";
+import "message.proto";
+import "batch.proto";
+
+// process message from client
+service Endorser {
+    rpc ProcessProposal(BatchSubmit) returns (BatchResponse) {}
+    rpc Ping(Empty) returns (Empty) {}
+}
+
+// send and receive message to other peer nodes
+service P2P {
+    rpc Broadcast (stream Message) returns (stream Message) {}
+}

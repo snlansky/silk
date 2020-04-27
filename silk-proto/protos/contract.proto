@@ -1,0 +1,50 @@
+syntax = "proto3";
+package protos;
+
+import "common.proto";
+import "message.proto";
+import "proposal.proto";
+import "proposal_response.proto";
+
+service Contract {
+    rpc Register (stream Message) returns (stream Message) {}
+}
+
+message  ContractRegister {
+    string name = 1;
+    map<string, bytes> decorations = 2;
+}
+
+message ContractTransaction {
+    Proposal proposal = 1;
+}
+
+message GetStateRequest {
+    string key = 1;
+    string channel_id = 2;
+    string tx_id = 3;
+}
+
+message GetStateResponse {
+    bytes value = 1;
+}
+
+message PutStateRequest {
+    string key = 1;
+    bytes value = 2;
+    string channel_id = 3;
+    string tx_id = 4;
+}
+
+message DelStateRequest {
+    string key = 1;
+    string channel_id = 3;
+    string tx_id = 4;
+}
+
+message TransactionCompleted {
+    Proposal proposal  = 1;
+    Response response = 2;
+    ContractEvent event = 3;
+}
+

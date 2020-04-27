@@ -1,0 +1,19 @@
+syntax = "proto3";
+package protos;
+
+import "message.proto";
+import "block.proto";
+
+service Consensus {
+    rpc Register (stream Message) returns (stream Message) {}
+}
+
+message ConsensusRegister {
+    string alg = 1;
+    map<string, bytes> decorations = 2;
+}
+
+message ConsensusChainDescribe {
+    string chain = 1;
+    BlockHeader header = 2;
+}

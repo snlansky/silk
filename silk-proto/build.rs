@@ -1,0 +1,25 @@
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tonic_build::configure()
+        .out_dir("src")
+        .build_server(true)
+        .compile(
+            &[
+                "protos/batch.proto",
+                "protos/block.proto",
+                "protos/common.proto",
+                "protos/consensus.proto",
+                "protos/contract.proto",
+                "protos/kv_rwset.proto",
+                "protos/message.proto",
+                "protos/peer.proto",
+                "protos/proposal.proto",
+                "protos/proposal_response.proto",
+                "protos/rwset.proto",
+                "protos/transaction.proto",
+                "protos/storage.proto",
+                "protos/ledger.proto",
+            ],
+            &["protos"],
+        )?;
+    Ok(())
+}

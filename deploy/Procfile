@@ -1,0 +1,3 @@
+# Use goreman to run `go get github.com/mattn/goreman`
+
+consensus: export ID=dc26a7099e81bb02869cc8ae57da030fbe4cf276b38ab37d2cc815fec63a14ab; export ENDPOINT=localhost:5050; export CLUSTER=df8e8388ced559bd35c2b05199ca9f8fbebb420979715003355dcb7363016c1d,df8e8388ced559bd35c2b05199ca9f8fbebb420979715003355dcb7363016c1d,9f8fbebb420979715003355dcb7363016c1ddc2a7099e81bb02869cc8ae57dab; cargo run --bin silk-consensus

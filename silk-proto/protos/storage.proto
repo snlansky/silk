@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package protos;
+
+message VersionedValueProto {
+    bytes version_bytes = 1;
+    bytes value = 2;
+    bytes metadata = 3;
+}
+
+message VersionedHeight {
+    uint64 block_num = 1;
+    uint64 tx_num = 2;
+}

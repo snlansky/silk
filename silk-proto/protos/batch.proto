@@ -1,0 +1,13 @@
+syntax = "proto3";
+package protos;
+
+import "proposal.proto";
+import "proposal_response.proto";
+
+message BatchSubmit {
+    repeated SignedProposal signed_proposal_list = 1;
+}
+
+message BatchResponse {
+    repeated ProposalResponse proposal_response_list = 1;
+}

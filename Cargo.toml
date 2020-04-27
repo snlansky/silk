@@ -1,0 +1,24 @@
+[workspace]
+
+members = [
+    "silk-peer",
+    "silk-consensus",
+    "silk-proxy",
+    "silk-ca",
+    "silk-proto",
+
+    "libs/blockdb",
+    "libs/consensus",
+    "libs/contract",
+    "libs/utils",
+    "libs/error",
+    "libs/statedb",
+    "libs/rwset",
+    "fuzz",
+
+    "contracts/contract-simple",
+
+    "tools/genesis",
+]
+
+

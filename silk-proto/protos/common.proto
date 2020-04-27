@@ -1,0 +1,63 @@
+syntax = "proto3";
+package protos;
+import "google/protobuf/timestamp.proto";
+
+message Empty {
+}
+
+enum Status {
+    UNKNOWN = 0;
+    SUCCESS = 200;
+    BAD_REQUEST = 400;
+    FORBIDDEN = 403;
+    NOT_FOUND = 404;
+    REQUEST_ENTITY_TOO_LARGE = 413;
+    INTERNAL_SERVER_ERROR = 500;
+    NOT_IMPLEMENTED = 501;
+    SERVICE_UNAVAILABLE = 503;
+}
+
+//-------------------------------------------------------------------------------------
+enum HeaderType {
+    QUERY = 0; // Used for messages which query contract.proto
+    INVOKE = 1; // Used for messages which invoke contract.proto
+    CREATE_CHANNEL = 2; // Used for messages which express create the channel
+}
+
+message Header {
+    int32 header_type = 1; // Header types 0-10000 are reserved and defined by HeaderType
+    int32 version = 2;
+    google.protobuf.Timestamp timestamp = 3;
+    string channel_id = 4;
+    string tx_id = 5;
+
+    // If mutual TLS is employed, this represents
+    // the hash of the client's TLS certificate
+    bytes tls_cert_hash = 6;
+
+    // Creator of the message, a marshaled msp.SerializedIdentity
+    bytes creator = 7;
+
+    // Arbitrary number that may only be used once. Can be used to detect replay attacks.
+    bytes nonce = 8;
+}
+
+
+// Payload is the message contents (and header to allow for signing)
+message Payload {
+    // Header is included to provide identity and prevent replay
+    Header header = 1;
+
+    // Data, the encoding of which is defined by the type in the header
+    bytes data = 2;
+}
+
+
+// Envelope wraps a Payload with a signature so that the message may be authenticated
+message Envelope {
+    // A marshaled Payload
+    bytes payload = 1;
+
+    // A signature by the creator specified in the Payload header
+    bytes signature = 2;
+}

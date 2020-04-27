@@ -1,0 +1,69 @@
+syntax = "proto3";
+package protos;
+
+
+message Message {
+    enum MessageType {
+        DEFAULT = 0;
+
+        // Consensus message
+        CONSENSUS_REGISTER = 100;
+        UNREGISTER = 101;
+
+        // Contract message
+        CONTRACT_REGISTER = 110;
+        // peer -> contract
+        CONTRACT_TRANSACTION = 111;
+
+        // contract request get state
+        CONTRACT_GET_STATE_REQUEST = 112;
+        CONTRACT_GET_STATE_RESPONSE = 113;
+
+        // contract request put state
+        CONTRACT_PUT_STATE_REQUEST = 114;
+
+        // contract request delete state
+        CONTRACT_DEL_STATE_REQUEST = 115;
+
+        // contract -> peer
+        CONTRACT_TRANSACTION_COMPLETED_REQUEST = 116;
+
+
+        // Peer message
+        PEER_HANDSHAKE_REQUEST = 200;
+        PEER_HANDSHAKE_RESPONSE = 201;
+
+        PEER_HEARTBEAT_REQUEST = 202;
+        PEER_HEARTBEAT_RESPONSE = 203;
+
+        PEER_BROADCAST_TRANSACTION = 204;
+        PEER_BROADCAST_BLOCK_TRACKER = 205;
+        // pull blocks from other peer nodes
+        PEER_DELIVER_BLOCK = 206;
+
+
+        // Consensus notification messages
+        CONSENSUS_TRANSACTION_ARRIVED = 300;
+        CONSENSUS_NOTIFY_BLOCK_COMMIT = 301;
+        CONSENSUS_CHAIN_DESCRIBE = 302;
+    }
+
+    MessageType message_type = 1;
+
+    // The identifier used to correlate response messages to their related
+    // request messages.  correlation_id should be set to a random string
+    // for messages which are not responses to previously sent messages.  For
+    // response messages, correlation_id should be set to the same string as
+    // contained in the request message.
+    string correlation_id = 2;
+
+    // The content of the message, defined by message_type.  In many
+    // cases, this data has been serialized with Protocol Buffers
+    bytes content = 3;
+}
+
+
+message  Unregister {
+
+}
+

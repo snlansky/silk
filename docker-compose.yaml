@@ -1,0 +1,8 @@
+version: '3'
+services:
+  peer:
+    image: snlan/silk-app
+    container_name: silk-app
+    command: goreman -f /etc/silk/Procfile start
+
+
