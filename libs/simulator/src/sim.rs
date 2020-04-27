@@ -1,24 +1,43 @@
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 use error::*;
-use rwset::TxSimulationResults;
-use statedb::ResultsIterator;
+use rwset::{TxSimulationResults, RWSetBuilder};
+use statedb::{ResultsIterator, VersionedDB, VersionedValue, Height};
 
-pub struct TxSimulator {
-
+pub struct BasedTxSimulator<V: VersionedDB> {
+    tx_id: String,
+    rw_set_builder: RWSetBuilder,
+    vdb : V,
+}
+impl <V: VersionedDB>BasedTxSimulator<V> {
+   fn new(tx_id: String, vdb: V) -> Self {
+       BasedTxSimulator{
+           tx_id,
+           rw_set_builder: RWSetBuilder::new(),
+           vdb,
+       }
+   }
 }
 
-impl super::TxSimulator for TxSimulator {
+impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
     fn get_state(&mut self, namespace: String, key: String) -> Result<Vec<u8>> {
-        unimplemented!()
+        let v = self.vdb.get_state(namespace.clone(), key.clone())?;
+        let vv = v.unwrap_or(VersionedValue{
+            value: vec![],
+            metadata: vec![],
+            version: Height { block_num: 0, tx_num: 0 }
+        });
+        self.rw_set_builder.add_to_read_set(namespace, key, vv.version);
+        Ok(vv.value)
     }
 
     fn set_state(&mut self, namespace: String, key: String, value: Vec<u8>) -> Result<()> {
-        unimplemented!()
+        self.rw_set_builder.add_to_write_set(namespace, key, value);
+        Ok(())
     }
 
     fn delete_state(&mut self, namespace: String, key: String) -> Result<()> {
-        unimplemented!()
+        self.set_state(namespace, key, vec![])
     }
 
     fn set_state_multiple_keys(&mut self, namespace: String, kvs: HashMap<String, Vec<u8>, RandomState>) -> Result<()> {
@@ -30,7 +49,7 @@ impl super::TxSimulator for TxSimulator {
     }
 
     fn get_tx_simulation_results(&mut self) -> Result<TxSimulationResults> {
-        unimplemented!()
+        self.rw_set_builder.get_tx_simulation_results()
     }
 
     fn get_state_metadata(&mut self, namespace: String, key: String) -> Result<HashMap<String, Vec<u8>, RandomState>> {
