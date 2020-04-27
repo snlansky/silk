@@ -1,5 +1,7 @@
 mod builder;
 
+pub use builder::*;
+
 #[cfg(test)]
 mod tests {
     #[test]

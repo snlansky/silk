@@ -14,6 +14,7 @@ members = [
     "libs/error",
     "libs/statedb",
     "libs/rwset",
+    "libs/simulator",
     "fuzz",
 
     "contracts/contract-simple",
