@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use silk_proto::*;
 use error::*;
 use statedb::Height;
+use serde::export::TryFrom;
+use silk_proto::tx_read_write_set::DataModel;
 
 // RWSetBuilder helps building the read-write set
 pub struct RWSetBuilder {
@@ -51,8 +53,13 @@ impl RWSetBuilder {
         // Compute the proto bytes for pub rwset
         let rwset = self.get_tx_read_write_set();
 
+        let mut ns_rwset = Vec::with_capacity(rwset.ns_rw_sets.len());
+        for rws in rwset.ns_rw_sets {
+            ns_rwset.push(NsReadWriteSet::try_from(rws)?);
+        }
+
         let sim = TxSimulationResults{
-            simulation_results: TxReadWriteSet { data_model: 0, ns_rwset: vec![] }
+            simulation_results: TxReadWriteSet { data_model: DataModel::Kv as i32, ns_rwset, }
         };
         Ok(sim)
     }
@@ -60,7 +67,12 @@ impl RWSetBuilder {
     // get_tx_read_write_set returns the read-write set
     // TODO make this function private once txmgr starts using new function `get_tx_simulation_results` introduced here
     pub fn get_tx_read_write_set(&self) -> TxRwSet {
-        unimplemented!()
+        let builders = get_values_by_sorted_keys(&self.map);
+        let mut ns_rw_sets = Vec::with_capacity(builders.len());
+        for builder in builders {
+            ns_rw_sets.push(NsRwSet::from(builder));
+        }
+        return TxRwSet{ns_rw_sets}
     }
 
     fn get_or_create_ns_rw_builder(&mut self, ns: String) -> &mut NsRwBuilder {
@@ -81,6 +93,17 @@ impl RWSetBuilder {
     }
 }
 
+pub fn get_values_by_sorted_keys<T: Clone> (map : &HashMap<String, T>) -> Vec<T> {
+    let mut keys = map.iter().map(|k|k.0.clone()).collect::<Vec<String>>();
+    keys.sort();
+    let mut v = Vec::with_capacity(map.len());
+    for key in keys {
+        v.push(map.get(&key).unwrap().clone());
+    }
+    v
+}
+
+#[derive(Clone)]
 pub struct NsRwBuilder {
     namespace: String,
     read_map: HashMap<String, KvRead>, //for mvcc validation
@@ -88,6 +111,34 @@ pub struct NsRwBuilder {
     range_queries_map: HashMap<RangeQueryKey, RangeQueryInfo>,
     range_queries_keys: Vec<RangeQueryKey>,
     coll_hash_rw_builder: HashMap<String, CollHashRwBuilder>,
+}
+
+impl From<NsRwBuilder> for NsRwSet {
+    fn from(value: NsRwBuilder) -> Self {
+
+        let read_set = get_values_by_sorted_keys(&value.read_map);
+        let write_set = get_values_by_sorted_keys(&value.write_map);
+
+        let range_queries_info = value.range_queries_keys.iter()
+            .map(|key|value.range_queries_map.get(key).unwrap().clone())
+            .collect::<Vec<RangeQueryInfo>>();
+
+        let coll_builders =  get_values_by_sorted_keys(&value.coll_hash_rw_builder);
+        let coll_hashed_rw_sets = coll_builders.iter()
+            .map(|builder|CollHashedRwSet::from(builder))
+            .collect::<Vec<CollHashedRwSet>>();
+
+        NsRwSet{
+            namespace: value.namespace,
+            kv_rw_set: KvrwSet {
+                reads: read_set,
+                range_queries_info,
+                writes: write_set,
+                metadata_writes: vec![]
+            },
+            coll_hashed_rw_sets,
+        }
+    }
 }
 
 struct CollPvtRwBuilder {
@@ -102,10 +153,24 @@ struct RangeQueryKey {
     itr_exhausted: bool,
 }
 
+#[derive(Clone)]
 struct CollHashRwBuilder {
     coll_name: String,
     read_map: HashMap<String, KvReadHash>,
     write_map: HashMap<String, KvWriteHash>,
+}
+
+impl From<&CollHashRwBuilder> for CollHashedRwSet {
+    fn from(value: &CollHashRwBuilder) -> Self {
+        CollHashedRwSet {
+            collection_name: value.coll_name.clone(),
+            hashed_rw_set: HashedRwSet {
+                hashed_reads: get_values_by_sorted_keys(&value.read_map),
+                hashed_writes: get_values_by_sorted_keys(&value.write_map),
+                metadata_writes: vec![],
+            }
+        }
+    }
 }
 
 // TxSimulationResults captures the details of the simulation results
@@ -118,15 +183,52 @@ pub struct TxRwSet {
     pub ns_rw_sets: Vec<NsRwSet>,
 }
 
+impl TryFrom<TxRwSet> for TxReadWriteSet {
+    type Error = Error;
+
+    fn try_from(value: TxRwSet) -> Result<Self> {
+        Ok(TxReadWriteSet{ data_model: 0, ns_rwset: vec![] })
+    }
+}
+
 // NsRwSet encapsulates 'kvrwset.KVRWSet' proto message for a specific name space (chaincode)
 pub struct NsRwSet {
-    pub name_space: String,
+    pub namespace: String,
     pub kv_rw_set: KvrwSet,
     pub coll_hashed_rw_sets: Vec<CollHashedRwSet>,
+}
+
+impl TryFrom<NsRwSet> for NsReadWriteSet {
+    type Error = Error;
+
+    fn try_from(value: NsRwSet) -> Result<Self> {
+        let mut collection_hashed_rwset= Vec::with_capacity(value.coll_hashed_rw_sets.len());
+        for rw_set in value.coll_hashed_rw_sets {
+            collection_hashed_rwset.push(CollectionHashedReadWriteSet::try_from(rw_set)?)
+        }
+
+        Ok(NsReadWriteSet{
+            namespace: value.namespace,
+            rwset: utils::proto::marshal(&value.kv_rw_set)?,
+            collection_hashed_rwset,
+        })
+    }
 }
 
 // CollHashedRwSet encapsulates 'kvrwset.HashedRWSet' proto message for a specific collection
 pub struct CollHashedRwSet {
     pub collection_name: String,
     pub hashed_rw_set: HashedRwSet,
+}
+
+impl TryFrom<CollHashedRwSet> for CollectionHashedReadWriteSet {
+    type Error = Error;
+
+    fn try_from(value: CollHashedRwSet) -> Result<Self> {
+        Ok(CollectionHashedReadWriteSet{
+            collection_name: value.collection_name,
+            hashed_rwset: utils::proto::marshal(&value.hashed_rw_set)?,
+            pvt_rwset_hash: vec![],
+        })
+    }
 }
