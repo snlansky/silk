@@ -1,4 +1,5 @@
 mod builder;
+mod rwset;
 
 pub use builder::*;
 
