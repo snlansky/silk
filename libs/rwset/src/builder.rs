@@ -53,13 +53,8 @@ impl RWSetBuilder {
         // Compute the proto bytes for pub rwset
         let rwset = self.get_tx_read_write_set();
 
-        let mut ns_rwset = Vec::with_capacity(rwset.ns_rw_sets.len());
-        for rws in rwset.ns_rw_sets {
-            ns_rwset.push(NsReadWriteSet::try_from(rws)?);
-        }
-
         let sim = TxSimulationResults{
-            simulation_results: TxReadWriteSet { data_model: DataModel::Kv as i32, ns_rwset, }
+            simulation_results: TxReadWriteSet::try_from(rwset)?
         };
         Ok(sim)
     }
@@ -186,8 +181,12 @@ pub struct TxRwSet {
 impl TryFrom<TxRwSet> for TxReadWriteSet {
     type Error = Error;
 
-    fn try_from(value: TxRwSet) -> Result<Self> {
-        Ok(TxReadWriteSet{ data_model: 0, ns_rwset: vec![] })
+    fn try_from(rwset: TxRwSet) -> Result<Self> {
+        let mut ns_rwset = Vec::with_capacity(rwset.ns_rw_sets.len());
+        for rws in rwset.ns_rw_sets {
+            ns_rwset.push(NsReadWriteSet::try_from(rws)?);
+        }
+        Ok(TxReadWriteSet{ data_model: DataModel::Kv as i32, ns_rwset, })
     }
 }
 
