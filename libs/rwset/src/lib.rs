@@ -2,6 +2,9 @@ mod builder;
 mod rwset;
 mod validate;
 
+#[macro_use]
+extern crate log;
+
 pub use builder::*;
 
 #[cfg(test)]

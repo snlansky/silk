@@ -1,5 +1,5 @@
 use error::*;
-use silk_proto::VersionedHeight;
+use silk_proto::*;
 
 // Height represents the height of a transaction in blockchain
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -45,6 +45,12 @@ impl Height {
         } else {
             -1
         }
+    }
+}
+
+impl From<Version> for Height {
+    fn from(ver: Version) -> Self {
+        Height{ block_num: ver.block_num, tx_num: ver.tx_num }
     }
 }
 

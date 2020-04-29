@@ -5,7 +5,7 @@ mod version;
 #[macro_use]
 extern crate log;
 
-pub use crate::version::Height;
+pub use version::{Height, are_same};
 use error::*;
 pub use crate::statedb::UpdateBatch;
 use silk_proto::VersionedValueProto;

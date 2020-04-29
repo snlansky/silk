@@ -15,3 +15,4 @@ silk-proto = { path = "../../silk-proto" }
 error = { path = "../error" }
 statedb = { path = "../statedb" }
 bytes = "0.5"
+log = "0.4"
