@@ -119,7 +119,7 @@ impl From<NsRwBuilder> for NsRwSet {
             .collect::<Vec<RangeQueryInfo>>();
 
         let coll_builders =  get_values_by_sorted_keys(&value.coll_hash_rw_builder);
-        let coll_hashed_rw_sets = coll_builders.iter()
+        let coll_hashed_rw_sets = coll_builders.into_iter()
             .map(|builder|CollHashedRwSet::from(builder))
             .collect::<Vec<CollHashedRwSet>>();
 
@@ -155,10 +155,10 @@ struct CollHashRwBuilder {
     write_map: HashMap<String, KvWriteHash>,
 }
 
-impl From<&CollHashRwBuilder> for CollHashedRwSet {
-    fn from(value: &CollHashRwBuilder) -> Self {
+impl From<CollHashRwBuilder> for CollHashedRwSet {
+    fn from(value: CollHashRwBuilder) -> Self {
         CollHashedRwSet {
-            collection_name: value.coll_name.clone(),
+            collection_name: value.coll_name,
             hashed_rw_set: HashedRwSet {
                 hashed_reads: get_values_by_sorted_keys(&value.read_map),
                 hashed_writes: get_values_by_sorted_keys(&value.write_map),
