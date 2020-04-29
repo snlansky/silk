@@ -12,12 +12,12 @@ pub fn validate<V: VersionedDB>(tx_rw_set: TxRwSet, vdb: V) -> Result<TxValidati
 
         //Validation of write set
         for kv_write in rw_set.kv_rw_set.writes {
-            vdb.validate_key_value(kv_write.key, &kv_write.value)?;
+            vdb.validate_key_value(&kv_write.key, &kv_write.value)?;
         }
 
         // Validation of read set
         for kv_read in rw_set.kv_rw_set.reads {
-            let committed_version = vdb.get_version(ns.clone(), kv_read.key.clone())?;
+            let committed_version = vdb.get_version(&ns, &kv_read.key)?;
 
             let ver = kv_read.version.clone().map(Height::from);
             debug!("comparing versions for key [{:?}]: committed version={:?} and read version={:?}",
@@ -40,7 +40,7 @@ pub fn validate<V: VersionedDB>(tx_rw_set: TxRwSet, vdb: V) -> Result<TxValidati
             for kv_read_hash in coll_hashed_rw_set.hashed_rw_set.hashed_reads {
                 let hash = utils::base64::encode(kv_read_hash.key_hash);
                 let key = format!("{:}{:}{:}", ns.clone(), coll_hashed_rw_set.collection_name, hash.clone());
-                let committed_version = vdb.get_version(ns.clone(), key)?;
+                let committed_version = vdb.get_version(&ns, &key)?;
 
                 let ver = kv_read_hash.version.clone().map(Height::from);
                 if !are_same(committed_version.clone(), ver) {

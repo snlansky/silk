@@ -58,7 +58,7 @@ struct RocksDBVersion {
 }
 
 impl VersionedDB for RocksDBVersion {
-    fn get_state(&self, namespace: String, key: String) -> Result<Option<VersionedValue>> {
+    fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>> {
         debug!("get_state(). ns={:}, key={:}", namespace, key);
         let db_val = self.db.get(encode_data_key(namespace, key))?;
         if db_val.is_none() {
@@ -72,7 +72,7 @@ impl VersionedDB for RocksDBVersion {
         VersionedValue::decode_value(&db_val).map(Some)
     }
 
-    fn get_version(&self, namespace: String, key: String) -> Result<Option<Height>> {
+    fn get_version(&self, namespace: &String, key: &String) -> Result<Option<Height>> {
         let v = self.get_state(namespace, key)?;
         let h = v.map(|v| v.version);
         Ok(h)
@@ -80,7 +80,7 @@ impl VersionedDB for RocksDBVersion {
 
     fn get_state_multiple_keys(
         &self,
-        namespace: String,
+        namespace: &String,
         keys: Vec<String>,
     ) -> Result<Vec<VersionedValue>> {
         unimplemented!()
@@ -88,14 +88,14 @@ impl VersionedDB for RocksDBVersion {
 
     fn get_state_range_scan_iterator(
         &self,
-        namespace: String,
-        start_key: String,
-        end_key: String,
+        namespace: &String,
+        start_key: &String,
+        end_key: &String,
     ) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
-    fn execute_query(&self, namespace: String, query: String) -> Result<Box<dyn ResultsIterator>> {
+    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
@@ -106,7 +106,7 @@ impl VersionedDB for RocksDBVersion {
             let updates = batch.get_updates(ns.clone());
             if updates.is_some() {
                 for (k, vv) in updates.unwrap() {
-                    let data_key = encode_data_key(ns.clone(), k.clone());
+                    let data_key = encode_data_key(&ns, &k);
                     debug!(
                         "Channel [{}]: Applying key(string)=[{}] key(bytes)=[{:?}]",
                         self.name, k, data_key
@@ -143,7 +143,7 @@ impl VersionedDB for RocksDBVersion {
         Ok(Some(h))
     }
 
-    fn validate_key_value(&self, key: String, value: &[u8]) -> Result<()> {
+    fn validate_key_value(&self, key: &String, value: &[u8]) -> Result<()> {
         unimplemented!()
     }
 
@@ -160,7 +160,7 @@ impl VersionedDB for RocksDBVersion {
     }
 }
 
-fn encode_data_key(ns: String, key: String) -> Vec<u8> {
+fn encode_data_key(ns: &String, key: &String) -> Vec<u8> {
     let mut v: Vec<u8> = Vec::new();
     v.push(DATA_KEY_PREFIX as u8);
     unsafe {
@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn test_key() {
-        let encode_key = encode_data_key("mychain".to_string(), "kvdb".to_string());
+        let encode_key = encode_data_key(&"mychain".to_string(), &"kvdb".to_string());
         let (ns, key) = decode_data_key(encode_key);
         assert_eq!(ns, "mychain".to_string());
         assert_eq!(key, "kvdb".to_string());

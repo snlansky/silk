@@ -16,25 +16,25 @@ impl RWSetBuilder {
     }
 
     // add_to_read_set adds a key and corresponding version to the read-set
-    pub fn add_to_read_set(&mut self, ns :String, key: String, version: Height) {
+    pub fn add_to_read_set(&mut self, ns :&String, key: &String, version: Height) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
         let ver = Version{ block_num: version.block_num, tx_num: version.tx_num };
-        ns_rw_builder.read_map.insert(key.clone(), KvRead{ key, version: Some(ver) });
+        ns_rw_builder.read_map.insert(key.clone(), KvRead{ key: key.clone(), version: Some(ver) });
     }
 
     // add_to_write_set adds a key and value to the write-set
-    pub fn add_to_write_set(&mut self, ns :String, key: String, value: Vec<u8>) {
+    pub fn add_to_write_set(&mut self, ns :&String, key: &String, value: Vec<u8>) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
 
         ns_rw_builder.write_map.insert(key.clone(), KvWrite{
-            key,
+            key: key.clone(),
             is_delete: value.is_empty(),
             value
         });
     }
 
     // add_to_range_query_set adds a range query info for performing phantom read validation
-    pub fn add_to_range_query_set(&mut self, ns: String, rqi:RangeQueryInfo) {
+    pub fn add_to_range_query_set(&mut self, ns: &String, rqi:RangeQueryInfo) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
         let key = RangeQueryKey{
             start_key: rqi.start_key.clone(),
@@ -70,13 +70,13 @@ impl RWSetBuilder {
         return TxRwSet{ns_rw_sets}
     }
 
-    fn get_or_create_ns_rw_builder(&mut self, ns: String) -> &mut NsRwBuilder {
+    fn get_or_create_ns_rw_builder(&mut self, ns: &String) -> &mut NsRwBuilder {
         unimplemented!()
     }
 
-    fn get_or_create_coll_hashed_rw_builder(&mut self, ns: String, coll: String) -> &mut CollHashRwBuilder {
+    fn get_or_create_coll_hashed_rw_builder(&mut self, ns: &String, coll: &String) -> &mut CollHashRwBuilder {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
-        if !ns_rw_builder.coll_hash_rw_builder.contains_key(&coll) {
+        if !ns_rw_builder.coll_hash_rw_builder.contains_key(coll) {
             ns_rw_builder.coll_hash_rw_builder.insert(coll.clone(), CollHashRwBuilder {
                 coll_name: coll.clone(),
                 read_map: Default::default(),
@@ -84,7 +84,7 @@ impl RWSetBuilder {
             });
         }
 
-        ns_rw_builder.coll_hash_rw_builder.get_mut(&coll).unwrap()
+        ns_rw_builder.coll_hash_rw_builder.get_mut(coll).unwrap()
     }
 }
 

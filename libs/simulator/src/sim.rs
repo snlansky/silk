@@ -20,8 +20,8 @@ impl <V: VersionedDB>BasedTxSimulator<V> {
 }
 
 impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
-    fn get_state(&mut self, namespace: String, key: String) -> Result<Vec<u8>> {
-        let v = self.vdb.get_state(namespace.clone(), key.clone())?;
+    fn get_state(&mut self, namespace: &String, key: &String) -> Result<Vec<u8>> {
+        let v = self.vdb.get_state(namespace, key)?;
         let vv = v.unwrap_or(VersionedValue{
             value: vec![],
             metadata: vec![],
@@ -31,20 +31,20 @@ impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
         Ok(vv.value)
     }
 
-    fn set_state(&mut self, namespace: String, key: String, value: Vec<u8>) -> Result<()> {
+    fn set_state(&mut self, namespace: &String, key: &String, value: Vec<u8>) -> Result<()> {
         self.rw_set_builder.add_to_write_set(namespace, key, value);
         Ok(())
     }
 
-    fn delete_state(&mut self, namespace: String, key: String) -> Result<()> {
+    fn delete_state(&mut self, namespace: &String, key: &String) -> Result<()> {
         self.set_state(namespace, key, vec![])
     }
 
-    fn set_state_multiple_keys(&mut self, namespace: String, kvs: HashMap<String, Vec<u8>, RandomState>) -> Result<()> {
+    fn set_state_multiple_keys(&mut self, namespace: &String, kvs: HashMap<String, Vec<u8>, RandomState>) -> Result<()> {
         unimplemented!()
     }
 
-    fn execute_update(&mut self, query: String) -> Result<()> {
+    fn execute_update(&mut self, query: &String) -> Result<()> {
         unimplemented!()
     }
 
@@ -52,19 +52,19 @@ impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
         self.rw_set_builder.get_tx_simulation_results()
     }
 
-    fn get_state_metadata(&mut self, namespace: String, key: String) -> Result<HashMap<String, Vec<u8>, RandomState>> {
+    fn get_state_metadata(&mut self, namespace: &String, key: &String) -> Result<HashMap<String, Vec<u8>, RandomState>> {
         unimplemented!()
     }
 
-    fn get_state_multiple_keys(&mut self, namespace: String, keys: Vec<String>) -> Result<Vec<Vec<u8>>> {
+    fn get_state_multiple_keys(&mut self, namespace: &String, keys: Vec<String>) -> Result<Vec<Vec<u8>>> {
         unimplemented!()
     }
 
-    fn get_state_range_scan_iterator(&mut self, namespace: String, start_key: String, end_key: String) -> Result<Box<dyn ResultsIterator>> {
+    fn get_state_range_scan_iterator(&mut self, namespace: &String, start_key: &String, end_key: &String) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
-    fn execute_query(&mut self, namespace: String, query: String) -> Result<Box<dyn ResultsIterator>> {
+    fn execute_query(&mut self, namespace: &String, query: &String) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
