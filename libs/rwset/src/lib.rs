@@ -1,5 +1,6 @@
 mod builder;
 mod rwset;
+mod validate;
 
 pub use builder::*;
 
