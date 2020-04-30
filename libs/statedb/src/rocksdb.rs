@@ -3,8 +3,8 @@ use super::version::*;
 use dashmap::DashMap;
 use error::*;
 use rocksdb::{WriteBatch, DB};
-use silk_proto::*;
-use std::io::BufRead;
+
+
 use std::iter::Iterator;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -80,22 +80,22 @@ impl VersionedDB for RocksDBVersion {
 
     fn get_state_multiple_keys(
         &self,
-        namespace: &String,
-        keys: Vec<String>,
+        _namespace: &String,
+        _keys: Vec<String>,
     ) -> Result<Vec<VersionedValue>> {
         unimplemented!()
     }
 
     fn get_state_range_scan_iterator(
         &self,
-        namespace: &String,
-        start_key: &String,
-        end_key: &String,
+        _namespace: &String,
+        _start_key: &String,
+        _end_key: &String,
     ) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
-    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn ResultsIterator>> {
+    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
@@ -143,7 +143,7 @@ impl VersionedDB for RocksDBVersion {
         Ok(Some(h))
     }
 
-    fn validate_key_value(&self, key: &String, value: &[u8]) -> Result<()> {
+    fn validate_key_value(&self, _key: &String, _value: &[u8]) -> Result<()> {
         unimplemented!()
     }
 

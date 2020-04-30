@@ -161,7 +161,7 @@ mod tests {
         vdb.apply_updates(batch, Some(Height::new(1, 3))).unwrap();
 
         let v1 = vdb
-            .get_state("ns1".to_string(), "k1".to_string())
+            .get_state(&"ns1".to_string(), &"k1".to_string())
             .unwrap()
             .unwrap();
         assert_eq!(

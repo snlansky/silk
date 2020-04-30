@@ -3,7 +3,7 @@ use error::*;
 use rocksdb::{WriteBatch, DB};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use silk_proto::*;
-use std::mem;
+
 use std::ops::Range;
 
 const BLOCK_NUM_IDX_KEY_PREFIX: char = 'n';
@@ -175,13 +175,13 @@ mod tests {
         assert_eq!(cp.block_num, 1);
         assert_eq!(cp.block_hash[..], block_hash1[..]);
 
-        let mut header2= BlockHeader{
+        let header2= BlockHeader{
             number: 2,
             previous_hash: block_hash1.into_vec(),
             data_hash: "data_hash2".to_string().into_bytes()
         };
         let block_hash2 = utils::hash::compute_sha256(utils::proto::marshal(&header2).unwrap().as_slice());
-        let mut block2 = Block{
+        let block2 = Block{
             header: Some(header2.clone()),
             data: None,
             metadata: None

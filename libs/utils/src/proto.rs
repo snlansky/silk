@@ -1,6 +1,6 @@
 use prost::{DecodeError, EncodeError, Message};
 use byteorder::{WriteBytesExt, BigEndian};
-use std::io::Write;
+
 
 pub fn marshal<T: Message>(msg: &T) -> Result<Vec<u8>, EncodeError> {
     let mut bytes = Vec::with_capacity(msg.encoded_len());

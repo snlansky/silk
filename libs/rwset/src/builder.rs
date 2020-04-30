@@ -70,7 +70,7 @@ impl RWSetBuilder {
         return TxRwSet{ns_rw_sets}
     }
 
-    fn get_or_create_ns_rw_builder(&mut self, ns: &String) -> &mut NsRwBuilder {
+    fn get_or_create_ns_rw_builder(&mut self, _ns: &String) -> &mut NsRwBuilder {
         unimplemented!()
     }
 
