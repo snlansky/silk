@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use error::*;
 use crate::TxRwSet;
 use silk_proto::*;
+use statedb::{Height, UpdateBatch};
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 struct CompositeKey {
@@ -147,4 +148,26 @@ impl TxOps {
         }
         Ok(())
     }
+}
+
+pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch> {
+    let mut txops = TxOps::default();
+    txops.apply_tx_rwset(tx_rwset)?;
+
+    let mut batch = UpdateBatch::new();
+
+    for (CompositeKey{ns, coll, key}, key_ops) in txops.map {
+        if coll.is_empty() {
+            if key_ops.is_delete() {
+                batch.delete(ns, key, height.clone());
+            } else {
+                batch.put_val_and_metadata(ns, key, key_ops.value ,key_ops.metadata, height.clone());
+            }
+        } else {
+            // TODO
+            error!("unimplemented!")
+        }
+    }
+
+    Ok(batch)
 }
