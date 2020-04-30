@@ -1,11 +1,12 @@
-mod rocksdb;
+mod staterocksdb;
 mod statedb;
 mod version;
 
 #[macro_use]
 extern crate log;
 
-pub use crate::statedb::UpdateBatch;
+pub use statedb::*;
+pub use staterocksdb::*;
 use error::*;
 use silk_proto::VersionedValueProto;
 pub use version::{are_same, Height};
@@ -136,7 +137,7 @@ mod tests {
     fn test_provider() {
         let temp_dir = TempDir::new().unwrap();
         let support = Support {
-            s: super::rocksdb::VersionedDBRocksProvider::new(temp_dir.path().to_str().unwrap()),
+            s: super::staterocksdb::VersionedDBRocksProvider::new(temp_dir.path().to_str().unwrap()),
         };
         let vdb = support.s.get_db_handle("chain_id".to_string());
 

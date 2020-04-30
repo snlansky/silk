@@ -201,7 +201,7 @@ fn decode_data_key(encoded_data_key: Vec<u8>) -> (String, String) {
 
 #[cfg(test)]
 mod tests {
-    use crate::rocksdb::{decode_data_key, encode_data_key};
+    use crate::staterocksdb::{decode_data_key, encode_data_key};
 
     #[test]
     fn test_key() {

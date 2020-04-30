@@ -10,7 +10,7 @@ pub struct BasedTxSimulator<V: VersionedDB> {
     vdb: V,
 }
 impl<V: VersionedDB> BasedTxSimulator<V> {
-    fn new(tx_id: String, vdb: V) -> Self {
+    pub fn new(tx_id: String, vdb: V) -> Self {
         BasedTxSimulator {
             tx_id,
             rw_set_builder: RWSetBuilder::new(),

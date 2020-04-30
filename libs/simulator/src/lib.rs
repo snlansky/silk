@@ -3,6 +3,7 @@ use rwset::*;
 use statedb::*;
 use std::collections::HashMap;
 mod sim;
+pub use sim::*;
 
 pub trait TxSimulator {
     // get_state gets the value for given namespace and key. For a chaincode, the namespace corresponds to the chaincodeId
