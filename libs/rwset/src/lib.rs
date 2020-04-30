@@ -1,6 +1,7 @@
 mod builder;
 mod rwset;
 mod validate;
+mod key;
 
 #[macro_use]
 extern crate log;
