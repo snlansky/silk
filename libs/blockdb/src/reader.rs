@@ -7,9 +7,9 @@ use std::sync::Arc;
 
 use crate::index::FilePointer;
 use crate::writer::block_path;
+use byteorder::{BigEndian, ReadBytesExt};
 use error::*;
 use silk_proto::*;
-use byteorder::{ReadBytesExt, BigEndian};
 
 pub struct BlockStoreReader {
     path: Arc<PathBuf>,

@@ -1,6 +1,5 @@
+use byteorder::{BigEndian, WriteBytesExt};
 use prost::{DecodeError, EncodeError, Message};
-use byteorder::{WriteBytesExt, BigEndian};
-
 
 pub fn marshal<T: Message>(msg: &T) -> Result<Vec<u8>, EncodeError> {
     let mut bytes = Vec::with_capacity(msg.encoded_len());
@@ -14,7 +13,9 @@ pub fn unmarshal<T: Message + Default>(buf: &[u8]) -> Result<T, DecodeError> {
     Ok(t)
 }
 
-pub fn marshal_with_length<T: Message>(msg: &T) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync + 'static>> {
+pub fn marshal_with_length<T: Message>(
+    msg: &T,
+) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync + 'static>> {
     let len = msg.encoded_len();
     let mut bytes = Vec::with_capacity(len + 4);
     bytes.write_u32::<BigEndian>(len as u32)?;
@@ -23,10 +24,9 @@ pub fn marshal_with_length<T: Message>(msg: &T) -> Result<Vec<u8>, Box<dyn std::
     Ok(bytes)
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::proto::{marshal, unmarshal, marshal_with_length};
+    use crate::proto::{marshal, marshal_with_length, unmarshal};
     use silk_proto::*;
     use std::collections::HashMap;
 
@@ -60,7 +60,7 @@ mod tests {
         println!("{:?}", ret);
         println!("{:?}", ret_len);
 
-        assert_eq!(ret.len()  + 4, ret_len.len());
+        assert_eq!(ret.len() + 4, ret_len.len());
         assert_eq!(ret.len(), 25);
     }
 }

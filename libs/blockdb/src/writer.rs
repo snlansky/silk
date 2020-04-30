@@ -10,7 +10,6 @@ use std::ops::Range;
 
 use silk_proto::*;
 
-
 const BLOCK_FILE_THRESHOLD: u64 = 1024 * 1024 * 64;
 
 pub struct BlockStoreWriter {

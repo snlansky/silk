@@ -4,11 +4,10 @@ use dashmap::DashMap;
 use error::*;
 use rocksdb::{WriteBatch, DB};
 
-
+use crate::{ResultsIterator, VersionedDB, VersionedValue};
 use std::iter::Iterator;
 use std::path::PathBuf;
 use std::sync::Arc;
-use crate::{VersionedDB, VersionedValue, ResultsIterator};
 
 const DATA_KEY_PREFIX: char = 'd';
 const NS_KEY_SEP: u8 = 0x00;
@@ -95,7 +94,11 @@ impl VersionedDB for RocksDBVersion {
         unimplemented!()
     }
 
-    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Box<dyn ResultsIterator>> {
+    fn execute_query(
+        &self,
+        _namespace: &String,
+        _query: &String,
+    ) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 

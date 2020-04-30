@@ -3,8 +3,8 @@ mod reader;
 mod store;
 mod writer;
 
-use silk_proto::*;
 use error::*;
+use silk_proto::*;
 
 // ResultsIterator iterates over query results
 pub trait BlockIterator {
@@ -22,7 +22,7 @@ pub trait BlockStore {
     fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Block>;
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block>; // blockNum of math.MaxUint64 will return last block
     fn retrieve_tx_by_id(&self, tx_id: String) -> Result<Envelope>;
-    fn retrieve_tx_by_blocknum_txnum(&self, block_num: u64, tx_num: u64) ->  Result<Envelope>;
+    fn retrieve_tx_by_blocknum_txnum(&self, block_num: u64, tx_num: u64) -> Result<Envelope>;
     fn retrieve_block_by_txid(&self, tx_id: String) -> Result<Block>;
     fn retrieve_tx_validationcode_by_txid(&self, tx_id: String) -> Result<TxValidationCode>;
     fn shutdown() {}
@@ -30,10 +30,7 @@ pub trait BlockStore {
 
 #[cfg(test)]
 mod tests {
-    
-    
 
     #[test]
-    fn test() {
-    }
+    fn test() {}
 }

@@ -5,10 +5,10 @@ mod version;
 #[macro_use]
 extern crate log;
 
-pub use version::{Height, are_same};
-use error::*;
 pub use crate::statedb::UpdateBatch;
+use error::*;
 use silk_proto::VersionedValueProto;
+pub use version::{are_same, Height};
 
 // VersionedDBProvider provides an instance of an versioned DB
 pub trait VersionedDBProvider {
@@ -45,7 +45,8 @@ pub trait VersionedDB {
     ) -> Result<Box<dyn ResultsIterator>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
-    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn ResultsIterator>>;
+    fn execute_query(&self, namespace: &String, query: &String)
+        -> Result<Box<dyn ResultsIterator>>;
 
     // apply_updates applies the batch to the underlying db.
     // height is the height of the highest transaction in the Batch that
@@ -123,9 +124,9 @@ pub enum QueryResult {
 
 #[cfg(test)]
 mod tests {
-    use tempfile::TempDir;
-    use crate::{VersionedValue, Height, VersionedDBProvider};
     use crate::statedb::UpdateBatch;
+    use crate::{Height, VersionedDBProvider, VersionedValue};
+    use tempfile::TempDir;
 
     struct Support<S: super::VersionedDBProvider> {
         s: S,

@@ -1,9 +1,7 @@
 use crate::version::Height;
 
-
-use std::collections::HashMap;
 use crate::VersionedValue;
-
+use std::collections::HashMap;
 
 struct NsUpdates {
     pub m: HashMap<String, VersionedValue>,

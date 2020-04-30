@@ -6,10 +6,9 @@ use std::sync::Arc;
 use crate::index::{BlockIndexInfo, Index};
 use crate::reader::BlockStoreReader;
 use crate::writer::BlockStoreWriter;
+use crate::BlockIterator;
 use error::*;
 use silk_proto::*;
-use crate::BlockIterator;
-
 
 pub struct BlockStore {
     index: Index,
@@ -49,7 +48,7 @@ impl BlockStore {
             latest: Block {
                 header: None,
                 data: None,
-                metadata: None
+                metadata: None,
             },
             path,
         })
@@ -78,9 +77,7 @@ impl super::BlockStore for BlockStore {
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
         let fp = self.index.get_fp_by_number(block_num)?;
         match fp {
-            Some(fp) => {
-                self.reader.read_blk(fp)
-            },
+            Some(fp) => self.reader.read_blk(fp),
             None => Ok(self.latest.clone()),
         }
     }
@@ -104,30 +101,30 @@ impl super::BlockStore for BlockStore {
 
 #[cfg(test)]
 mod tests {
+    use crate::BlockStore;
     use silk_proto::*;
     use tempfile::TempDir;
-    use crate::BlockStore;
 
-    fn create_blk(i: u64) ->Block {
+    fn create_blk(i: u64) -> Block {
         let header = BlockHeader {
             number: i,
             previous_hash: format!("previous_hash_{:}", i).into_bytes(),
             data_hash: format!("data_hash_{:}", i).into_bytes(),
         };
 
-        let data = BlockData{
-            data: vec![format!("tx data: {:}", i).into_bytes()]
+        let data = BlockData {
+            data: vec![format!("tx data: {:}", i).into_bytes()],
         };
-        Block{
+        Block {
             header: Some(header),
             data: Some(data),
-            metadata: None
+            metadata: None,
         }
     }
     #[test]
     fn test_store() {
         let temp_dir = TempDir::new().unwrap();
-        let dir =temp_dir.path().to_str().unwrap();
+        let dir = temp_dir.path().to_str().unwrap();
         let mut store = crate::store::BlockStore::open(dir).unwrap();
 
         for i in 0..1000 {

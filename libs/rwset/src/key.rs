@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use error::*;
 use crate::TxRwSet;
+use error::*;
 use silk_proto::*;
 use statedb::{Height, UpdateBatch};
+use std::collections::HashMap;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 struct CompositeKey {
@@ -26,20 +26,20 @@ struct KeyOps {
 
 impl KeyOps {
     fn is_delete(&self) -> bool {
-        self.flag&KEY_DELETE == KEY_DELETE
+        self.flag & KEY_DELETE == KEY_DELETE
     }
 
     fn is_upsert_and_metadata_update(&self) -> bool {
-        if self.flag&UPSERT_VAL == UPSERT_VAL {
-           self.flag&METADATA_UPDATE == METADATA_UPDATE ||
-               self.flag&METADATA_DELETE == METADATA_DELETE
+        if self.flag & UPSERT_VAL == UPSERT_VAL {
+            self.flag & METADATA_UPDATE == METADATA_UPDATE
+                || self.flag & METADATA_DELETE == METADATA_DELETE
         } else {
             false
         }
     }
 
     fn is_only_upsert(&self) -> bool {
-        self.flag|UPSERT_VAL == UPSERT_VAL
+        self.flag | UPSERT_VAL == UPSERT_VAL
     }
 }
 
@@ -60,24 +60,27 @@ impl TxOps {
         key_ops.flag += KEY_DELETE;
     }
 
-    fn metadata_update(&mut self, k :CompositeKey, metadata :Vec<u8>) {
+    fn metadata_update(&mut self, k: CompositeKey, metadata: Vec<u8>) {
         let key_ops = self.get_or_create_key_entry(k);
         key_ops.flag += METADATA_UPDATE;
         key_ops.metadata = metadata;
     }
 
-    fn  metadata_delete(&mut self, k :CompositeKey) {
+    fn metadata_delete(&mut self, k: CompositeKey) {
         let key_ops = self.get_or_create_key_entry(k);
         key_ops.flag += METADATA_DELETE;
     }
 
     fn get_or_create_key_entry(&mut self, k: CompositeKey) -> &mut KeyOps {
         if !self.map.contains_key(&k) {
-            self.map.insert(k.clone(), KeyOps {
-                flag: 0,
-                value: vec![],
-                metadata: vec![],
-            });
+            self.map.insert(
+                k.clone(),
+                KeyOps {
+                    flag: 0,
+                    value: vec![],
+                    metadata: vec![],
+                },
+            );
         }
         self.map.get_mut(&k).unwrap()
     }
@@ -94,23 +97,30 @@ impl TxOps {
                 self.apply_metadata(&ns, &String::default(), kv_mate_write);
             }
 
-
             for coll_hash_rwset in ns_reset.coll_hashed_rw_sets {
                 let coll = coll_hash_rwset.collection_name;
 
                 for hashed_write in coll_hash_rwset.hashed_rw_set.hashed_writes {
-                    self.apply_kv_write(&ns, &coll, KvWrite{
-                        key: String::from_utf8(hashed_write.key_hash)?,
-                        is_delete: hashed_write.is_delete,
-                        value: hashed_write.value_hash,
-                    });
+                    self.apply_kv_write(
+                        &ns,
+                        &coll,
+                        KvWrite {
+                            key: String::from_utf8(hashed_write.key_hash)?,
+                            is_delete: hashed_write.is_delete,
+                            value: hashed_write.value_hash,
+                        },
+                    );
                 }
 
                 for metadata_write in coll_hash_rwset.hashed_rw_set.metadata_writes {
-                    self.apply_metadata(&ns, &coll, KvMetadataWrite{
-                        key: String::from_utf8(metadata_write.key_hash)?,
-                        entries: metadata_write.entries,
-                    });
+                    self.apply_metadata(
+                        &ns,
+                        &coll,
+                        KvMetadataWrite {
+                            key: String::from_utf8(metadata_write.key_hash)?,
+                            entries: metadata_write.entries,
+                        },
+                    );
                 }
             }
         }
@@ -119,10 +129,10 @@ impl TxOps {
     }
 
     fn apply_kv_write(&mut self, ns: &String, coll: &String, kv_write: KvWrite) {
-        let ck = CompositeKey{
+        let ck = CompositeKey {
             ns: ns.clone(),
             coll: coll.clone(),
-            key: kv_write.key
+            key: kv_write.key,
         };
         if kv_write.is_delete {
             self.delete(ck)
@@ -131,18 +141,23 @@ impl TxOps {
         }
     }
 
-    fn apply_metadata(&mut self, ns: &String, coll: &String, metadata_write: KvMetadataWrite) -> Result<()> {
-        let ck = CompositeKey{
+    fn apply_metadata(
+        &mut self,
+        ns: &String,
+        coll: &String,
+        metadata_write: KvMetadataWrite,
+    ) -> Result<()> {
+        let ck = CompositeKey {
             ns: ns.clone(),
             coll: coll.clone(),
-            key: metadata_write.key
+            key: metadata_write.key,
         };
         if metadata_write.entries.is_empty() {
             self.metadata_delete(ck);
         } else {
-            let metadata = KvMetadataWrite{
+            let metadata = KvMetadataWrite {
                 key: "".to_string(),
-                entries: metadata_write.entries
+                entries: metadata_write.entries,
             };
             self.metadata_update(ck, utils::proto::marshal(&metadata)?);
         }
@@ -156,12 +171,18 @@ pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch>
 
     let mut batch = UpdateBatch::new();
 
-    for (CompositeKey{ns, coll, key}, key_ops) in txops.map {
+    for (CompositeKey { ns, coll, key }, key_ops) in txops.map {
         if coll.is_empty() {
             if key_ops.is_delete() {
                 batch.delete(ns, key, height.clone());
             } else {
-                batch.put_val_and_metadata(ns, key, key_ops.value ,key_ops.metadata, height.clone());
+                batch.put_val_and_metadata(
+                    ns,
+                    key,
+                    key_ops.value,
+                    key_ops.metadata,
+                    height.clone(),
+                );
             }
         } else {
             // TODO

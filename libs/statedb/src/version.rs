@@ -50,7 +50,10 @@ impl Height {
 
 impl From<Version> for Height {
     fn from(ver: Version) -> Self {
-        Height{ block_num: ver.block_num, tx_num: ver.tx_num }
+        Height {
+            block_num: ver.block_num,
+            tx_num: ver.tx_num,
+        }
     }
 }
 

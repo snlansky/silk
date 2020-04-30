@@ -1,33 +1,37 @@
+use error::*;
+use rwset::{RWSetBuilder, TxSimulationResults};
+use statedb::{Height, ResultsIterator, VersionedDB, VersionedValue};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
-use error::*;
-use rwset::{TxSimulationResults, RWSetBuilder};
-use statedb::{ResultsIterator, VersionedDB, VersionedValue, Height};
 
 pub struct BasedTxSimulator<V: VersionedDB> {
     tx_id: String,
     rw_set_builder: RWSetBuilder,
-    vdb : V,
+    vdb: V,
 }
-impl <V: VersionedDB>BasedTxSimulator<V> {
-   fn new(tx_id: String, vdb: V) -> Self {
-       BasedTxSimulator{
-           tx_id,
-           rw_set_builder: RWSetBuilder::new(),
-           vdb,
-       }
-   }
+impl<V: VersionedDB> BasedTxSimulator<V> {
+    fn new(tx_id: String, vdb: V) -> Self {
+        BasedTxSimulator {
+            tx_id,
+            rw_set_builder: RWSetBuilder::new(),
+            vdb,
+        }
+    }
 }
 
-impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
+impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
     fn get_state(&mut self, namespace: &String, key: &String) -> Result<Vec<u8>> {
         let v = self.vdb.get_state(namespace, key)?;
-        let vv = v.unwrap_or(VersionedValue{
+        let vv = v.unwrap_or(VersionedValue {
             value: vec![],
             metadata: vec![],
-            version: Height { block_num: 0, tx_num: 0 }
+            version: Height {
+                block_num: 0,
+                tx_num: 0,
+            },
         });
-        self.rw_set_builder.add_to_read_set(namespace, key, vv.version);
+        self.rw_set_builder
+            .add_to_read_set(namespace, key, vv.version);
         Ok(vv.value)
     }
 
@@ -40,7 +44,11 @@ impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
         self.set_state(namespace, key, vec![])
     }
 
-    fn set_state_multiple_keys(&mut self, _namespace: &String, _kvs: HashMap<String, Vec<u8>, RandomState>) -> Result<()> {
+    fn set_state_multiple_keys(
+        &mut self,
+        _namespace: &String,
+        _kvs: HashMap<String, Vec<u8>, RandomState>,
+    ) -> Result<()> {
         unimplemented!()
     }
 
@@ -52,19 +60,36 @@ impl <V: VersionedDB>super::TxSimulator for BasedTxSimulator<V> {
         self.rw_set_builder.get_tx_simulation_results()
     }
 
-    fn get_state_metadata(&mut self, _namespace: &String, _key: &String) -> Result<HashMap<String, Vec<u8>, RandomState>> {
+    fn get_state_metadata(
+        &mut self,
+        _namespace: &String,
+        _key: &String,
+    ) -> Result<HashMap<String, Vec<u8>, RandomState>> {
         unimplemented!()
     }
 
-    fn get_state_multiple_keys(&mut self, _namespace: &String, _keys: Vec<String>) -> Result<Vec<Vec<u8>>> {
+    fn get_state_multiple_keys(
+        &mut self,
+        _namespace: &String,
+        _keys: Vec<String>,
+    ) -> Result<Vec<Vec<u8>>> {
         unimplemented!()
     }
 
-    fn get_state_range_scan_iterator(&mut self, _namespace: &String, _start_key: &String, _end_key: &String) -> Result<Box<dyn ResultsIterator>> {
+    fn get_state_range_scan_iterator(
+        &mut self,
+        _namespace: &String,
+        _start_key: &String,
+        _end_key: &String,
+    ) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 
-    fn execute_query(&mut self, _namespace: &String, _query: &String) -> Result<Box<dyn ResultsIterator>> {
+    fn execute_query(
+        &mut self,
+        _namespace: &String,
+        _query: &String,
+    ) -> Result<Box<dyn ResultsIterator>> {
         unimplemented!()
     }
 

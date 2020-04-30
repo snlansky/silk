@@ -100,7 +100,7 @@ impl Index {
 }
 
 fn construct_block_num_key(block_num: u64) -> Vec<u8> {
-    let mut v:Vec<u8> = Vec::with_capacity(1 + 8);
+    let mut v: Vec<u8> = Vec::with_capacity(1 + 8);
     v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX as u8);
     v.write_u64::<BigEndian>(block_num);
     v
@@ -144,17 +144,18 @@ mod tests {
         let cp = index.get_check_point().unwrap();
         assert!(cp.is_none());
 
-        let header1 = BlockHeader{
+        let header1 = BlockHeader {
             number: 1,
             previous_hash: "data_hash1".to_string().into_bytes(),
-            data_hash: vec![]
+            data_hash: vec![],
         };
-        let block_hash1 = utils::hash::compute_sha256(utils::proto::marshal(&header1).unwrap().as_slice());
+        let block_hash1 =
+            utils::hash::compute_sha256(utils::proto::marshal(&header1).unwrap().as_slice());
 
-        let block1 = Block{
+        let block1 = Block {
             header: Some(header1),
             data: None,
-            metadata: None
+            metadata: None,
         };
 
         let bi1 = BlockIndexInfo {
@@ -175,16 +176,17 @@ mod tests {
         assert_eq!(cp.block_num, 1);
         assert_eq!(cp.block_hash[..], block_hash1[..]);
 
-        let header2= BlockHeader{
+        let header2 = BlockHeader {
             number: 2,
             previous_hash: block_hash1.into_vec(),
-            data_hash: "data_hash2".to_string().into_bytes()
+            data_hash: "data_hash2".to_string().into_bytes(),
         };
-        let block_hash2 = utils::hash::compute_sha256(utils::proto::marshal(&header2).unwrap().as_slice());
-        let block2 = Block{
+        let block_hash2 =
+            utils::hash::compute_sha256(utils::proto::marshal(&header2).unwrap().as_slice());
+        let block2 = Block {
             header: Some(header2.clone()),
             data: None,
-            metadata: None
+            metadata: None,
         };
         let block2 = BlockIndexInfo {
             fp: FilePointer {
