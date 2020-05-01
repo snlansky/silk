@@ -42,11 +42,11 @@ impl TryFrom<NsReadWriteSet> for NsRwSet {
         let kv_rw_set = utils::proto::unmarshal::<KvrwSet>(&value.rwset)?;
         let mut coll_hashed_rw_sets = Vec::with_capacity(value.collection_hashed_rwset.len());
 
-        for protoMsg in value.collection_hashed_rwset {
+        for proto_msg in value.collection_hashed_rwset {
             let coll_rw_set = CollHashedRwSet {
-                collection_name: protoMsg.collection_name,
-                hashed_rw_set: utils::proto::unmarshal::<HashedRwSet>(&protoMsg.hashed_rwset)?,
-                pvt_rw_set_hash: protoMsg.pvt_rwset_hash,
+                collection_name: proto_msg.collection_name,
+                hashed_rw_set: utils::proto::unmarshal::<HashedRwSet>(&proto_msg.hashed_rwset)?,
+                pvt_rw_set_hash: proto_msg.pvt_rwset_hash,
             };
             coll_hashed_rw_sets.push(coll_rw_set);
         }
