@@ -4,7 +4,7 @@ use dashmap::DashMap;
 use error::*;
 use rocksdb::{WriteBatch, DB};
 
-use crate::{ResultsIterator, VersionedDB, VersionedValue};
+use crate::{ResultsIterator, VersionedDB, VersionedValue, VersionedDBProvider};
 use std::iter::Iterator;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -30,8 +30,10 @@ impl VersionedDBRocksProvider {
     }
 }
 
-impl super::VersionedDBProvider for VersionedDBRocksProvider {
-    fn get_db_handle(&self, id: String) -> Box<dyn super::VersionedDB> {
+impl VersionedDBProvider for VersionedDBRocksProvider {
+    type V = RocksDBVersion;
+
+    fn get_db_handle(&self, id: String) -> RocksDBVersion {
         if !self.handler.contains_key(&id) {
             self.handler.insert(
                 id.clone(),
@@ -44,14 +46,14 @@ impl super::VersionedDBProvider for VersionedDBRocksProvider {
 
         let db = self.handler.get(&id).unwrap();
         let db = &*db;
-        Box::new(db.clone())
+        db.clone()
     }
 
     fn close(&self) {}
 }
 
 #[derive(Clone)]
-struct RocksDBVersion {
+pub struct RocksDBVersion {
     db: Arc<DB>,
     name: String,
 }

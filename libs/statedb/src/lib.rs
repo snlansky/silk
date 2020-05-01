@@ -13,8 +13,9 @@ pub use version::{are_same, Height};
 
 // VersionedDBProvider provides an instance of an versioned DB
 pub trait VersionedDBProvider {
+    type V: VersionedDB;
     // get_db_handle returns a handle to a VersionedDB
-    fn get_db_handle(&self, id: String) -> Box<dyn VersionedDB>;
+    fn get_db_handle(&self, id: String) -> Self::V;
     // close closes all the VersionedDB instances and releases any resources held by VersionedDBProvider
     fn close(&self);
 }
