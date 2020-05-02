@@ -84,8 +84,11 @@ impl RWSetBuilder {
         return TxRwSet { ns_rw_sets };
     }
 
-    fn get_or_create_ns_rw_builder(&mut self, _ns: &String) -> &mut NsRwBuilder {
-        unimplemented!()
+    fn get_or_create_ns_rw_builder(&mut self, ns: &String) -> &mut NsRwBuilder {
+        if !self.map.contains_key(ns) {
+            self.map.insert(ns.clone(), NsRwBuilder::new(ns.clone()));
+        }
+        self.map.get_mut(ns).unwrap()
     }
 
     fn get_or_create_coll_hashed_rw_builder(
@@ -127,6 +130,19 @@ pub struct NsRwBuilder {
     range_queries_map: HashMap<RangeQueryKey, RangeQueryInfo>,
     range_queries_keys: Vec<RangeQueryKey>,
     coll_hash_rw_builder: HashMap<String, CollHashRwBuilder>,
+}
+
+impl NsRwBuilder {
+    fn new(namespace: String) -> Self {
+        NsRwBuilder{
+            namespace,
+            read_map: Default::default(),
+            write_map: Default::default(),
+            range_queries_map: Default::default(),
+            range_queries_keys: vec![],
+            coll_hash_rw_builder: Default::default()
+        }
+    }
 }
 
 impl From<NsRwBuilder> for NsRwSet {
@@ -197,6 +213,7 @@ pub struct TxSimulationResults {
 }
 
 // TxRwSet acts as a proxy of 'rwset.TxReadWriteSet' proto message and helps constructing Read-write set specifically for KV data model
+#[derive(Clone)]
 pub struct TxRwSet {
     pub ns_rw_sets: Vec<NsRwSet>,
 }
@@ -217,6 +234,7 @@ impl TryFrom<TxRwSet> for TxReadWriteSet {
 }
 
 // NsRwSet encapsulates 'kvrwset.KVRWSet' proto message for a specific name space (chaincode)
+#[derive(Clone)]
 pub struct NsRwSet {
     pub namespace: String,
     pub kv_rw_set: KvrwSet,
@@ -241,6 +259,7 @@ impl TryFrom<NsRwSet> for NsReadWriteSet {
 }
 
 // CollHashedRwSet encapsulates 'kvrwset.HashedRWSet' proto message for a specific collection
+#[derive(Clone)]
 pub struct CollHashedRwSet {
     pub collection_name: String,
     pub hashed_rw_set: HashedRwSet,
@@ -255,5 +274,44 @@ impl TryFrom<CollHashedRwSet> for CollectionHashedReadWriteSet {
             hashed_rwset: utils::proto::marshal(&value.hashed_rw_set)?,
             pvt_rwset_hash: vec![],
         })
+    }
+}
+
+impl TryFrom<TxReadWriteSet> for TxRwSet {
+    type Error = Error;
+
+    fn try_from(value: TxReadWriteSet) -> Result<Self> {
+        let mut ns_rw_sets = Vec::with_capacity(value.ns_rwset.len());
+        for msg in value.ns_rwset {
+            let ns_rw_set = NsRwSet::try_from(msg)?;
+            ns_rw_sets.push(ns_rw_set);
+        }
+
+        Ok(TxRwSet { ns_rw_sets })
+    }
+}
+
+impl TryFrom<NsReadWriteSet> for NsRwSet {
+    type Error = Error;
+
+    fn try_from(value: NsReadWriteSet) -> Result<Self> {
+        let kv_rw_set = utils::proto::unmarshal::<KvrwSet>(&value.rwset)?;
+        let mut coll_hashed_rw_sets = Vec::with_capacity(value.collection_hashed_rwset.len());
+
+        for proto_msg in value.collection_hashed_rwset {
+            let coll_rw_set = CollHashedRwSet {
+                collection_name: proto_msg.collection_name,
+                hashed_rw_set: utils::proto::unmarshal::<HashedRwSet>(&proto_msg.hashed_rwset)?,
+            };
+            coll_hashed_rw_sets.push(coll_rw_set);
+        }
+
+        let ns_rw_set = NsRwSet {
+            namespace: value.namespace,
+            kv_rw_set,
+            coll_hashed_rw_sets,
+        };
+
+        Ok(ns_rw_set)
     }
 }

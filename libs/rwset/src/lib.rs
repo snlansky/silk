@@ -1,10 +1,7 @@
-mod builder;
-mod key;
-mod rwset;
-mod validate;
+pub mod builder;
+pub mod key;
+pub mod validate;
 
 #[macro_use]
 extern crate log;
-
-pub use builder::*;
 

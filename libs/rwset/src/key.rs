@@ -1,8 +1,8 @@
-use crate::TxRwSet;
 use error::*;
 use silk_proto::*;
 use statedb::{Height, UpdateBatch};
 use std::collections::HashMap;
+use crate::builder::TxRwSet;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
 struct CompositeKey {

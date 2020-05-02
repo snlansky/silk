@@ -1,20 +1,20 @@
-use crate::TxRwSet;
 use error::*;
 
 use silk_proto::*;
 use statedb::{are_same, Height, VersionedDB};
+use crate::builder::TxRwSet;
 
-pub fn validate<V: VersionedDB>(tx_rw_set: TxRwSet, vdb: V) -> Result<TxValidationCode> {
-    for rw_set in tx_rw_set.ns_rw_sets {
+pub fn validate<V: VersionedDB>(tx_rw_set: &TxRwSet, vdb: V) -> Result<TxValidationCode> {
+    for rw_set in &tx_rw_set.ns_rw_sets {
         let ns = rw_set.namespace.clone();
 
         //Validation of write set
-        for kv_write in rw_set.kv_rw_set.writes {
+        for kv_write in &rw_set.kv_rw_set.writes {
             vdb.validate_key_value(&kv_write.key, &kv_write.value)?;
         }
 
         // Validation of read set
-        for kv_read in rw_set.kv_rw_set.reads {
+        for kv_read in &rw_set.kv_rw_set.reads {
             let committed_version = vdb.get_version(&ns, &kv_read.key)?;
 
             let ver = kv_read.version.clone().map(Height::from);
@@ -32,7 +32,7 @@ pub fn validate<V: VersionedDB>(tx_rw_set: TxRwSet, vdb: V) -> Result<TxValidati
         }
 
         // Validate range queries for phantom items
-        for rgi in rw_set.kv_rw_set.range_queries_info {
+        for rgi in &rw_set.kv_rw_set.range_queries_info {
             debug!(
                 "validate range query: ns={:?}, RangeQueryInfo={:?}",
                 ns.clone(),
@@ -42,9 +42,9 @@ pub fn validate<V: VersionedDB>(tx_rw_set: TxRwSet, vdb: V) -> Result<TxValidati
         }
 
         // Validate hashes for private reads
-        for coll_hashed_rw_set in rw_set.coll_hashed_rw_sets {
-            for kv_read_hash in coll_hashed_rw_set.hashed_rw_set.hashed_reads {
-                let hash = utils::base64::encode(kv_read_hash.key_hash);
+        for coll_hashed_rw_set in &rw_set.coll_hashed_rw_sets {
+            for kv_read_hash in &coll_hashed_rw_set.hashed_rw_set.hashed_reads {
+                let hash = utils::base64::encode(&kv_read_hash.key_hash);
                 let key = format!(
                     "{:}{:}{:}",
                     ns.clone(),

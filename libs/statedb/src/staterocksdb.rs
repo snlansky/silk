@@ -149,8 +149,10 @@ impl VersionedDB for RocksDBVersion {
     }
 
     fn validate_key_value(&self, _key: &String, _value: &[u8]) -> Result<()> {
-        unimplemented!()
+        // TODO
+        Ok(())
     }
+
 
     fn bytes_key_supported(&self) -> bool {
         unimplemented!()
