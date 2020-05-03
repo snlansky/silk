@@ -4,7 +4,15 @@ use silk_proto::*;
 use statedb::{are_same, Height, VersionedDB};
 use crate::builder::TxRwSet;
 
-pub fn validate<V: VersionedDB>(tx_rw_set: &TxRwSet, vdb: V) -> Result<TxValidationCode> {
+pub struct BlockValidate<V: VersionedDB>{
+    vdb :V
+}
+
+impl <V: VersionedDB>BlockValidate<V> {
+}
+
+
+pub fn validate_writeset<V: VersionedDB>(tx_rw_set: &TxRwSet, vdb: V) -> Result<()> {
     for rw_set in &tx_rw_set.ns_rw_sets {
         let ns = rw_set.namespace.clone();
 
@@ -12,6 +20,15 @@ pub fn validate<V: VersionedDB>(tx_rw_set: &TxRwSet, vdb: V) -> Result<TxValidat
         for kv_write in &rw_set.kv_rw_set.writes {
             vdb.validate_key_value(&kv_write.key, &kv_write.value)?;
         }
+    }
+
+    Ok(())
+}
+
+
+pub fn validate_tx<V: VersionedDB>(tx_rw_set: &TxRwSet, vdb: V) -> Result<TxValidationCode> {
+    for rw_set in &tx_rw_set.ns_rw_sets {
+        let ns = rw_set.namespace.clone();
 
         // Validation of read set
         for kv_read in &rw_set.kv_rw_set.reads {
