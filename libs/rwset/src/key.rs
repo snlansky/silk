@@ -1,11 +1,11 @@
 use error::*;
 use silk_proto::*;
-use statedb::{Height, UpdateBatch};
+use statedb::{Height, UpdateBatch, VersionedValue};
 use std::collections::HashMap;
 use crate::builder::TxRwSet;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
-struct CompositeKey {
+pub struct CompositeKey {
     ns: String,
     coll: String,
     key: String,
@@ -191,4 +191,51 @@ pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch>
     }
 
     Ok(batch)
+}
+
+pub struct  PubAndHashUpdates{
+    PubUpdates: UpdateBatch,
+    HashUpdates: HashMap<String, UpdateBatch> , // maintains entries of tuple <Namespace, UpdatesForNamespace>
+}
+
+impl PubAndHashUpdates {
+    pub fn new() -> Self {
+        PubAndHashUpdates{ PubUpdates: UpdateBatch::new(), HashUpdates: Default::default() }
+    }
+
+    pub fn apply_write_set(&mut self, tx_rw_set: TxRwSet, tx_height: Height) -> Result<()> {
+        let mut tx_ops = TxOps::default();
+        tx_ops.apply_tx_rwset(tx_rw_set)?;
+
+        for (ck, key_ops) in tx_ops.map {
+            let CompositeKey{ns, coll, key} = ck;
+            if coll.eq("") {
+                if key_ops.is_delete() {
+                    self.PubUpdates.update(ns, key, VersionedValue{
+                        value: vec![],
+                        metadata: vec![],
+                        version: tx_height.clone(),
+                    });
+                } else {
+                    self.PubUpdates.put_val_and_metadata(ns, key, key_ops.value, key_ops.metadata, tx_height.clone());
+                }
+            } else {
+                if key_ops.is_delete() {
+                    if !self.HashUpdates.contains_key(&ns) {
+                        self.HashUpdates.insert(ns.clone(), UpdateBatch::new());
+                    }
+                    let batch = self.HashUpdates.get_mut(&ns).unwrap();
+                    batch.delete(coll, key, tx_height);
+                } else {
+                    if !self.HashUpdates.contains_key(&ns) {
+                        self.HashUpdates.insert(ns.clone(), UpdateBatch::new());
+                    }
+                    let batch = self.HashUpdates.get_mut(&ns).unwrap();
+                    batch.put_val_and_metadata(coll, key, key_ops.value, key_ops.metadata, tx_height);
+                }
+            }
+        }
+
+        Ok(())
+    }
 }

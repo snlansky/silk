@@ -127,7 +127,7 @@ pub enum QueryResult {
 #[cfg(test)]
 mod tests {
     use crate::statedb::UpdateBatch;
-    use crate::{Height, VersionedDBProvider, VersionedValue};
+    use crate::{Height, VersionedDBProvider, VersionedValue, VersionedDB};
     use tempfile::TempDir;
 
     struct Support<S: super::VersionedDBProvider> {

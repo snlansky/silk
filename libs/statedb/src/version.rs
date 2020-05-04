@@ -2,7 +2,7 @@ use error::*;
 use silk_proto::*;
 
 // Height represents the height of a transaction in blockchain
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub struct Height {
     pub block_num: u64,
     pub tx_num: u64,
