@@ -17,7 +17,7 @@ pub trait VersionedDBProvider {
     // get_db_handle returns a handle to a VersionedDB
     fn get_db_handle(&self, id: String) -> Self::V;
     // close closes all the VersionedDB instances and releases any resources held by VersionedDBProvider
-    fn close(&self);
+    fn close(&self){}
 }
 
 // VersionedDB lists methods that a db is supposed to implement

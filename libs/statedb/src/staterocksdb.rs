@@ -48,8 +48,6 @@ impl VersionedDBProvider for VersionedDBRocksProvider {
         let db = &*db;
         db.clone()
     }
-
-    fn close(&self) {}
 }
 
 #[derive(Clone)]
@@ -108,7 +106,7 @@ impl VersionedDB for RocksDBVersion {
         let mut db_batch = WriteBatch::default();
 
         for ns in batch.get_updated_namespaces() {
-            let updates = batch.get_updates(ns.clone());
+            let updates = batch.get_updates(&ns);
             if updates.is_some() {
                 for (k, vv) in updates.unwrap() {
                     let data_key = encode_data_key(&ns, &k);

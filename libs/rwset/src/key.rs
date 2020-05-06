@@ -174,11 +174,11 @@ pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch>
     for (CompositeKey { ns, coll, key }, key_ops) in txops.map {
         if coll.is_empty() {
             if key_ops.is_delete() {
-                batch.delete(ns, key, height.clone());
+                batch.delete(&ns, &key, height.clone());
             } else {
                 batch.put_val_and_metadata(
-                    ns,
-                    key,
+                    &ns,
+                    &key,
                     key_ops.value,
                     key_ops.metadata,
                     height.clone(),
@@ -194,8 +194,8 @@ pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch>
 }
 
 pub struct  PubAndHashUpdates{
-    PubUpdates: UpdateBatch,
-    HashUpdates: HashMap<String, UpdateBatch> , // maintains entries of tuple <Namespace, UpdatesForNamespace>
+    pub PubUpdates: UpdateBatch,
+    pub HashUpdates: HashMap<String, UpdateBatch> , // maintains entries of tuple <Namespace, UpdatesForNamespace>
 }
 
 impl PubAndHashUpdates {
@@ -211,13 +211,13 @@ impl PubAndHashUpdates {
             let CompositeKey{ns, coll, key} = ck;
             if coll.eq("") {
                 if key_ops.is_delete() {
-                    self.PubUpdates.update(ns, key, VersionedValue{
+                    self.PubUpdates.update(&ns, &key, VersionedValue{
                         value: vec![],
                         metadata: vec![],
                         version: tx_height.clone(),
                     });
                 } else {
-                    self.PubUpdates.put_val_and_metadata(ns, key, key_ops.value, key_ops.metadata, tx_height.clone());
+                    self.PubUpdates.put_val_and_metadata(&ns, &key, key_ops.value, key_ops.metadata, tx_height.clone());
                 }
             } else {
                 if key_ops.is_delete() {
@@ -225,13 +225,13 @@ impl PubAndHashUpdates {
                         self.HashUpdates.insert(ns.clone(), UpdateBatch::new());
                     }
                     let batch = self.HashUpdates.get_mut(&ns).unwrap();
-                    batch.delete(coll, key, tx_height);
+                    batch.delete(&coll, &key, tx_height);
                 } else {
                     if !self.HashUpdates.contains_key(&ns) {
                         self.HashUpdates.insert(ns.clone(), UpdateBatch::new());
                     }
                     let batch = self.HashUpdates.get_mut(&ns).unwrap();
-                    batch.put_val_and_metadata(coll, key, key_ops.value, key_ops.metadata, tx_height);
+                    batch.put_val_and_metadata(&coll, &key, key_ops.value, key_ops.metadata, tx_height);
                 }
             }
         }
