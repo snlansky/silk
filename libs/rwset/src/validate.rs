@@ -5,7 +5,7 @@ use statedb::{are_same, Height, VersionedDB, UpdateBatch};
 use crate::builder::TxRwSet;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use crate::key::{TxOps, CompositeKey, PubAndHashUpdates};
+use crate::key::{PubAndHashUpdates, derive_hashed_data_ns};
 
 
 
@@ -18,16 +18,15 @@ impl <V: VersionedDB> Validator <V> {
         Validator{vdb}
     }
 
-    pub fn validate_and_prepare_batch(&self, block: Block) -> Result<PubAndHashUpdates> {
-        if let (Some(header), Some(data), Some(metadata)) = (block.header, block.data, block.metadata) {
+    pub fn validate_and_prepare_batch(&self, block: Block) -> Result<(UpdateBatch, Height)> {
+        if let (Some(header), Some(data)) = (block.header, block.data) {
             let mut txs_filter = HashMap::new();
             let mut updates = PubAndHashUpdates::new();
 
             for (index, proto_msg) in data.data.iter().enumerate() {
-                let tx:Transaction = utils::proto::unmarshal(&proto_msg)?;
+                let tx:Transaction = utils::proto::unmarshal(proto_msg)?;
                 let proposal = tx.signed_proposal.ok_or(from_str("proposal is null"))?;
                 let tx_header = utils::proto::unmarshal::<Proposal>(&proposal.proposal_bytes)?.header.ok_or(from_str("transaction header is null"))?;
-
 
                 let resp = tx.response.get(0).ok_or(from_str("transaction proposal response list is null"))?;
                 let payload: ProposalResponsePayload = utils::proto::unmarshal(&resp.payload)?;
@@ -51,6 +50,7 @@ impl <V: VersionedDB> Validator <V> {
 
             }
 
+            return Ok((UpdateBatch::from(updates), Height::new(header.number, (data.data.len() - 1) as u64)));
         }
 
         Err(from_str("block content is null"))
@@ -68,7 +68,7 @@ impl <V: VersionedDB> Validator <V> {
     }
 
 
-    pub fn validate_tx(&self, tx_rw_set: &TxRwSet, updates: &mut PubAndHashUpdates) -> Result<TxValidationCode> {
+    fn validate_tx(&self, tx_rw_set: &TxRwSet, updates: &mut PubAndHashUpdates) -> Result<TxValidationCode> {
         for rw_set in &tx_rw_set.ns_rw_sets {
             let ns = rw_set.namespace.clone();
 
@@ -110,12 +110,6 @@ impl <V: VersionedDB> Validator <V> {
 
                 for kv_read_hash in &coll_hashed_rw_set.hashed_rw_set.hashed_reads {
                     let hash = utils::base64::encode(&kv_read_hash.key_hash);
-                    let key = format!(
-                        "{:}{:}{:}",
-                        ns.clone(),
-                        coll_hashed_rw_set.collection_name,
-                        hash.clone()
-                    );
 
                     if updates.HashUpdates.contains_key(&ns) {
                         let ns_batch = updates.HashUpdates.get(&ns).unwrap();
@@ -124,7 +118,7 @@ impl <V: VersionedDB> Validator <V> {
                         }
                     }
 
-                    let committed_version = self.vdb.get_version(&ns, &key)?;
+                    let committed_version = self.vdb.get_version(&derive_hashed_data_ns(&ns, &coll), &hash)?;
 
                     let ver = kv_read_hash.version.clone().map(Height::from);
                     if !are_same(committed_version.clone(), ver) {
@@ -143,3 +137,4 @@ impl <V: VersionedDB> Validator <V> {
         Ok(TxValidationCode::Valid)
     }
 }
+

@@ -208,12 +208,13 @@ impl From<CollHashRwBuilder> for CollHashedRwSet {
 }
 
 // TxSimulationResults captures the details of the simulation results
+#[derive(Debug)]
 pub struct TxSimulationResults {
     pub simulation_results: TxReadWriteSet,
 }
 
 // TxRwSet acts as a proxy of 'rwset.TxReadWriteSet' proto message and helps constructing Read-write set specifically for KV data model
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct TxRwSet {
     pub ns_rw_sets: Vec<NsRwSet>,
 }
@@ -234,7 +235,7 @@ impl TryFrom<TxRwSet> for TxReadWriteSet {
 }
 
 // NsRwSet encapsulates 'kvrwset.KVRWSet' proto message for a specific name space (chaincode)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct NsRwSet {
     pub namespace: String,
     pub kv_rw_set: KvrwSet,
@@ -259,7 +260,7 @@ impl TryFrom<NsRwSet> for NsReadWriteSet {
 }
 
 // CollHashedRwSet encapsulates 'kvrwset.HashedRWSet' proto message for a specific collection
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CollHashedRwSet {
     pub collection_name: String,
     pub hashed_rw_set: HashedRwSet,

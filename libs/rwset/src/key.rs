@@ -239,3 +239,23 @@ impl PubAndHashUpdates {
         Ok(())
     }
 }
+
+impl From<PubAndHashUpdates> for UpdateBatch {
+    fn from(update: PubAndHashUpdates) -> Self {
+        let mut update_batch = update.PubUpdates;
+
+        for (ns, ns_batch) in update.HashUpdates {
+            for coll in ns_batch.get_updated_namespaces() {
+                 for (key, vv) in ns_batch.get_updates(&coll).unwrap() {
+                     update_batch.update(&derive_hashed_data_ns(&ns, &coll), &key, vv);
+                 }
+            }
+        }
+
+        update_batch
+    }
+}
+
+pub fn derive_hashed_data_ns(ns: &String, coll: &String) ->String{
+    ns.clone() +"$$"+"h"+&coll
+}

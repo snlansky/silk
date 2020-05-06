@@ -3,6 +3,7 @@ use crate::version::Height;
 use crate::VersionedValue;
 use std::collections::HashMap;
 
+#[derive(Debug)]
 struct NsUpdates {
     pub m: HashMap<String, VersionedValue>,
 }
@@ -13,6 +14,7 @@ impl NsUpdates {
 }
 
 // UpdateBatch encloses the details of multiple `updates`
+#[derive(Debug)]
 pub struct UpdateBatch {
     contains_post_order_writes: bool,
     updates: HashMap<String, NsUpdates>,
