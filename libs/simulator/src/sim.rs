@@ -1,8 +1,8 @@
 use error::*;
+use rwset::builder::{RWSetBuilder, TxSimulationResults};
 use statedb::{Height, ResultsIterator, VersionedDB, VersionedValue};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
-use rwset::builder::{RWSetBuilder, TxSimulationResults};
 
 pub struct BasedTxSimulator<V: VersionedDB> {
     tx_id: String,

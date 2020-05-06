@@ -1,32 +1,30 @@
 use error::*;
-use simulator::TxSimulator;
 use silk_proto::Block;
+use simulator::TxSimulator;
 use statedb::{Height, VersionedDB};
 
 pub trait TxMgr {
-    type T :TxSimulator;
+    type T: TxSimulator;
     fn new_tx_simulator(txid: String) -> Result<Self::T>;
     fn validate_and_prepare(block: Block) -> Result<()>;
     fn get_last_savepoint() -> Result<Height>;
-    fn should_recover(last_available_block:u64) -> Result<(bool, u64)>;
-    fn commit() -> Result<()> ;
+    fn should_recover(last_available_block: u64) -> Result<(bool, u64)>;
+    fn commit() -> Result<()>;
 }
 
 pub struct UnlockedTxMgr<V: VersionedDB> {
     vdb: V,
 }
 
-
-
 #[cfg(test)]
 mod tests {
-    use tempfile::TempDir;
+    use error::*;
+    use rwset::validate::Validator;
+    use silk_proto::*;
+    use simulator::{BasedTxSimulator, TxSimulator};
     use statedb::*;
     use std::convert::{TryFrom, TryInto};
-    use silk_proto::*;
-    use error::*;
-    use simulator::{BasedTxSimulator, TxSimulator};
-    use rwset::validate::Validator;
+    use tempfile::TempDir;
 
     #[test]
     fn it_works() {
@@ -36,7 +34,12 @@ mod tests {
         let validate = Validator::new(vdb.clone());
 
         let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
-        sim.set_state(&"contract_name".to_string(), &"k1".to_string(), Vec::from("v1")).unwrap();
+        sim.set_state(
+            &"contract_name".to_string(),
+            &"k1".to_string(),
+            Vec::from("v1"),
+        )
+        .unwrap();
         let results = sim.get_tx_simulation_results().unwrap();
         let tx = create_tx(results.simulation_results, "tx1".to_string()).unwrap();
         let block = create_block(vec![tx], 1);
@@ -45,28 +48,36 @@ mod tests {
         println!("{:?} \n {:?}", batch, h);
         vdb.apply_updates(batch, Some(h)).unwrap();
 
-
-        let v1 = vdb.get_state(&"contract_name".to_string(), &"k1".to_string()).unwrap();
-        assert_eq!(v1, Some(VersionedValue{
-            value: Vec::from("v1"),
-            metadata: vec![],
-            version: Height { block_num: 1, tx_num: 0 }
-        }))
+        let v1 = vdb
+            .get_state(&"contract_name".to_string(), &"k1".to_string())
+            .unwrap();
+        assert_eq!(
+            v1,
+            Some(VersionedValue {
+                value: Vec::from("v1"),
+                metadata: vec![],
+                version: Height {
+                    block_num: 1,
+                    tx_num: 0
+                }
+            })
+        )
     }
 
     fn create_block(txs: Vec<Transaction>, num: u64) -> Block {
-        let data = txs.iter().map(|t|{
-            utils::proto::marshal(t).unwrap()
-        }).collect();
+        let data = txs
+            .iter()
+            .map(|t| utils::proto::marshal(t).unwrap())
+            .collect();
 
-        Block{
-            header: Some(BlockHeader{
+        Block {
+            header: Some(BlockHeader {
                 number: num,
                 previous_hash: vec![],
-                data_hash: vec![]
+                data_hash: vec![],
             }),
-            data: Some(BlockData{ data, }),
-            metadata: None
+            data: Some(BlockData { data }),
+            metadata: None,
         }
     }
     fn create_tx(rw_set: TxReadWriteSet, txid: String) -> Result<Transaction> {
@@ -107,7 +118,10 @@ mod tests {
             endorsement: None,
         };
 
-        let tx = Transaction{ signed_proposal: Some(sp), response: vec![proposal_response] };
+        let tx = Transaction {
+            signed_proposal: Some(sp),
+            response: vec![proposal_response],
+        };
         Ok(tx)
     }
 
@@ -120,9 +134,12 @@ mod tests {
 
         {
             let mut sim = BasedTxSimulator::new("tx0".to_string(), vdb.clone());
-            sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("value1")).unwrap();
-            sim.set_state(&"ns".to_string(), &"key2".to_string(), Vec::from("value2")).unwrap();
-            sim.set_state(&"ns".to_string(), &"key3".to_string(), Vec::from("value3")).unwrap();
+            sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("value1"))
+                .unwrap();
+            sim.set_state(&"ns".to_string(), &"key2".to_string(), Vec::from("value2"))
+                .unwrap();
+            sim.set_state(&"ns".to_string(), &"key3".to_string(), Vec::from("value3"))
+                .unwrap();
             let results = sim.get_tx_simulation_results().unwrap();
 
             let tx = create_tx(results.simulation_results, "tx0".to_string()).unwrap();
@@ -136,17 +153,23 @@ mod tests {
         {
             let tx1 = {
                 let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
-                let val_key1 = sim.get_state(&"ns".to_string(), &"key1".to_string()).unwrap();
+                let val_key1 = sim
+                    .get_state(&"ns".to_string(), &"key1".to_string())
+                    .unwrap();
                 assert_eq!(val_key1, Vec::from("value1"));
-                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("1")).unwrap();
+                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("1"))
+                    .unwrap();
                 let results = sim.get_tx_simulation_results().unwrap();
 
                 create_tx(results.simulation_results, "tx1".to_string()).unwrap()
             };
             let tx2 = {
                 let mut sim = BasedTxSimulator::new("tx2".to_string(), vdb.clone());
-                let val_key1 = sim.get_state(&"ns".to_string(), &"key1".to_string()).unwrap();
-                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("2")).unwrap();
+                let val_key1 = sim
+                    .get_state(&"ns".to_string(), &"key1".to_string())
+                    .unwrap();
+                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("2"))
+                    .unwrap();
                 let results = sim.get_tx_simulation_results().unwrap();
 
                 create_tx(results.simulation_results, "tx2".to_string()).unwrap()
@@ -159,8 +182,26 @@ mod tests {
             vdb.apply_updates(batch, Some(h)).unwrap();
 
             assert_eq!(tx_code.get("tx1"), Some(&TxValidationCode::Valid));
-            assert_eq!(tx_code.get("tx2"), Some(&TxValidationCode::MvccReadConflict));
+            assert_eq!(
+                tx_code.get("tx2"),
+                Some(&TxValidationCode::MvccReadConflict)
+            );
+
+            let v1 = vdb
+                .get_state(&"ns".to_string(), &"key1".to_string())
+                .unwrap();
+            assert_eq!(
+                v1,
+                Some(VersionedValue {
+                    value: Vec::from("1"),
+                    metadata: vec![],
+                    version: Height {
+                        block_num: 2,
+                        tx_num: 0
+                    }
+                })
+            )
+
         }
     }
 }
-

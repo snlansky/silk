@@ -1,14 +1,14 @@
-mod staterocksdb;
 mod statedb;
+mod staterocksdb;
 mod version;
 
 #[macro_use]
 extern crate log;
 
-pub use statedb::*;
-pub use staterocksdb::*;
 use error::*;
 use silk_proto::VersionedValueProto;
+pub use statedb::*;
+pub use staterocksdb::*;
 pub use version::{are_same, Height};
 
 // VersionedDBProvider provides an instance of an versioned DB
@@ -17,7 +17,7 @@ pub trait VersionedDBProvider {
     // get_db_handle returns a handle to a VersionedDB
     fn get_db_handle(&self, id: String) -> Self::V;
     // close closes all the VersionedDB instances and releases any resources held by VersionedDBProvider
-    fn close(&self){}
+    fn close(&self) {}
 }
 
 // VersionedDB lists methods that a db is supposed to implement
@@ -127,7 +127,7 @@ pub enum QueryResult {
 #[cfg(test)]
 mod tests {
     use crate::statedb::UpdateBatch;
-    use crate::{Height, VersionedDBProvider, VersionedValue, VersionedDB};
+    use crate::{Height, VersionedDB, VersionedDBProvider, VersionedValue};
     use tempfile::TempDir;
 
     struct Support<S: super::VersionedDBProvider> {
@@ -138,7 +138,9 @@ mod tests {
     fn test_provider() {
         let temp_dir = TempDir::new().unwrap();
         let support = Support {
-            s: super::staterocksdb::VersionedDBRocksProvider::new(temp_dir.path().to_str().unwrap()),
+            s: super::staterocksdb::VersionedDBRocksProvider::new(
+                temp_dir.path().to_str().unwrap(),
+            ),
         };
         let vdb = support.s.get_db_handle("chain_id".to_string());
 

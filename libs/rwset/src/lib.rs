@@ -4,4 +4,3 @@ pub mod validate;
 
 #[macro_use]
 extern crate log;
-

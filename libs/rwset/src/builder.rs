@@ -134,13 +134,13 @@ pub struct NsRwBuilder {
 
 impl NsRwBuilder {
     fn new(namespace: String) -> Self {
-        NsRwBuilder{
+        NsRwBuilder {
             namespace,
             read_map: Default::default(),
             write_map: Default::default(),
             range_queries_map: Default::default(),
             range_queries_keys: vec![],
-            coll_hash_rw_builder: Default::default()
+            coll_hash_rw_builder: Default::default(),
         }
     }
 }
@@ -214,7 +214,7 @@ pub struct TxSimulationResults {
 }
 
 // TxRwSet acts as a proxy of 'rwset.TxReadWriteSet' proto message and helps constructing Read-write set specifically for KV data model
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct TxRwSet {
     pub ns_rw_sets: Vec<NsRwSet>,
 }

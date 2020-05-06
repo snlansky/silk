@@ -151,7 +151,6 @@ impl VersionedDB for RocksDBVersion {
         Ok(())
     }
 
-
     fn bytes_key_supported(&self) -> bool {
         unimplemented!()
     }
