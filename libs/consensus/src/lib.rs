@@ -20,6 +20,12 @@ pub trait IChain {
     fn order(&self, tx: Transaction) -> Result<()>;
 }
 
+#[async_trait::async_trait]
+pub trait IChainSupport: Send + Sync + 'static {
+    async fn order(&self, txs: Vec<Transaction>) -> Result<()>;
+}
+
+
 #[derive(Clone)]
 pub struct ChainSupport {
     id: String,
@@ -42,29 +48,31 @@ impl ChainSupport {
             *lock = header
         }
     }
-}
-
-impl ChainSupport {
-    pub fn create_next_block(&self, _vec: Vec<Transaction>) -> Block {
-        unimplemented!()
-    }
-    pub fn commit_block(&self, _block: Block) -> Result<()> {
-        unimplemented!()
-    }
 
     pub async fn start(&self) -> Result<()> {
         let lock = self.header.read().await;
         println!("->{:}", lock.number);
         Ok(())
     }
+
+    pub fn create_next_block(&self, _vec: Vec<Transaction>) -> Block {
+        unimplemented!()
+    }
+
+    pub fn commit_block(&self, _block: Block) -> Result<()> {
+        unimplemented!()
+    }
+}
+
+#[async_trait::async_trait]
+impl IChainSupport for ChainSupport {
+    async fn order(&self, txs: Vec<Transaction>) -> Result<()> {
+        unimplemented!()
+    }
 }
 
 pub trait IConsensus: Send + Sync + 'static {
     fn handler_chain(&self, support: ChainSupport) -> Box<dyn IChain>;
-}
-
-pub struct ConsensusStub<'a> {
-    client: &'a ConsensusClient<Channel>,
 }
 
 #[cfg(test)]
