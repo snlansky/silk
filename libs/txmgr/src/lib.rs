@@ -38,11 +38,11 @@ mod tests {
         let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
         sim.set_state(&"contract_name".to_string(), &"k1".to_string(), Vec::from("v1")).unwrap();
         let results = sim.get_tx_simulation_results().unwrap();
-        let tx = create_tx(results.simulation_results, 0).unwrap();
+        let tx = create_tx(results.simulation_results, "tx1".to_string()).unwrap();
         let block = create_block(vec![tx], 1);
 
-        let (batch, h) = validate.validate_and_prepare_batch(block).unwrap();
-        println!("{:?}, {:?}", batch, h);
+        let (batch, h, tx_code) = validate.validate_and_prepare_batch(block).unwrap();
+        println!("{:?} \n {:?}", batch, h);
         vdb.apply_updates(batch, Some(h)).unwrap();
 
 
@@ -69,7 +69,7 @@ mod tests {
             metadata: None
         }
     }
-    fn create_tx(rw_set: TxReadWriteSet, tx_id: i32) -> Result<Transaction> {
+    fn create_tx(rw_set: TxReadWriteSet, txid: String) -> Result<Transaction> {
         let payload = ContractProposalPayload {
             contract_id: None,
             input: None,
@@ -83,7 +83,7 @@ mod tests {
                 version: 0,
                 timestamp: None,
                 channel_id: "chain_id".to_string(),
-                tx_id: format!("tx_id_{:?}", tx_id),
+                tx_id: txid,
                 tls_cert_hash: vec![],
                 creator: vec![],
                 nonce: vec![],
@@ -111,49 +111,56 @@ mod tests {
         Ok(tx)
     }
 
-    // #[test]
-    // fn test_read_write_customer() {
-    //     let temp_dir = TempDir::new().unwrap();
-    //     let provider = VersionedDBRocksProvider::new(temp_dir.into_path());
-    //     let vdb = provider.get_db_handle("chain_id".to_string());
-    //
-    //     {
-    //         let mut sim = BasedTxSimulator::new("tx0".to_string(), vdb.clone());
-    //         sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("value1")).unwrap();
-    //         sim.set_state(&"ns".to_string(), &"key2".to_string(), Vec::from("value2")).unwrap();
-    //         sim.set_state(&"ns".to_string(), &"key3".to_string(), Vec::from("value3")).unwrap();
-    //         let results = sim.get_tx_simulation_results().unwrap();
-    //
-    //         let tx_rw_set= TxRwSet::try_from(results.simulation_results).unwrap();
-    //         let code = validate_writeset(&tx_rw_set, vdb.clone()).unwrap();
-    //         assert_eq!(code, TxValidationCode::Valid);
-    //
-    //         let h = Height{ block_num: 0, tx_num: 3 };
-    //         let batch = apply_write_set(tx_rw_set, h.clone()).unwrap();
-    //
-    //         vdb.apply_updates(batch, Some(h)).unwrap();
-    //     }
-    //
-    //     {
-    //         let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
-    //         let val_key1 = sim.get_state(&"ns".to_string(), &"key1".to_string()).unwrap();
-    //         assert_eq!(val_key1, Vec::from("value1"));
-    //         sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("1")).unwrap();
-    //         let results = sim.get_tx_simulation_results().unwrap();
-    //
-    //         let tx_rw_set= TxRwSet::try_from(results.simulation_results).unwrap();
-    //         let code = validate_writeset(&tx_rw_set, vdb.clone()).unwrap();
-    //         assert_eq!(code, TxValidationCode::Valid);
-    //
-    //         let h = Height{ block_num: 0, tx_num: 3 };
-    //         let batch = apply_write_set(tx_rw_set, h.clone()).unwrap();
-    //         vdb.apply_updates(batch, Some(h)).unwrap();
-    //
-    //
-    //
-    //
-    //
-    //     }
-    // }
+    #[test]
+    fn test_mvcc() {
+        let temp_dir = TempDir::new().unwrap();
+        let provider = VersionedDBRocksProvider::new(temp_dir.into_path());
+        let vdb = provider.get_db_handle("chain_id".to_string());
+        let validate = Validator::new(vdb.clone());
+
+        {
+            let mut sim = BasedTxSimulator::new("tx0".to_string(), vdb.clone());
+            sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("value1")).unwrap();
+            sim.set_state(&"ns".to_string(), &"key2".to_string(), Vec::from("value2")).unwrap();
+            sim.set_state(&"ns".to_string(), &"key3".to_string(), Vec::from("value3")).unwrap();
+            let results = sim.get_tx_simulation_results().unwrap();
+
+            let tx = create_tx(results.simulation_results, "tx0".to_string()).unwrap();
+            let block = create_block(vec![tx], 1);
+
+            let (batch, h, _) = validate.validate_and_prepare_batch(block).unwrap();
+            println!("{:?} \n {:?}", batch, h);
+            vdb.apply_updates(batch, Some(h)).unwrap();
+        }
+
+        {
+            let tx1 = {
+                let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
+                let val_key1 = sim.get_state(&"ns".to_string(), &"key1".to_string()).unwrap();
+                assert_eq!(val_key1, Vec::from("value1"));
+                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("1")).unwrap();
+                let results = sim.get_tx_simulation_results().unwrap();
+
+                create_tx(results.simulation_results, "tx1".to_string()).unwrap()
+            };
+            let tx2 = {
+                let mut sim = BasedTxSimulator::new("tx2".to_string(), vdb.clone());
+                let val_key1 = sim.get_state(&"ns".to_string(), &"key1".to_string()).unwrap();
+                sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("2")).unwrap();
+                let results = sim.get_tx_simulation_results().unwrap();
+
+                create_tx(results.simulation_results, "tx2".to_string()).unwrap()
+            };
+
+            let block = create_block(vec![tx1, tx2], 2);
+
+            let (batch, h, tx_code) = validate.validate_and_prepare_batch(block).unwrap();
+            println!("{:?} \n {:?}\n {:?}", batch, h, tx_code);
+            vdb.apply_updates(batch, Some(h)).unwrap();
+
+            assert_eq!(tx_code.get("tx1"), Some(&TxValidationCode::Valid));
+            assert_eq!(tx_code.get("tx2"), Some(&TxValidationCode::MvccReadConflict));
+        }
+    }
 }
 

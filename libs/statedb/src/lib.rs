@@ -144,20 +144,20 @@ mod tests {
 
         let mut batch = UpdateBatch::new();
         batch.put(
-            "ns1".to_string(),
-            "k1".to_string(),
+            &"ns1".to_string(),
+            &"k1".to_string(),
             "v1".as_bytes().to_vec(),
             Height::new(1, 0),
         );
         batch.put(
-            "ns1".to_string(),
-            "k2".to_string(),
+            &"ns1".to_string(),
+            &"k2".to_string(),
             "v2".as_bytes().to_vec(),
             Height::new(1, 1),
         );
         batch.put(
-            "ns1".to_string(),
-            "k3".to_string(),
+            &"ns1".to_string(),
+            &"k3".to_string(),
             "v3".as_bytes().to_vec(),
             Height::new(1, 2),
         );

@@ -37,13 +37,13 @@ impl Height {
         } else if self.tx_num != h.tx_num {
             (self.tx_num - h.tx_num) as i32
         } else {
-            0
+             0
         };
 
-        if res > 0 {
-            1
-        } else {
-            -1
+        match res {
+            x if x > 0  => 1,
+            x if x < 0 => -1,
+            _ => 0
         }
     }
 }
@@ -67,4 +67,16 @@ pub fn are_same(h1: Option<Height>, h2: Option<Height>) -> bool {
     }
 
     return h1.unwrap().compare(h2.unwrap()) == 0;
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::{are_same, Height};
+
+    #[test]
+    fn it_works() {
+        let b = are_same(Some(Height{ block_num: 1, tx_num: 0 }), Some(Height{ block_num: 1, tx_num: 0 }));
+        assert_eq!(b, true);
+    }
 }
