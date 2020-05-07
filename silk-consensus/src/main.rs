@@ -43,6 +43,6 @@ impl IChain for Chain {
 async fn main() -> Result<()> {
     env_logger::init();
     let mut client = ConsensusClient::connect("http://127.0.0.1:8081").await?;
-    start(&mut client, "solo", Box::new(SoloConsensus::new())).await?;
+    start(&mut client, "solo", SoloConsensus::new()).await?;
     Ok(())
 }

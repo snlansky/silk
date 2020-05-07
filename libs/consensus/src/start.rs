@@ -10,10 +10,10 @@ use silk_proto::ConsensusRegister;
 use tokio::sync::mpsc;
 use tonic::Request;
 
-pub async fn start(
+pub async fn start<T: IConsensus>(
     client: &mut ConsensusClient<Channel>,
     name: &str,
-    consensus: Box<dyn IConsensus>,
+    consensus: T,
 ) -> Result<()> {
     let reg = ConsensusRegister {
         alg: name.to_string(),

@@ -7,15 +7,15 @@ use tokio::sync::mpsc;
 use dashmap::DashMap;
 use silk_proto::message::MessageType;
 
-pub struct Support {
+pub struct Support<T: IConsensus> {
     sender: mpsc::Sender<Message>,
-    consensus: Box<dyn IConsensus>,
+    consensus: T,
     chains: DashMap<String, Box<dyn IChain>>,
     chains_configure: DashMap<String, mpsc::Sender<BlockHeader>>,
 }
 
-impl Support {
-    pub fn new(sender: mpsc::Sender<Message>, consensus: Box<dyn IConsensus>) -> Self {
+impl <T: IConsensus>Support<T> {
+    pub fn new(sender: mpsc::Sender<Message>, consensus: T) -> Self {
         Support {
             sender,
             consensus,
