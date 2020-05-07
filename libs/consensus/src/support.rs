@@ -44,7 +44,7 @@ impl <T: IConsensus>Support<T> {
                 let support = ChainSupport::new(name.clone(), header);
 
                 let chain = self.consensus.handler_chain(support.clone());
-                self.chains.insert(name, chain);
+                self.chains.insert(name, Box::new(chain));
 
                 tokio::spawn(async move {
                     while let Some(header) = rx.recv().await {

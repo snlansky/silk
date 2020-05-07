@@ -25,6 +25,10 @@ pub trait IChainSupport: Send + Sync + 'static {
     async fn order(&self, txs: Vec<Transaction>) -> Result<()>;
 }
 
+pub trait IConsensus: Send + Sync + 'static {
+    type Output: IChain;
+    fn handler_chain(&self, support: ChainSupport) -> Self::Output;
+}
 
 #[derive(Clone)]
 pub struct ChainSupport {
@@ -71,9 +75,7 @@ impl IChainSupport for ChainSupport {
     }
 }
 
-pub trait IConsensus: Send + Sync + 'static {
-    fn handler_chain(&self, support: ChainSupport) -> Box<dyn IChain>;
-}
+
 
 #[cfg(test)]
 mod tests {

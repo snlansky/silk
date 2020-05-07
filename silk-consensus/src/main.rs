@@ -19,8 +19,10 @@ impl SoloConsensus {
 }
 
 impl IConsensus for SoloConsensus {
-    fn handler_chain(&self, support: ChainSupport) -> Box<dyn IChain> {
-        Box::new(Chain { support })
+    type Output = Chain;
+
+    fn handler_chain(&self, support: ChainSupport) -> Self::Output {
+        Chain { support }
     }
 }
 
