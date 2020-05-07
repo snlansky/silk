@@ -22,12 +22,14 @@ pub trait IChain {
 
 #[async_trait::async_trait]
 pub trait IChainSupport: Send + Sync + 'static {
-    async fn order(&self, txs: Vec<Transaction>) -> Result<()>;
+    async fn create_next_block(&self, _vec: Vec<Transaction>) -> Block;
+
+    async fn commit_block(&self, _block: Block) -> Result<()>;
 }
 
 pub trait IConsensus: Send + Sync + 'static {
     type Output: IChain;
-    fn handler_chain(&self, support: ChainSupport) -> Self::Output;
+    fn handler_chain<S: IChainSupport>(&self, support: S) -> Self::Output;
 }
 
 #[derive(Clone)]
@@ -59,18 +61,16 @@ impl ChainSupport {
         Ok(())
     }
 
-    pub fn create_next_block(&self, _vec: Vec<Transaction>) -> Block {
-        unimplemented!()
-    }
 
-    pub fn commit_block(&self, _block: Block) -> Result<()> {
-        unimplemented!()
-    }
 }
 
 #[async_trait::async_trait]
 impl IChainSupport for ChainSupport {
-    async fn order(&self, txs: Vec<Transaction>) -> Result<()> {
+    async fn create_next_block(&self, _vec: Vec<Transaction>) -> Block {
+        unimplemented!()
+    }
+
+    async fn commit_block(&self, _block: Block) -> Result<()> {
         unimplemented!()
     }
 }

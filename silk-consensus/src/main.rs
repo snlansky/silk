@@ -21,13 +21,13 @@ impl SoloConsensus {
 impl IConsensus for SoloConsensus {
     type Output = Chain;
 
-    fn handler_chain(&self, support: ChainSupport) -> Self::Output {
-        Chain { support }
+    fn handler_chain<S: IChainSupport>(&self, support: S) -> Self::Output {
+        Chain{ support: Box::new(support) }
     }
 }
 
 struct Chain {
-    support: ChainSupport,
+    support: Box<dyn IChainSupport>,
 }
 
 impl IChain for Chain {
