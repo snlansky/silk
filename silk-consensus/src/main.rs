@@ -22,22 +22,33 @@ impl IConsensus for SoloConsensus {
     type Output = Chain;
 
     fn handler_chain<S: IChainSupport>(&self, support: S) -> Self::Output {
-        Chain{ support: Box::new(support) }
+        Chain{ support: Box::new(support) , queue: vec![]}
     }
+}
+
+struct Msg {
+    tx :Transaction,
+    is_config: bool,
 }
 
 struct Chain {
     support: Box<dyn IChainSupport>,
+    queue: Vec<Transaction>,
 }
 
 impl IChain for Chain {
-    fn configure(&self, _tx: Transaction) -> Result<()> {
-        unimplemented!()
+    fn configure(&self, tx: Transaction) -> Result<()> {
+        let msg = Msg{tx, is_config: true};
+        Ok(())
     }
 
-    fn order(&self, _tx: Transaction) -> Result<()> {
+    fn order(&self, tx: Transaction) -> Result<()> {
         info!("commit new transaction");
         Ok(())
+    }
+
+    fn start(&self) {
+        unimplemented!()
     }
 }
 

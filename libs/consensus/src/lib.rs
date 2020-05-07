@@ -18,13 +18,18 @@ use tokio::sync::RwLock;
 pub trait IChain {
     fn configure(&self, tx: Transaction) -> Result<()>;
     fn order(&self, tx: Transaction) -> Result<()>;
+    fn start(&self);
 }
 
 #[async_trait::async_trait]
 pub trait IChainSupport: Send + Sync + 'static {
+    async fn cutter_ordered(&self, vec: Vec<Transaction>) -> Vec<Vec<Transaction>>;
+
+    async fn cutter_cut(&self) -> Vec<Transaction>;
+
     async fn create_next_block(&self, _vec: Vec<Transaction>) -> Block;
 
-    async fn commit_block(&self, _block: Block) -> Result<()>;
+    async fn write_block(&self, _block: Block) -> Result<()>;
 }
 
 pub trait IConsensus: Send + Sync + 'static {
@@ -66,11 +71,19 @@ impl ChainSupport {
 
 #[async_trait::async_trait]
 impl IChainSupport for ChainSupport {
+    async fn cutter_ordered(&self, vec: Vec<Transaction>) -> Vec<Vec<Transaction>> {
+        unimplemented!()
+    }
+
+    async fn cutter_cut(&self) -> Vec<Transaction> {
+        unimplemented!()
+    }
+
     async fn create_next_block(&self, _vec: Vec<Transaction>) -> Block {
         unimplemented!()
     }
 
-    async fn commit_block(&self, _block: Block) -> Result<()> {
+    async fn write_block(&self, _block: Block) -> Result<()> {
         unimplemented!()
     }
 }
