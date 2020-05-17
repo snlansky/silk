@@ -1,7 +1,5 @@
 use error::*;
 
-
-
 use silk_proto::*;
 
 mod support;
@@ -65,8 +63,6 @@ impl ChainSupport {
         println!("->{:}", lock.number);
         Ok(())
     }
-
-
 }
 
 #[async_trait::async_trait]
@@ -87,8 +83,6 @@ impl IChainSupport for ChainSupport {
         unimplemented!()
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

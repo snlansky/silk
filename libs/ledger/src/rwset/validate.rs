@@ -1,11 +1,11 @@
 use error::*;
 
+use crate::rwset::builder::TxRwSet;
+use crate::rwset::key::{derive_hashed_data_ns, PubAndHashUpdates};
+use crate::statedb::{are_same, Height, UpdateBatch, VersionedDB};
 use silk_proto::*;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use crate::statedb::{VersionedDB, Height, UpdateBatch, are_same};
-use crate::rwset::builder::TxRwSet;
-use crate::rwset::key::{derive_hashed_data_ns, PubAndHashUpdates};
 
 pub struct Validator<V: VersionedDB> {
     vdb: V,

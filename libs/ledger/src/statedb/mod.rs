@@ -2,12 +2,12 @@ mod statedb;
 mod staterocksdb;
 mod version;
 
+use crate::rwset::key::CompositeKey;
 use error::*;
 use silk_proto::VersionedValueProto;
 pub use statedb::*;
 pub use staterocksdb::*;
 pub use version::{are_same, Height};
-use crate::rwset::key::CompositeKey;
 
 // VersionedDBProvider provides an instance of an versioned DB
 pub trait VersionedDBProvider {
@@ -47,8 +47,7 @@ pub trait VersionedDB {
     ) -> Result<Self::Iter>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
-    fn execute_query(&self, namespace: &String, query: &String)
-        -> Result<Self::Iter>;
+    fn execute_query(&self, namespace: &String, query: &String) -> Result<Self::Iter>;
 
     // apply_updates applies the batch to the underlying db.
     // height is the height of the highest transaction in the Batch that
@@ -120,14 +119,14 @@ pub trait ResultsIterator<T> {
 
 // VersionedKV encloses key and corresponding VersionedValue
 pub struct VersionedKV {
-    pub composite_key :CompositeKey,
-    pub versioned_value : VersionedValue,
+    pub composite_key: CompositeKey,
+    pub versioned_value: VersionedValue,
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::statedb::{Height, UpdateBatch, VersionedDB, VersionedDBProvider, VersionedValue};
     use tempfile::TempDir;
-    use crate::statedb::{Height, VersionedDB, VersionedValue, VersionedDBProvider, UpdateBatch};
 
     struct Support<S: super::VersionedDBProvider> {
         s: S,

@@ -1,7 +1,7 @@
-use error::*;
-use silk_proto::Block;
 use crate::simulator::TxSimulator;
 use crate::statedb::{Height, VersionedDB};
+use error::*;
+use silk_proto::Block;
 
 pub trait TxMgr {
     type T: TxSimulator;
@@ -20,12 +20,14 @@ pub struct UnlockedTxMgr<V: VersionedDB> {
 mod tests {
     use error::*;
     use silk_proto::*;
-    
-    use tempfile::TempDir;
-    use crate::statedb::{VersionedDBRocksProvider, VersionedValue, VersionedDB, Height, VersionedDBProvider};
+
     use crate::rwset::validate::Validator;
     use crate::simulator::sim::BasedTxSimulator;
     use crate::simulator::TxSimulator;
+    use crate::statedb::{
+        Height, VersionedDB, VersionedDBProvider, VersionedDBRocksProvider, VersionedValue,
+    };
+    use tempfile::TempDir;
 
     #[test]
     fn it_works() {
@@ -202,7 +204,6 @@ mod tests {
                     }
                 })
             )
-
         }
     }
 }

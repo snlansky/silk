@@ -1,5 +1,5 @@
+use crate::statedb::{Height, VersionedValue};
 use std::collections::HashMap;
-use crate::statedb::{VersionedValue, Height};
 
 #[derive(Debug)]
 struct NsUpdates {

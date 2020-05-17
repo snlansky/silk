@@ -1,9 +1,9 @@
+use crate::rwset::builder::{RWSetBuilder, TxSimulationResults};
+use crate::simulator::QueryResultsItr;
+use crate::statedb::{Height, VersionedDB, VersionedValue};
 use error::*;
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
-use crate::statedb::{VersionedDB, VersionedValue, Height};
-use crate::rwset::builder::{RWSetBuilder, TxSimulationResults};
-use crate::simulator::QueryResultsItr;
 
 pub struct BasedTxSimulator<V: VersionedDB> {
     tx_id: String,
@@ -86,11 +86,7 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
         unimplemented!()
     }
 
-    fn execute_query(
-        &mut self,
-        _namespace: &String,
-        _query: &String,
-    ) -> Result<QueryResultsItr> {
+    fn execute_query(&mut self, _namespace: &String, _query: &String) -> Result<QueryResultsItr> {
         unimplemented!()
     }
 

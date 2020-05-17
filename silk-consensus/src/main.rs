@@ -22,12 +22,15 @@ impl IConsensus for SoloConsensus {
     type Output = Chain;
 
     fn handler_chain<S: IChainSupport>(&self, support: S) -> Self::Output {
-        Chain{ support: Box::new(support) , queue: vec![]}
+        Chain {
+            support: Box::new(support),
+            queue: vec![],
+        }
     }
 }
 
 struct Msg {
-    tx :Transaction,
+    tx: Transaction,
     is_config: bool,
 }
 
@@ -38,7 +41,10 @@ struct Chain {
 
 impl IChain for Chain {
     fn configure(&self, tx: Transaction) -> Result<()> {
-        let _msg = Msg{tx, is_config: true};
+        let _msg = Msg {
+            tx,
+            is_config: true,
+        };
         Ok(())
     }
 

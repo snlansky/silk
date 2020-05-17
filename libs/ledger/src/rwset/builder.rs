@@ -1,9 +1,9 @@
+use crate::statedb::Height;
 use error::*;
 use serde::export::TryFrom;
 use silk_proto::tx_read_write_set::DataModel;
 use silk_proto::*;
 use std::collections::HashMap;
-use crate::statedb::Height;
 
 // RWSetBuilder helps building the read-write set
 pub struct RWSetBuilder {

@@ -14,7 +14,7 @@ pub struct Support<T: IConsensus> {
     chains_configure: DashMap<String, mpsc::Sender<BlockHeader>>,
 }
 
-impl <T: IConsensus>Support<T> {
+impl<T: IConsensus> Support<T> {
     pub fn new(sender: mpsc::Sender<Message>, consensus: T) -> Self {
         Support {
             sender,

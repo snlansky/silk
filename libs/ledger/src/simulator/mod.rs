@@ -1,8 +1,8 @@
-use error::*;
-use std::collections::HashMap;
 use crate::rwset::builder::TxSimulationResults;
 use crate::statedb::ResultsIterator;
+use error::*;
 use silk_proto::Kv;
+use std::collections::HashMap;
 
 pub mod sim;
 
@@ -68,19 +68,13 @@ pub trait TxSimulator {
     // Only used for state databases that support query
     // For a chaincode, the namespace corresponds to the chaincodeId
     // The returned ResultsIterator contains results of type *KV which is defined in fabric-protos/ledger/queryresult.
-    fn execute_query(
-        &mut self,
-        namespace: &String,
-        query: &String,
-    ) -> Result<QueryResultsItr>;
+    fn execute_query(&mut self, namespace: &String, query: &String) -> Result<QueryResultsItr>;
 
     // done releases resources occupied by the QueryExecutor
     fn done(&mut self);
 }
 
-pub struct QueryResultsItr {
-
-}
+pub struct QueryResultsItr {}
 
 impl ResultsIterator<Kv> for QueryResultsItr {
     fn next(&self) -> Result<Kv> {

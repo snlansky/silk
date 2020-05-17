@@ -96,11 +96,7 @@ impl VersionedDB for RocksDBVersion {
         unimplemented!()
     }
 
-    fn execute_query(
-        &self,
-        _namespace: &String,
-        _query: &String,
-    ) -> Result<Self::Iter> {
+    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Self::Iter> {
         unimplemented!()
     }
 
@@ -166,7 +162,7 @@ impl VersionedDB for RocksDBVersion {
     }
 }
 
-pub struct  KVScanner {}
+pub struct KVScanner {}
 
 impl ResultsIterator<VersionedKV> for KVScanner {
     fn next(&self) -> Result<VersionedKV> {
@@ -216,7 +212,7 @@ fn decode_data_key(encoded_data_key: Vec<u8>) -> (String, String) {
 
 #[cfg(test)]
 mod tests {
-    use super::{encode_data_key, decode_data_key};
+    use super::{decode_data_key, encode_data_key};
 
     #[test]
     fn test_key() {
