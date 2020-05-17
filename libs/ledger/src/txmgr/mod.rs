@@ -24,6 +24,8 @@ mod tests {
     use tempfile::TempDir;
     use crate::statedb::{VersionedDBRocksProvider, VersionedValue, VersionedDB, Height, VersionedDBProvider};
     use crate::rwset::validate::Validator;
+    use crate::simulator::sim::BasedTxSimulator;
+    use crate::simulator::TxSimulator;
 
     #[test]
     fn it_works() {

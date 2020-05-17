@@ -4,7 +4,7 @@ use crate::rwset::builder::TxSimulationResults;
 use crate::statedb::ResultsIterator;
 use silk_proto::Kv;
 
-mod sim;
+pub mod sim;
 
 pub trait TxSimulator {
     // get_state gets the value for given namespace and key. For a chaincode, the namespace corresponds to the chaincodeId

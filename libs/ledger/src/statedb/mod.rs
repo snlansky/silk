@@ -126,9 +126,8 @@ pub struct VersionedKV {
 
 #[cfg(test)]
 mod tests {
-    use crate::statedb::{UpdateBatch, VersionedDBProvider, Height, VersionedValue, VersionedDB};
-    use crate::{Height, VersionedDB, VersionedDBProvider, VersionedValue};
     use tempfile::TempDir;
+    use crate::statedb::{Height, VersionedDB, VersionedValue, VersionedDBProvider, UpdateBatch};
 
     struct Support<S: super::VersionedDBProvider> {
         s: S,
