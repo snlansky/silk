@@ -38,11 +38,11 @@ struct Chain {
 
 impl IChain for Chain {
     fn configure(&self, tx: Transaction) -> Result<()> {
-        let msg = Msg{tx, is_config: true};
+        let _msg = Msg{tx, is_config: true};
         Ok(())
     }
 
-    fn order(&self, tx: Transaction) -> Result<()> {
+    fn order(&self, _tx: Transaction) -> Result<()> {
         info!("commit new transaction");
         Ok(())
     }

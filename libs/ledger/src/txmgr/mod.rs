@@ -20,7 +20,7 @@ pub struct UnlockedTxMgr<V: VersionedDB> {
 mod tests {
     use error::*;
     use silk_proto::*;
-    use std::convert::{TryFrom, TryInto};
+    
     use tempfile::TempDir;
     use crate::statedb::{VersionedDBRocksProvider, VersionedValue, VersionedDB, Height, VersionedDBProvider};
     use crate::rwset::validate::Validator;
@@ -45,7 +45,7 @@ mod tests {
         let tx = create_tx(results.simulation_results, "tx1".to_string()).unwrap();
         let block = create_block(vec![tx], 1);
 
-        let (batch, h, tx_code) = validate.validate_and_prepare_batch(block).unwrap();
+        let (batch, h, _tx_code) = validate.validate_and_prepare_batch(block).unwrap();
         println!("{:?} \n {:?}", batch, h);
         vdb.apply_updates(batch, Some(h)).unwrap();
 
@@ -166,7 +166,7 @@ mod tests {
             };
             let tx2 = {
                 let mut sim = BasedTxSimulator::new("tx2".to_string(), vdb.clone());
-                let val_key1 = sim
+                let _val_key1 = sim
                     .get_state(&"ns".to_string(), &"key1".to_string())
                     .unwrap();
                 sim.set_state(&"ns".to_string(), &"key1".to_string(), Vec::from("2"))
