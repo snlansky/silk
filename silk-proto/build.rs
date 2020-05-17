@@ -15,6 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "protos/proposal.proto",
                 "protos/proposal_response.proto",
                 "protos/rwset.proto",
+                "protos/kv_query_result.proto",
                 "protos/transaction.proto",
                 "protos/storage.proto",
                 "protos/ledger.proto",

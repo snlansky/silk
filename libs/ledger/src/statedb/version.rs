@@ -72,6 +72,7 @@ pub fn are_same(h1: Option<Height>, h2: Option<Height>) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::{are_same, Height};
+    use crate::statedb::{are_same, Height};
 
     #[test]
     fn it_works() {

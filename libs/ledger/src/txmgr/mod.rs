@@ -1,7 +1,7 @@
 use error::*;
 use silk_proto::Block;
-use simulator::TxSimulator;
-use statedb::{Height, VersionedDB};
+use crate::simulator::TxSimulator;
+use crate::statedb::{Height, VersionedDB};
 
 pub trait TxMgr {
     type T: TxSimulator;
@@ -25,6 +25,8 @@ mod tests {
     use statedb::*;
     use std::convert::{TryFrom, TryInto};
     use tempfile::TempDir;
+    use crate::statedb::{VersionedDBRocksProvider, Height, VersionedDBProvider, VersionedDB, VersionedValue};
+    use crate::rwset::validate::Validator;
 
     #[test]
     fn it_works() {

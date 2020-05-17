@@ -1,9 +1,10 @@
 use error::*;
-use statedb::*;
 use std::collections::HashMap;
+use crate::rwset::builder::TxSimulationResults;
+use crate::statedb::ResultsIterator;
+use silk_proto::Kv;
+
 mod sim;
-use rwset::builder::TxSimulationResults;
-pub use sim::*;
 
 pub trait TxSimulator {
     // get_state gets the value for given namespace and key. For a chaincode, the namespace corresponds to the chaincodeId
@@ -61,7 +62,7 @@ pub trait TxSimulator {
         namespace: &String,
         start_key: &String,
         end_key: &String,
-    ) -> Result<Box<dyn ResultsIterator>>;
+    ) -> Result<QueryResultsItr>;
 
     // execute_query executes the given query and returns an iterator that contains results of type specific to the underlying data store.
     // Only used for state databases that support query
@@ -71,8 +72,22 @@ pub trait TxSimulator {
         &mut self,
         namespace: &String,
         query: &String,
-    ) -> Result<Box<dyn ResultsIterator>>;
+    ) -> Result<QueryResultsItr>;
 
     // done releases resources occupied by the QueryExecutor
     fn done(&mut self);
+}
+
+pub struct QueryResultsItr {
+
+}
+
+impl ResultsIterator<Kv> for QueryResultsItr {
+    fn next(&self) -> Result<Kv> {
+        unimplemented!()
+    }
+
+    fn close(&self) {
+        unimplemented!()
+    }
 }

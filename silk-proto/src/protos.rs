@@ -1279,6 +1279,29 @@ pub struct CollectionPvtReadWriteSet {
     #[prost(bytes, tag = "2")]
     pub rwset: std::vec::Vec<u8>,
 }
+/// KV -- QueryResult for range/execute query. Holds a key and corresponding value.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Kv {
+    #[prost(string, tag = "1")]
+    pub namespace: std::string::String,
+    #[prost(string, tag = "2")]
+    pub key: std::string::String,
+    #[prost(bytes, tag = "3")]
+    pub value: std::vec::Vec<u8>,
+}
+/// KeyModification -- QueryResult for history query. Holds a transaction ID, value,
+/// timestamp, and delete marker which resulted from a history query.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct KeyModification {
+    #[prost(string, tag = "1")]
+    pub tx_id: std::string::String,
+    #[prost(bytes, tag = "2")]
+    pub value: std::vec::Vec<u8>,
+    #[prost(message, optional, tag = "3")]
+    pub timestamp: ::std::option::Option<::prost_types::Timestamp>,
+    #[prost(bool, tag = "4")]
+    pub is_delete: bool,
+}
 /// ProcessedTransaction wraps an Envelope that includes a transaction along with an indication
 /// of whether the transaction was validated or invalidated by committing peer.
 /// The use case is that GetTransactionByID API needs to retrieve the transaction Envelope

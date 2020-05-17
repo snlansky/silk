@@ -12,10 +12,7 @@ members = [
     "libs/contract",
     "libs/utils",
     "libs/error",
-    "libs/statedb",
-    "libs/rwset",
-    "libs/simulator",
-    "libs/txmgr",
+    "libs/ledger",
     "fuzz",
 
     "contracts/contract-simple",

@@ -1,8 +1,9 @@
 use error::*;
-use rwset::builder::{RWSetBuilder, TxSimulationResults};
-use statedb::{Height, ResultsIterator, VersionedDB, VersionedValue};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
+use crate::statedb::{VersionedDB, VersionedValue, Height, ResultsIterator};
+use crate::rwset::builder::{RWSetBuilder, TxSimulationResults};
+use crate::simulator::QueryResultsItr;
 
 pub struct BasedTxSimulator<V: VersionedDB> {
     tx_id: String,
@@ -81,7 +82,7 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
         _namespace: &String,
         _start_key: &String,
         _end_key: &String,
-    ) -> Result<Box<dyn ResultsIterator>> {
+    ) -> Result<QueryResultsItr> {
         unimplemented!()
     }
 
@@ -89,7 +90,7 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
         &mut self,
         _namespace: &String,
         _query: &String,
-    ) -> Result<Box<dyn ResultsIterator>> {
+    ) -> Result<QueryResultsItr> {
         unimplemented!()
     }
 

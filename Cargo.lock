@@ -1381,6 +1381,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
 
 [[package]]
+name = "ledger"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
+ "bytes 0.5.4",
+ "dashmap",
+ "error",
+ "log",
+ "rocksdb",
+ "serde",
+ "serde_json",
+ "silk-proto",
+ "tempfile",
+ "utils",
+ "walkdir",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2096,21 +2114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rwset"
-version = "0.1.0"
-dependencies = [
- "byteorder",
- "bytes 0.5.4",
- "error",
- "log",
- "serde",
- "serde_json",
- "silk-proto",
- "statedb",
- "utils",
-]
-
-[[package]]
 name = "ryu"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2289,17 +2292,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "simulator"
-version = "0.1.0"
-dependencies = [
- "error",
- "rwset",
- "silk-proto",
- "statedb",
- "utils",
-]
-
-[[package]]
 name = "slab"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2330,20 +2322,6 @@ dependencies = [
  "libc",
  "redox_syscall",
  "winapi 0.3.8",
-]
-
-[[package]]
-name = "statedb"
-version = "0.1.0"
-dependencies = [
- "dashmap",
- "error",
- "log",
- "rocksdb",
- "silk-proto",
- "tempfile",
- "utils",
- "walkdir",
 ]
 
 [[package]]
@@ -2957,21 +2935,6 @@ name = "try-lock"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e604eb7b43c06650e854be16a2a03155743d3752dd1c943f6829e26b7a36e382"
-
-[[package]]
-name = "txmgr"
-version = "0.1.0"
-dependencies = [
- "error",
- "log",
- "rwset",
- "silk-proto",
- "simulator",
- "statedb",
- "tempfile",
- "utils",
- "walkdir",
-]
 
 [[package]]
 name = "typenum"

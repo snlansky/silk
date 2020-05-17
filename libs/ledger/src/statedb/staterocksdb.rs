@@ -57,6 +57,8 @@ pub struct RocksDBVersion {
 }
 
 impl VersionedDB for RocksDBVersion {
+    type Iter = KVScanner;
+
     fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>> {
         debug!("get_state(). ns={:}, key={:}", namespace, key);
         let db_val = self.db.get(encode_data_key(namespace, key))?;
@@ -90,7 +92,7 @@ impl VersionedDB for RocksDBVersion {
         _namespace: &String,
         _start_key: &String,
         _end_key: &String,
-    ) -> Result<Box<dyn ResultsIterator>> {
+    ) -> Result<Self::Iter> {
         unimplemented!()
     }
 
@@ -98,7 +100,7 @@ impl VersionedDB for RocksDBVersion {
         &self,
         _namespace: &String,
         _query: &String,
-    ) -> Result<Box<dyn ResultsIterator>> {
+    ) -> Result<Self::Iter> {
         unimplemented!()
     }
 
@@ -164,6 +166,18 @@ impl VersionedDB for RocksDBVersion {
     }
 }
 
+pub struct  KVScanner {}
+
+impl ResultsIterator<VersionedKV> for KVScanner {
+    fn next(&self) -> Result<VersionedKV> {
+        unimplemented!()
+    }
+
+    fn close(&self) {
+        unimplemented!()
+    }
+}
+
 fn encode_data_key(ns: &String, key: &String) -> Vec<u8> {
     let mut v: Vec<u8> = Vec::new();
     v.push(DATA_KEY_PREFIX as u8);
@@ -203,6 +217,7 @@ fn decode_data_key(encoded_data_key: Vec<u8>) -> (String, String) {
 #[cfg(test)]
 mod tests {
     use crate::staterocksdb::{decode_data_key, encode_data_key};
+    use crate::statedb::{encode_data_key, decode_data_key};
 
     #[test]
     fn test_key() {

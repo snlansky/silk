@@ -2,14 +2,12 @@ mod statedb;
 mod staterocksdb;
 mod version;
 
-#[macro_use]
-extern crate log;
-
 use error::*;
 use silk_proto::VersionedValueProto;
 pub use statedb::*;
 pub use staterocksdb::*;
 pub use version::{are_same, Height};
+use crate::rwset::key::CompositeKey;
 
 // VersionedDBProvider provides an instance of an versioned DB
 pub trait VersionedDBProvider {
@@ -22,6 +20,8 @@ pub trait VersionedDBProvider {
 
 // VersionedDB lists methods that a db is supposed to implement
 pub trait VersionedDB {
+    type Iter: ResultsIterator<VersionedKV>;
+
     // get_state gets the value for given namespace and key. For a contract, the namespace corresponds to the contractId
     fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>>;
 
@@ -44,11 +44,11 @@ pub trait VersionedDB {
         namespace: &String,
         start_key: &String,
         end_key: &String,
-    ) -> Result<Box<dyn ResultsIterator>>;
+    ) -> Result<Self::Iter>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
     fn execute_query(&self, namespace: &String, query: &String)
-        -> Result<Box<dyn ResultsIterator>>;
+        -> Result<Self::Iter>;
 
     // apply_updates applies the batch to the underlying db.
     // height is the height of the highest transaction in the Batch that
@@ -113,15 +113,15 @@ impl VersionedValue {
 }
 
 // ResultsIterator iterates over query results
-pub trait ResultsIterator {
-    fn next(&self) -> Result<QueryResult>;
+pub trait ResultsIterator<T> {
+    fn next(&self) -> Result<T>;
     fn close(&self);
 }
 
-// QueryResult - a general interface for supporting different types of query results. Actual types differ for different queries
-pub enum QueryResult {
-    Int(i32),
-    Bytes(Vec<u8>),
+// VersionedKV encloses key and corresponding VersionedValue
+pub struct VersionedKV {
+    pub composite_key :CompositeKey,
+    pub versioned_value : VersionedValue,
 }
 
 #[cfg(test)]
