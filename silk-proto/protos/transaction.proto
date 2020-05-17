@@ -12,7 +12,7 @@ import "common.proto";
 
 // ProcessedTransaction wraps an Envelope that includes a transaction along with an indication
 // of whether the transaction was validated or invalidated by committing peer.
-// The use case is that GetTransactionByID API needs to retrieve the transaction Envelope
+// The use case is that get_transaction_by_id API needs to retrieve the transaction Envelope
 // from block storage, and return it to a client, and indicate whether the transaction
 // was validated or invalidated by committing peer. So that the originally submitted
 // transaction Envelope is not modified, the ProcessedTransaction wrapper is returned.
