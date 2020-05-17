@@ -19,13 +19,10 @@ pub struct UnlockedTxMgr<V: VersionedDB> {
 #[cfg(test)]
 mod tests {
     use error::*;
-    use rwset::validate::Validator;
     use silk_proto::*;
-    use simulator::{BasedTxSimulator, TxSimulator};
-    use statedb::*;
     use std::convert::{TryFrom, TryInto};
     use tempfile::TempDir;
-    use crate::statedb::{VersionedDBRocksProvider, Height, VersionedDBProvider, VersionedDB, VersionedValue};
+    use crate::statedb::{VersionedDBRocksProvider, VersionedValue, VersionedDB, Height, VersionedDBProvider};
     use crate::rwset::validate::Validator;
 
     #[test]
