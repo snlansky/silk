@@ -1,7 +1,7 @@
 use error::*;
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
-use crate::statedb::{VersionedDB, VersionedValue, Height, ResultsIterator};
+use crate::statedb::{VersionedDB, VersionedValue, Height};
 use crate::rwset::builder::{RWSetBuilder, TxSimulationResults};
 use crate::simulator::QueryResultsItr;
 

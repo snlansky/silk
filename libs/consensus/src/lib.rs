@@ -1,7 +1,7 @@
 use error::*;
-use tonic::transport::Channel;
 
-use silk_proto::consensus_client::ConsensusClient;
+
+
 use silk_proto::*;
 
 mod support;
@@ -71,7 +71,7 @@ impl ChainSupport {
 
 #[async_trait::async_trait]
 impl IChainSupport for ChainSupport {
-    async fn cutter_ordered(&self, vec: Vec<Transaction>) -> Vec<Vec<Transaction>> {
+    async fn cutter_ordered(&self, _vec: Vec<Transaction>) -> Vec<Vec<Transaction>> {
         unimplemented!()
     }
 

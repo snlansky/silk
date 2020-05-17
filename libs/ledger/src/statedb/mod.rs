@@ -126,7 +126,7 @@ pub struct VersionedKV {
 
 #[cfg(test)]
 mod tests {
-    use crate::statedb::UpdateBatch;
+    use crate::statedb::{UpdateBatch, VersionedDBProvider, Height, VersionedValue, VersionedDB};
     use crate::{Height, VersionedDB, VersionedDBProvider, VersionedValue};
     use tempfile::TempDir;
 
