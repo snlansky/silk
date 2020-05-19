@@ -47,11 +47,11 @@ impl crate::Ledger for KVLedger {
         unimplemented!()
     }
 
-    fn new_tx_simulator(&self, txid: String) -> Result<Box<TxSimulator>> {
+    fn new_tx_simulator(&self, txid: String) -> Result<Box<dyn TxSimulator>> {
         unimplemented!()
     }
 
-    fn new_query_executor(&self) -> Result<Box<QueryExecutor>> {
+    fn new_query_executor(&self) -> Result<Box<dyn QueryExecutor>> {
         unimplemented!()
     }
 

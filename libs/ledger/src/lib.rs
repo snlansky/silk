@@ -13,6 +13,12 @@ pub mod txmgr;
 pub mod ledger_mgmt;
 pub mod kvledger;
 
+// Initializer encapsulates dependencies for LedgerProvider
+pub struct Initializer{
+    // root_fs_path is the top-level directory where ledger files are stored.
+    pub root_fs_path: String
+}
+
 // LedgerProvider provides handle to ledger instances
 pub trait LedgerProvider{
     type L: Ledger;
