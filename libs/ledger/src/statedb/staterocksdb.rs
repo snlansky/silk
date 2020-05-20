@@ -21,7 +21,8 @@ pub struct VersionedDBRocksProvider {
 
 impl VersionedDBRocksProvider {
     pub fn new(path: impl Into<PathBuf>) -> Self {
-        let db = DB::open_default(path.into()).unwrap();
+        let path = path.into().join("version_db");
+        let db = DB::open_default(path).unwrap();
 
         VersionedDBRocksProvider {
             db: Arc::new(db),
@@ -33,18 +34,18 @@ impl VersionedDBRocksProvider {
 impl VersionedDBProvider for VersionedDBRocksProvider {
     type V = RocksDBVersion;
 
-    fn get_db_handle(&self, id: String) -> RocksDBVersion {
-        if !self.handler.contains_key(&id) {
+    fn get_db_handle(&self, id: &str) -> RocksDBVersion {
+        if !self.handler.contains_key(id) {
             self.handler.insert(
-                id.clone(),
+                id.to_string(),
                 RocksDBVersion {
                     db: self.db.clone(),
-                    name: id.clone(),
+                    name: id.to_string(),
                 },
             );
         }
 
-        let db = self.handler.get(&id).unwrap();
+        let db = self.handler.get(id).unwrap();
         let db = &*db;
         db.clone()
     }

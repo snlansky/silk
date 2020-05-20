@@ -29,7 +29,7 @@ impl <P: LedgerProvider>LedgerMgr<P>{
 }
 
 pub fn new() -> Result<LedgerMgr<Provider<VersionedDBRocksProvider>>> {
-    let init = Initializer{root_fs_path:"var/silk/produce".to_string()};
+    let init = Initializer{root_fs_path:"var/silk/production".to_string()};
     let vp = VersionedDBRocksProvider::new(&init.root_fs_path);
     let provider = Provider::new(init, vp)?;
     Ok(LedgerMgr::new(provider))

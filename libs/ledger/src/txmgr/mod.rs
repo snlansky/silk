@@ -33,7 +33,7 @@ mod tests {
     fn it_works() {
         let temp_dir = TempDir::new().unwrap();
         let provider = VersionedDBRocksProvider::new(temp_dir.into_path());
-        let vdb = provider.get_db_handle("chain_id".to_string());
+        let vdb = provider.get_db_handle("chain_id");
         let validate = Validator::new(vdb.clone());
 
         let mut sim = BasedTxSimulator::new("tx1".to_string(), vdb.clone());
@@ -132,7 +132,7 @@ mod tests {
     fn test_mvcc() {
         let temp_dir = TempDir::new().unwrap();
         let provider = VersionedDBRocksProvider::new(temp_dir.into_path());
-        let vdb = provider.get_db_handle("chain_id".to_string());
+        let vdb = provider.get_db_handle("chain_id");
         let validate = Validator::new(vdb.clone());
 
         {

@@ -33,7 +33,19 @@ impl <VP: VersionedDBProvider>crate::LedgerProvider for Provider<VP> {
 
     fn create(&self, genesis_block: &Block) -> Result<Self::L> {
         let ledger_id = get_chain_id_from_block(genesis_block)?;
-        unimplemented!()
+        if self.id_store.ledger_id_exists(&ledger_id)? {
+            return Err(from_str(format!("ledger {:} exist", ledger_id).as_str()));
+        }
+
+        self.id_store.create_ledger_id(&ledger_id, genesis_block)?;
+
+        // TODO: init block store
+        // TODO: init history db
+        let vdb = self.vdb_provider.get_db_handle(&ledger_id);
+
+        let kvl = KVLedger::new();
+
+        Ok(kvl)
     }
 
     fn open(&self, ledger_id: String) -> Result<Self::L> {
