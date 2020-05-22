@@ -1383,3 +1383,24 @@ pub struct BlockchainInfo {
     #[prost(bytes, tag = "3")]
     pub previous_block_hash: std::vec::Vec<u8>,
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PublicKey {
+    #[prost(enumeration = "KeyType", tag = "1")]
+    pub r#type: i32,
+    #[prost(bytes, tag = "2")]
+    pub data: std::vec::Vec<u8>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PrivateKey {
+    #[prost(enumeration = "KeyType", tag = "1")]
+    pub r#type: i32,
+    #[prost(bytes, tag = "2")]
+    pub data: std::vec::Vec<u8>,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum KeyType {
+    Rsa = 0,
+    Ed25519 = 1,
+    Secp256k1 = 2,
+}

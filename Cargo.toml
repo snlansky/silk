@@ -13,6 +13,7 @@ members = [
     "libs/utils",
     "libs/error",
     "libs/ledger",
+    "libs/identity",
     "fuzz",
 
     "contracts/contract-simple",

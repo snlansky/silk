@@ -1,0 +1,18 @@
+syntax = "proto3";
+package protos;
+
+enum KeyType {
+    RSA = 0;
+    Ed25519 = 1;
+    Secp256k1 = 2;
+}
+
+message PublicKey {
+    KeyType Type = 1;
+    bytes Data = 2;
+}
+
+message PrivateKey {
+    KeyType Type = 1;
+    bytes Data = 2;
+}
