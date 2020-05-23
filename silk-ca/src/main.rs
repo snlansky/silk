@@ -14,14 +14,14 @@ async fn pong(req: HttpRequest) -> impl Responder {
 // registering new users.
 #[post("/api/v1/register")]
 async fn register(req: HttpRequest) -> impl Responder {
-    unimplemented!()
+    "unimplemented!"
 }
 
 // Enroll execute enrollment request for registered user in CA server.
 // On success new Identity with ECert and generated csr are returned.
 #[post("/api/v1/enroll")]
 async fn enroll(req: HttpRequest) -> impl Responder {
-    unimplemented!()
+    "unimplemented!"
 }
 
 // Revoke revokes ECert in ca server.
@@ -30,7 +30,7 @@ async fn enroll(req: HttpRequest) -> impl Responder {
 // It is responsibility of the SDK user to update peers and set this certificate in every peer revocation list.
 #[post("/api/v1/revoke")]
 async fn revoke(req: HttpRequest) -> impl Responder {
-    unimplemented!()
+    "unimplemented!"
 }
 
 // ReEnroll create new certificate from old one. Useful when certificate is about to expire.
@@ -38,7 +38,7 @@ async fn revoke(req: HttpRequest) -> impl Responder {
 // In re-enrolment the old certificate is used to identify the identity.
 #[post("/api/v1/reenroll")]
 async fn re_enroll(req: HttpRequest) -> impl Responder {
-    unimplemented!()
+    "unimplemented!"
 }
 
 #[actix_rt::main]
