@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 silk-proto = { path = "../../silk-proto" }
 utils = { path = "../utils" }
+libp2p = "0.19.0"
 asn1_der = "0.6.1"
 bs58 = "0.3.0"
 ed25519-dalek = "1.0.0-pre.3"
@@ -20,6 +21,8 @@ rand = "0.7"
 sha2 = "0.8.0"
 thiserror = "1.0"
 zeroize = "1"
+rcgen = "0.8.2"
+webpki = "0.21.2"
 
 [target.'cfg(not(any(target_os = "emscripten", target_os = "unknown")))'.dependencies]
 ring = { version = "0.16.9", features = ["alloc", "std"], default-features = false }
