@@ -1,15 +1,15 @@
 use std::cell::RefCell;
-use std::collections::BTreeMap;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufReader, Read, Seek, SeekFrom};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::index::FilePointer;
-use crate::writer::block_path;
 use byteorder::{BigEndian, ReadBytesExt};
 use error::*;
 use silk_proto::*;
+use crate::fs::index::FilePointer;
+use crate::fs::writer::block_path;
+use std::collections::btree_map::BTreeMap;
 
 pub struct BlockStoreReader {
     path: Arc<PathBuf>,

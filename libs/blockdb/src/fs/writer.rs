@@ -4,11 +4,11 @@ use std::io::{BufWriter, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use crate::index::{BlockIndexInfo, CheckPoint, Index};
 use error::*;
 use std::ops::Range;
 
 use silk_proto::*;
+use crate::cp::CheckPoint;
 
 const BLOCK_FILE_THRESHOLD: u64 = 1024 * 1024 * 64;
 
