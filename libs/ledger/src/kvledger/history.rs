@@ -1,15 +1,13 @@
-use silk_proto::{KeyModification};
-use error::*;
-use crate::HistoryQueryExecutor;
 use crate::statedb::ResultsIterator;
+use crate::HistoryQueryExecutor;
+use error::*;
+use silk_proto::KeyModification;
 
-pub struct KVHistoryQueryExecutor {
-
-}
+pub struct KVHistoryQueryExecutor {}
 
 impl KVHistoryQueryExecutor {
     pub fn new() -> Self {
-        KVHistoryQueryExecutor{}
+        KVHistoryQueryExecutor {}
     }
 }
 
@@ -21,12 +19,11 @@ impl HistoryQueryExecutor for KVHistoryQueryExecutor {
     }
 }
 
-pub struct HistoryQueryResultsIterator {
-}
+pub struct HistoryQueryResultsIterator {}
 
 impl HistoryQueryResultsIterator {
     pub fn new() -> Self {
-        HistoryQueryResultsIterator{}
+        HistoryQueryResultsIterator {}
     }
 }
 
@@ -39,4 +36,3 @@ impl ResultsIterator<KeyModification> for HistoryQueryResultsIterator {
         unimplemented!()
     }
 }
-

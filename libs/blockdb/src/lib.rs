@@ -1,6 +1,6 @@
+mod cp;
 mod fs;
 mod store;
-mod cp;
 use error::*;
 use silk_proto::*;
 

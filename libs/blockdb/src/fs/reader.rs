@@ -4,11 +4,11 @@ use std::io::{self, BufReader, Read, Seek, SeekFrom};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::fs::index::FilePointer;
+use crate::fs::writer::block_path;
 use byteorder::{BigEndian, ReadBytesExt};
 use error::*;
 use silk_proto::*;
-use crate::fs::index::FilePointer;
-use crate::fs::writer::block_path;
 use std::collections::btree_map::BTreeMap;
 
 pub struct BlockStoreReader {

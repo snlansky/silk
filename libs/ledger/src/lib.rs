@@ -1,26 +1,26 @@
 #[macro_use]
 extern crate log;
 
-use silk_proto::*;
-use error::*;
-use crate::statedb::ResultsIterator;
 use crate::simulator::TxSimulator;
+use crate::statedb::ResultsIterator;
+use error::*;
+use silk_proto::*;
 
+pub mod kvledger;
+pub mod ledger_mgmt;
 pub mod rwset;
 pub mod simulator;
 pub mod statedb;
 pub mod txmgr;
-pub mod ledger_mgmt;
-pub mod kvledger;
 
 // Initializer encapsulates dependencies for LedgerProvider
-pub struct Initializer{
+pub struct Initializer {
     // root_fs_path is the top-level directory where ledger files are stored.
-    pub root_fs_path: String
+    pub root_fs_path: String,
 }
 
 // LedgerProvider provides handle to ledger instances
-pub trait LedgerProvider{
+pub trait LedgerProvider {
     type L: Ledger;
     // create creates a new ledger with the given genesis block.
     // This function guarantees that the creation of ledger and committing the genesis block would an atomic action
@@ -38,7 +38,7 @@ pub trait LedgerProvider{
 
 // Ledger differs from the OrdererLedger in that Ledger locally maintain a bitmask
 // that tells apart valid transactions from invalid ones
-pub trait Ledger{
+pub trait Ledger {
     type BlockIter: ResultsIterator<Block>;
     type HQE: HistoryQueryExecutor;
 

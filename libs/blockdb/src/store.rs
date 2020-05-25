@@ -1,10 +1,13 @@
-use std::path::PathBuf;
+use crate::cp::{
+    construct_block_hash_key, construct_block_num_key, construct_check_point_key,
+    construct_tx_hash_key, CheckPoint,
+};
+use crate::{BlockIterator, BlockStore};
 use error::*;
-use crate::{BlockStore, BlockIterator};
-use silk_proto::{Block, BlockchainInfo, Envelope, TxValidationCode, Transaction, Proposal};
 use rocksdb::WriteBatch;
-use crate::cp::{construct_check_point_key, CheckPoint, construct_block_hash_key, construct_block_num_key, construct_tx_hash_key};
 use serde::de::DeserializeOwned;
+use silk_proto::{Block, BlockchainInfo, Envelope, Proposal, Transaction, TxValidationCode};
+use std::path::PathBuf;
 
 pub struct Store {
     db: rocksdb::DB,
@@ -15,16 +18,15 @@ impl Store {
         let path = path.into();
         let path = path.join("blk_store");
         let db = rocksdb::DB::open_default(
-            path
-                .to_str()
+            path.to_str()
                 .ok_or_else(|| "get path str error".to_string())?,
         )?;
-        Ok(Store{db})
+        Ok(Store { db })
     }
 
     fn get<T>(&self, key: &[u8]) -> Result<Option<T>>
-        where
-            T: DeserializeOwned,
+    where
+        T: DeserializeOwned,
     {
         match self.db.get(key)? {
             Some(ref dbv) => Ok(Some(serde_json::from_slice(dbv)?)),
@@ -41,34 +43,38 @@ impl BlockStore for Store {
         if let (Some(header), Some(data)) = (block.header.clone(), block.data.clone()) {
             if check_point.is_none() {
                 if header.number != 0 {
-                    return Err(from_str("block not is genesis block"))
+                    return Err(from_str("block not is genesis block"));
                 }
             } else {
                 let mut check_point = check_point.unwrap();
                 // the block has been saved
                 if check_point.block_num >= header.number {
-                    return Ok(())
+                    return Ok(());
                 }
 
                 // lose blocks
                 if check_point.block_num + 1 < header.number {
-                    return Err(from_str("block number > checkpoint number + 1"))
+                    return Err(from_str("block number > checkpoint number + 1"));
                 }
 
                 let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
 
-                check_point.block_num  = header.number;
+                check_point.block_num = header.number;
                 check_point.block_hash = hash.to_vec();
                 let cp = serde_json::to_vec(&check_point)?;
                 batch.put(&construct_check_point_key(), &cp);
-                batch.put(&construct_block_hash_key(&hash), &utils::proto::marshal(block)?);
+                batch.put(
+                    &construct_block_hash_key(&hash),
+                    &utils::proto::marshal(block)?,
+                );
                 batch.put(&construct_block_num_key(header.number), &hash);
 
                 // record txs id mapping block hash
                 for evn in data.data {
                     let tx = utils::proto::unmarshal::<Transaction>(&evn)?;
                     let signed_proposal = tx.signed_proposal.unwrap();
-                    let proposal = utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes)?;
+                    let proposal =
+                        utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes)?;
                     let tx_header = proposal.header.unwrap();
                     batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
                 }

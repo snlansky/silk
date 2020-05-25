@@ -1,17 +1,15 @@
-use silk_proto::*;
-use error::*;
+use crate::kvledger::history::KVHistoryQueryExecutor;
 use crate::simulator::TxSimulator;
-use crate::{QueryExecutor};
-use crate::kvledger::history::{KVHistoryQueryExecutor};
 use crate::statedb::ResultsIterator;
+use crate::QueryExecutor;
+use error::*;
+use silk_proto::*;
 
-pub struct KVLedger {
-
-}
+pub struct KVLedger {}
 
 impl KVLedger {
     pub fn new() -> Self {
-        KVLedger{}
+        KVLedger {}
     }
 }
 
@@ -70,7 +68,7 @@ impl crate::Ledger for KVLedger {
 
 pub struct BlockIter {}
 
-impl  ResultsIterator<Block> for BlockIter {
+impl ResultsIterator<Block> for BlockIter {
     fn next(&self) -> Result<Block> {
         unimplemented!()
     }

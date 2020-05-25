@@ -1,12 +1,12 @@
-
 use error::*;
 use rocksdb::{WriteBatch, DB};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use silk_proto::*;
 
+use crate::cp::{
+    construct_block_hash_key, construct_block_num_key, construct_check_point_key, CheckPoint,
+};
 use std::ops::Range;
-use crate::cp::{CheckPoint, construct_block_hash_key, construct_block_num_key, construct_check_point_key};
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FilePointer {
@@ -88,15 +88,13 @@ impl Index {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
+    use crate::cp::{construct_block_hash_key, construct_block_num_key};
+    use crate::fs::index::{BlockIndexInfo, FilePointer, Index};
     use rocksdb::DB;
     use silk_proto::*;
     use tempfile::TempDir;
-    use crate::cp::{construct_block_num_key, construct_block_hash_key};
-    use crate::fs::index::{BlockIndexInfo, FilePointer, Index};
 
     #[test]
     fn test_construct() {

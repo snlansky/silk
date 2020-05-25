@@ -1,7 +1,6 @@
 use byteorder::{BigEndian, WriteBytesExt};
 use serde::{Deserialize, Serialize};
 
-
 pub const BLOCK_NUM_IDX_KEY_PREFIX: char = 'n';
 pub const BLOCK_HASH_IDX_KEY_PREFIX: char = 'h';
 pub const TX_ID_IDX_KEY_PREFIX: char = 't';

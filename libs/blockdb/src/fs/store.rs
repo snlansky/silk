@@ -3,12 +3,12 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::fs::index::{BlockIndexInfo, Index};
+use crate::fs::reader::BlockStoreReader;
+use crate::fs::writer::BlockStoreWriter;
+use crate::BlockIterator;
 use error::*;
 use silk_proto::*;
-use crate::fs::writer::BlockStoreWriter;
-use crate::fs::reader::BlockStoreReader;
-use crate::fs::index::{Index, BlockIndexInfo};
-use crate::BlockIterator;
 
 pub struct BlockStore {
     index: Index,

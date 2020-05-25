@@ -1,4 +1,4 @@
-use actix_web::{get, post, App, HttpServer, Responder, HttpRequest};
+use actix_web::{get, post, App, HttpRequest, HttpServer, Responder};
 #[macro_use]
 extern crate actix_web;
 
@@ -43,14 +43,15 @@ async fn re_enroll(_req: HttpRequest) -> impl Responder {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new()
-        .service(pong)
-        .service(register)
-        .service(enroll)
-        .service(revoke)
-        .service(re_enroll)
-    )
-        .bind("0.0.0.0:8080")?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(pong)
+            .service(register)
+            .service(enroll)
+            .service(revoke)
+            .service(re_enroll)
+    })
+    .bind("0.0.0.0:8080")?
+    .run()
+    .await
 }
