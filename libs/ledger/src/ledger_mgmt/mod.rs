@@ -1,7 +1,7 @@
-use crate::{Ledger, LedgerProvider, Initializer};
+use crate::{LedgerProvider, Initializer};
 use dashmap::DashMap;
 use crate::kvledger::kv_ledger_provider::Provider;
-use crate::kvledger::kv_ledger::KVLedger;
+
 use error::*;
 use silk_proto::Block;
 use crate::statedb::VersionedDBRocksProvider;
@@ -16,14 +16,14 @@ impl <P: LedgerProvider>LedgerMgr<P>{
         LedgerMgr{ opened_ledgers: DashMap::new(), ledger_provider: provider }
     }
 
-    pub fn create_ledger(&self, id: String, genesis_block: &Block) -> Result<P::L> {
+    pub fn create_ledger(&self, _id: String, genesis_block: &Block) -> Result<P::L> {
         let l= self.ledger_provider.create(genesis_block)?;
         // TODO: insert opened_ledgers
         // self.opened_ledgers.insert(id, l);
         Ok(l)
     }
 
-    pub fn open_ledger(&self, id: String) -> Result<Option<P::L>> {
+    pub fn open_ledger(&self, _id: String) -> Result<Option<P::L>> {
         unimplemented!()
     }
 }

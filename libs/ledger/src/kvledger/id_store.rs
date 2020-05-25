@@ -1,6 +1,6 @@
 use rocksdb::DB;
 use error::*;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use byteorder::WriteBytesExt;
 use std::io::Write;
 use silk_proto::Block;

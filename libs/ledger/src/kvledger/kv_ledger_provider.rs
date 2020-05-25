@@ -2,7 +2,7 @@ use silk_proto::Block;
 use error::*;
 use crate::kvledger::kv_ledger::KVLedger;
 use utils::utils::get_chain_id_from_block;
-use crate::statedb::{VersionedDBProvider, VersionedDBRocksProvider, VersionedDB, ResultsIterator, VersionedKV};
+use crate::statedb::{VersionedDBProvider};
 use crate::Initializer;
 use crate::kvledger::id_store::IDStore;
 
@@ -41,18 +41,18 @@ impl <VP: VersionedDBProvider>crate::LedgerProvider for Provider<VP> {
 
         // TODO: init block store
         // TODO: init history db
-        let vdb = self.vdb_provider.get_db_handle(&ledger_id);
+        let _vdb = self.vdb_provider.get_db_handle(&ledger_id);
 
         let kvl = KVLedger::new();
 
         Ok(kvl)
     }
 
-    fn open(&self, ledger_id: String) -> Result<Self::L> {
+    fn open(&self, _ledger_id: String) -> Result<Self::L> {
         unimplemented!()
     }
 
-    fn exists(&self, ledger_id: String) -> Result<bool> {
+    fn exists(&self, _ledger_id: String) -> Result<bool> {
         unimplemented!()
     }
 

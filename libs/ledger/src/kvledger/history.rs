@@ -1,4 +1,4 @@
-use silk_proto::{Block, KeyModification};
+use silk_proto::{KeyModification};
 use error::*;
 use crate::HistoryQueryExecutor;
 use crate::statedb::ResultsIterator;
@@ -16,7 +16,7 @@ impl KVHistoryQueryExecutor {
 impl HistoryQueryExecutor for KVHistoryQueryExecutor {
     type Iter = HistoryQueryResultsIterator;
 
-    fn get_history_for_key(namespace: String, key: String) -> Result<Self::Iter> {
+    fn get_history_for_key(_namespace: String, _key: String) -> Result<Self::Iter> {
         unimplemented!()
     }
 }
