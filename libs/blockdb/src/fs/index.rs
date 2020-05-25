@@ -1,11 +1,11 @@
-use byteorder::{BigEndian, WriteBytesExt};
+
 use error::*;
 use rocksdb::{WriteBatch, DB};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use silk_proto::*;
 
 use std::ops::Range;
-use crate::cp::{CheckPoint, INDEX_CHECKPOINT_KEY_STR, BLOCK_NUM_IDX_KEY_PREFIX, BLOCK_HASH_IDX_KEY_PREFIX, TX_ID_IDX_KEY_PREFIX, construct_block_hash_key, construct_block_num_key, construct_check_point_key};
+use crate::cp::{CheckPoint, construct_block_hash_key, construct_block_num_key, construct_check_point_key};
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -96,7 +96,7 @@ mod tests {
     use silk_proto::*;
     use tempfile::TempDir;
     use crate::cp::{construct_block_num_key, construct_block_hash_key};
-    use crate::fs::index::{BlockIndexInfo, FilePointer};
+    use crate::fs::index::{BlockIndexInfo, FilePointer, Index};
 
     #[test]
     fn test_construct() {

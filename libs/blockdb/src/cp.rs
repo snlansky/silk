@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, WriteBytesExt};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 
 pub const BLOCK_NUM_IDX_KEY_PREFIX: char = 'n';

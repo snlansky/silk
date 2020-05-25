@@ -125,7 +125,7 @@ mod tests {
     fn test_store() {
         let temp_dir = TempDir::new().unwrap();
         let dir = temp_dir.path().to_str().unwrap();
-        let mut store = crate::store::BlockStore::open(dir).unwrap();
+        let mut store = super::BlockStore::open(dir).unwrap();
 
         for i in 0..1000 {
             store.add_block(&create_blk(i)).unwrap();
