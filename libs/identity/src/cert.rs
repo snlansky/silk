@@ -9,21 +9,71 @@ use ring::signature;
 use ring::signature::{EcdsaKeyPair, EcdsaSigningAlgorithm,
                       Ed25519KeyPair, RSA_PKCS1_SHA256, RsaKeyPair};
 
-const SILK_ORG: &str = "www.silk.org";
-const SILK_COMMON: &str = "www.silk.com";
+pub struct Register {
+    pub is_ca: bool,
+    pub dns: String,
+    pub domain: String,
+    pub org_name: String,
+    pub common_name: String,
+}
+
+impl Default for Register {
+    fn default() -> Self {
+        Register{
+            is_ca: false,
+            dns: "silk.dns".to_string(),
+            domain: "www.silk.com".to_string(),
+            org_name: "www.silk.org".to_string(),
+            common_name: "www.silk.com".to_string()
+        }
+    }
+}
+
+//
+// pub fn default_params() -> CertificateParams {
+//     let mut params = CertificateParams::new(vec![
+//         "crabs.crabs".to_string(), "localhost".to_string(),
+//     ]);
+//
+//     params.distinguished_name.push(DnType::OrganizationName, "Crab widgits SE");
+//     params.distinguished_name.push(DnType::CommonName, "Master CA");
+//     // params.alg = &PKCS_ED25519;
+//     params
+// }
 
 
-pub fn ed25519_cert_params(domain: String, org_name:String, common_name: String) -> CertificateParams {
-    let mut params = CertificateParams::new(vec![domain]);
 
-    params.distinguished_name.push(DnType::OrganizationName, org_name);
-    params.distinguished_name.push(DnType::CommonName, common_name);
-    params.alg = &PKCS_ED25519;
+
+pub fn cert_params(alg: Option<&'static rcgen::SignatureAlgorithm>, register: Register) -> CertificateParams {
+    let mut params = CertificateParams::new(vec![register.dns, register.domain]);
+
+    params.distinguished_name.push(DnType::OrganizationName, register.org_name);
+    params.distinguished_name.push(DnType::CommonName, register.common_name);
+    if alg.is_some() {
+        params.alg = alg.unwrap();
+    }
+    if register.is_ca {
+        params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
+    }
     params
 }
 
-fn check_cert<'a, 'b>(cert_der :&[u8], cert :&'a Certificate, alg :&SignatureAlgorithm,
-                      sign_fn :impl FnOnce(&'a Certificate, &'b [u8]) -> Vec<u8>) {
+pub fn create_cert(params: CertificateParams) -> Result<rcgen::Certificate, rcgen::RcgenError> {
+    Certificate::from_params(params)
+}
+
+
+pub fn create_ca_cert() -> Certificate {
+    let mut params = cert_params(None, Register{
+        is_ca: true,
+        ..Register::default()
+    });
+    params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
+    Certificate::from_params(params).unwrap()
+}
+
+
+fn check_cert1<'a, 'b>(cert_der :&[u8], cert :&'a Certificate, alg :&SignatureAlgorithm, signature: &'b Vec<u8>) {
     println!("{}", cert.serialize_pem().unwrap());
     let trust_anchor = cert_der_as_trust_anchor(&cert_der).unwrap();
     let trust_anchor_list = &[trust_anchor];
@@ -42,31 +92,20 @@ fn check_cert<'a, 'b>(cert_der :&[u8], cert :&'a Certificate, alg :&SignatureAlg
     ).expect("valid TLS server cert");
 
     // (2/3) Check that the cert is valid for the given DNS name
-    let dns_name = DNSNameRef::try_from_ascii_str("crabs.crabs").unwrap();
+    let dns_name = DNSNameRef::try_from_ascii_str("silk.dns").unwrap();
     end_entity_cert.verify_is_valid_for_dns_name(
         dns_name,
     ).expect("valid for DNS name");
 
     // (3/3) Check that a message signed by the cert is valid.
     let msg = b"Hello, World! This message is signed.";
-    let signature = sign_fn(&cert, msg);
     end_entity_cert.verify_signature(
         &alg,
         msg,
-        &signature,
+        signature,
     ).expect("signature is valid");
 }
 
-pub fn default_params() -> CertificateParams {
-    let mut params = CertificateParams::new(vec![
-        "crabs.crabs".to_string(), "localhost".to_string(),
-    ]);
-
-    params.distinguished_name.push(DnType::OrganizationName, "Crab widgits SE");
-    params.distinguished_name.push(DnType::CommonName, "Master CA");
-    // params.alg = &PKCS_ED25519;
-    params
-}
 
 
 
