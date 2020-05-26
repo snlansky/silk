@@ -53,6 +53,7 @@ impl Index {
             offset: info.fp.pos + info.fp.len,
             block_hash: hash.to_vec(),
             block_num: header.number,
+            previous_block_hash: header.previous_hash.clone(),
         };
         let cp = serde_json::to_vec(&check_point)?;
         batch.put(&construct_check_point_key(), &cp);

@@ -66,11 +66,11 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn BlockIterator>> {
+    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<BlockIterator>> {
         unimplemented!()
     }
 
-    fn retrieve_block_by_hash(&self, _block_hash: &[u8]) -> Result<Block> {
+    fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>> {
         unimplemented!()
     }
 
@@ -82,19 +82,19 @@ impl crate::BlockStore for BlockStore {
         }
     }
 
-    fn retrieve_tx_by_id(&self, _tx_id: String) -> Result<Envelope> {
+    fn retrieve_tx_by_id(&self, tx_id: String) -> Result<Option<Transaction>> {
         unimplemented!()
     }
 
-    fn retrieve_tx_by_blocknum_txnum(&self, _block_num: u64, _tx_num: u64) -> Result<Envelope> {
+    fn retrieve_tx_by_blocknum_txnum(&self, block_num: u64, tx_num: u64) -> Result<Option<Transaction>> {
         unimplemented!()
     }
 
-    fn retrieve_block_by_txid(&self, _tx_id: String) -> Result<Block> {
+    fn retrieve_block_by_txid(&self, tx_id: String) -> Result<Option<Block>> {
         unimplemented!()
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
+    fn retrieve_tx_validationcode_by_txid(&self, tx_id: String) -> Result<TxValidationCode> {
         unimplemented!()
     }
 }

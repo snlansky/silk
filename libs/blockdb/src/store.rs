@@ -25,8 +25,8 @@ impl Store {
     }
 
     fn get<T>(&self, key: &[u8]) -> Result<Option<T>>
-    where
-        T: DeserializeOwned,
+        where
+            T: DeserializeOwned,
     {
         match self.db.get(key)? {
             Some(ref dbv) => Ok(Some(serde_json::from_slice(dbv)?)),
@@ -61,6 +61,7 @@ impl BlockStore for Store {
 
                 check_point.block_num = header.number;
                 check_point.block_hash = hash.to_vec();
+                check_point.previous_block_hash = header.previous_hash;
                 let cp = serde_json::to_vec(&check_point)?;
                 batch.put(&construct_check_point_key(), &cp);
                 batch.put(
@@ -71,11 +72,7 @@ impl BlockStore for Store {
 
                 // record txs id mapping block hash
                 for evn in data.data {
-                    let tx = utils::proto::unmarshal::<Transaction>(&evn)?;
-                    let signed_proposal = tx.signed_proposal.unwrap();
-                    let proposal =
-                        utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes)?;
-                    let tx_header = proposal.header.unwrap();
+                    let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
                     batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
                 }
                 self.db.write(batch)?;
@@ -87,38 +84,103 @@ impl BlockStore for Store {
     }
 
     fn get_blockchain_info(&self) -> Result<BlockchainInfo> {
-        unimplemented!()
+        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        match check_point {
+            Some(cp) => {
+                Ok(BlockchainInfo {
+                    height: cp.block_num,
+                    current_block_hash: cp.block_hash,
+                    previous_block_hash: cp.previous_block_hash,
+                })
+            }
+            None => {
+                Ok(BlockchainInfo {
+                    height: 0,
+                    current_block_hash: vec![],
+                    previous_block_hash: vec![],
+                })
+            }
+        }
     }
 
     fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn BlockIterator>> {
         unimplemented!()
     }
 
-    fn retrieve_block_by_hash(&self, _block_hash: &[u8]) -> Result<Block> {
-        unimplemented!()
+    fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>> {
+        let blk_bytes = self.db.get(&construct_block_hash_key(block_hash))?;
+        if blk_bytes.is_none() {
+            return Ok(None);
+        }
+
+        let block = utils::proto::unmarshal(&blk_bytes.unwrap())?;
+        Ok(Some(block))
     }
 
-    fn retrieve_block_by_number(&self, _block_num: u64) -> Result<Block> {
-        unimplemented!()
+    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
+        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        match check_point {
+            Some(cp) => {
+                let mut num = block_num;
+                if block_num > cp.block_num {
+                    num = cp.block_num
+                }
+                let blk_bytes = self.db.get(&construct_block_num_key(num))?.unwrap();
+                let blk = utils::proto::unmarshal(&blk_bytes)?;
+                Ok(blk)
+            }
+            None => {
+                Ok(Block {
+                    header: None,
+                    data: None,
+                    metadata: None,
+                })
+            }
+        }
     }
 
-    fn retrieve_tx_by_id(&self, _tx_id: String) -> Result<Envelope> {
-        unimplemented!()
+    fn retrieve_tx_by_id(&self, tx_id: String) -> Result<Option<Transaction>> {
+        let blk = self.retrieve_block_by_txid(tx_id.clone())?;
+        if blk.is_none() {
+            return Ok(None);
+        }
+        let blk = blk.unwrap();
+        for env in blk.data.unwrap().data {
+            let (tx, header) = utils::utils::get_tx_header_from_data(&env)?;
+            if header.tx_id.eq(&tx_id) {
+                return Ok(Some(tx));
+            }
+        }
+        Ok(None)
     }
 
-    fn retrieve_tx_by_blocknum_txnum(&self, _block_num: u64, _tx_num: u64) -> Result<Envelope> {
-        unimplemented!()
+    fn retrieve_tx_by_blocknum_txnum(&self, block_num: u64, tx_num: u64) -> Result<Option<Transaction>> {
+        let blk = self.retrieve_block_by_number(block_num)?;
+        if blk.data.is_none() {
+            return Ok(None);
+        }
+        let txs = blk.data.unwrap();
+        let tx_bytes = txs.data.get(tx_num as usize);
+        if tx_bytes.is_none() {
+            return Ok(None);
+        }
+
+        let (tx , _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
+        Ok(Some(tx))
     }
 
-    fn retrieve_block_by_txid(&self, _tx_id: String) -> Result<Block> {
-        unimplemented!()
+    fn retrieve_block_by_txid(&self, tx_id: String) -> Result<Option<Block>> {
+        let hash = self.db.get(&construct_tx_hash_key(tx_id))?;
+        if hash.is_none() {
+            return Ok(None);
+        }
+        let hash = hash.unwrap();
+        let blk_bytes = self.db.get(&construct_block_hash_key(&hash))?.unwrap();
+        let blk = utils::proto::unmarshal(&blk_bytes)?;
+        Ok(Some(blk))
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
-        unimplemented!()
-    }
-
-    fn shutdown() {
+    fn retrieve_tx_validationcode_by_txid(&self, tx_id: String) -> Result<TxValidationCode> {
         unimplemented!()
     }
 }
