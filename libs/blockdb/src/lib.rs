@@ -1,8 +1,6 @@
-mod index;
-mod reader;
+mod cp;
+mod fs;
 mod store;
-mod writer;
-
 use error::*;
 use silk_proto::*;
 

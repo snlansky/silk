@@ -1,23 +1,12 @@
-use byteorder::{BigEndian, WriteBytesExt};
 use error::*;
 use rocksdb::{WriteBatch, DB};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use silk_proto::*;
 
+use crate::cp::{
+    construct_block_hash_key, construct_block_num_key, construct_check_point_key, CheckPoint,
+};
 use std::ops::Range;
-
-const BLOCK_NUM_IDX_KEY_PREFIX: char = 'n';
-const BLOCK_HASH_IDX_KEY_PREFIX: char = 'h';
-const TX_ID_IDX_KEY_PREFIX: char = 't';
-const INDEX_CHECKPOINT_KEY_STR: &str = "index_check_point_key";
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CheckPoint {
-    pub suffix: u64,
-    pub offset: u64,
-    pub block_num: u64,
-    pub block_hash: Vec<u8>,
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FilePointer {
@@ -66,7 +55,7 @@ impl Index {
             block_num: header.number,
         };
         let cp = serde_json::to_vec(&check_point)?;
-        batch.put(INDEX_CHECKPOINT_KEY_STR.as_bytes(), &cp);
+        batch.put(&construct_check_point_key(), &cp);
 
         // TODO: record tx id
 
@@ -75,7 +64,7 @@ impl Index {
     }
 
     pub fn get_check_point(&self) -> Result<Option<CheckPoint>> {
-        self.get(INDEX_CHECKPOINT_KEY_STR.as_ref())
+        self.get(&construct_check_point_key())
     }
 
     pub fn get_fp_by_number(&self, num: u64) -> Result<Option<FilePointer>> {
@@ -99,30 +88,10 @@ impl Index {
     }
 }
 
-fn construct_block_num_key(block_num: u64) -> Vec<u8> {
-    let mut v: Vec<u8> = Vec::with_capacity(1 + 8);
-    v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX as u8);
-    v.write_u64::<BigEndian>(block_num);
-    v
-}
-
-fn construct_block_hash_key(block_hash: &[u8]) -> Vec<u8> {
-    let mut v = vec![BLOCK_HASH_IDX_KEY_PREFIX as u8];
-    v.append(&mut block_hash.to_vec());
-    v
-}
-
-fn construct_tx_hash_key(tx: String) -> Vec<u8> {
-    let mut v = vec![TX_ID_IDX_KEY_PREFIX as u8];
-    v.append(&mut tx.into_bytes());
-    v
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::index::{
-        construct_block_hash_key, construct_block_num_key, BlockIndexInfo, FilePointer, Index,
-    };
+    use crate::cp::{construct_block_hash_key, construct_block_num_key};
+    use crate::fs::index::{BlockIndexInfo, FilePointer, Index};
     use rocksdb::DB;
     use silk_proto::*;
     use tempfile::TempDir;

@@ -1,65 +1,89 @@
-use rocksdb::DB;
-use std::fs;
-use std::path::PathBuf;
-use std::sync::Arc;
-
-use crate::index::{BlockIndexInfo, Index};
-use crate::reader::BlockStoreReader;
-use crate::writer::BlockStoreWriter;
-use crate::BlockIterator;
+use crate::cp::{
+    construct_block_hash_key, construct_block_num_key, construct_check_point_key,
+    construct_tx_hash_key, CheckPoint,
+};
+use crate::{BlockIterator, BlockStore};
 use error::*;
-use silk_proto::*;
+use rocksdb::WriteBatch;
+use serde::de::DeserializeOwned;
+use silk_proto::{Block, BlockchainInfo, Envelope, Proposal, Transaction, TxValidationCode};
+use std::path::PathBuf;
 
-pub struct BlockStore {
-    index: Index,
-    writer: BlockStoreWriter,
-    reader: BlockStoreReader,
-    latest: Block,
-    path: Arc<PathBuf>,
+pub struct Store {
+    db: rocksdb::DB,
 }
 
-impl BlockStore {
-    pub fn open(path: impl Into<PathBuf>) -> Result<BlockStore> {
-        let path = Arc::new(path.into());
-        let index_path = path.join("index");
-        fs::create_dir_all(&index_path)?;
-        let db = DB::open_default(
-            index_path
-                .to_str()
+impl Store {
+    pub fn open(path: impl Into<PathBuf>) -> Result<Self> {
+        let path = path.into();
+        let path = path.join("blk_store");
+        let db = rocksdb::DB::open_default(
+            path.to_str()
                 .ok_or_else(|| "get path str error".to_string())?,
         )?;
-        let index = Index::new(db);
-        let cp = index.get_check_point()?;
+        Ok(Store { db })
+    }
 
-        let blk_path = Arc::new(path.join("chain"));
-        fs::create_dir_all(&*blk_path.clone())?;
-
-        // TODO: process sync block form files into index when index was clear.
-        // or. index check point belong block files, we must clean index and sync again.
-
-        let writer = BlockStoreWriter::new(blk_path.clone(), cp)?;
-        let reader = BlockStoreReader::new(blk_path);
-
-        Ok(BlockStore {
-            index,
-            writer,
-            reader,
-            // TODO init
-            latest: Block {
-                header: None,
-                data: None,
-                metadata: None,
-            },
-            path,
-        })
+    fn get<T>(&self, key: &[u8]) -> Result<Option<T>>
+    where
+        T: DeserializeOwned,
+    {
+        match self.db.get(key)? {
+            Some(ref dbv) => Ok(Some(serde_json::from_slice(dbv)?)),
+            None => Ok(None),
+        }
     }
 }
 
-impl super::BlockStore for BlockStore {
+impl BlockStore for Store {
     fn add_block(&mut self, block: &Block) -> Result<()> {
-        self.latest = block.clone();
-        let fp = self.writer.save(block)?.into();
-        self.index.refresh(BlockIndexInfo { fp, block })
+        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        let mut batch = WriteBatch::default();
+
+        if let (Some(header), Some(data)) = (block.header.clone(), block.data.clone()) {
+            if check_point.is_none() {
+                if header.number != 0 {
+                    return Err(from_str("block not is genesis block"));
+                }
+            } else {
+                let mut check_point = check_point.unwrap();
+                // the block has been saved
+                if check_point.block_num >= header.number {
+                    return Ok(());
+                }
+
+                // lose blocks
+                if check_point.block_num + 1 < header.number {
+                    return Err(from_str("block number > checkpoint number + 1"));
+                }
+
+                let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
+
+                check_point.block_num = header.number;
+                check_point.block_hash = hash.to_vec();
+                let cp = serde_json::to_vec(&check_point)?;
+                batch.put(&construct_check_point_key(), &cp);
+                batch.put(
+                    &construct_block_hash_key(&hash),
+                    &utils::proto::marshal(block)?,
+                );
+                batch.put(&construct_block_num_key(header.number), &hash);
+
+                // record txs id mapping block hash
+                for evn in data.data {
+                    let tx = utils::proto::unmarshal::<Transaction>(&evn)?;
+                    let signed_proposal = tx.signed_proposal.unwrap();
+                    let proposal =
+                        utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes)?;
+                    let tx_header = proposal.header.unwrap();
+                    batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
+                }
+                self.db.write(batch)?;
+            }
+            Ok(())
+        } else {
+            Err(from_str("block header or data is null"))
+        }
     }
 
     fn get_blockchain_info(&self) -> Result<BlockchainInfo> {
@@ -74,12 +98,8 @@ impl super::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
-        let fp = self.index.get_fp_by_number(block_num)?;
-        match fp {
-            Some(fp) => self.reader.read_blk(fp),
-            None => Ok(self.latest.clone()),
-        }
+    fn retrieve_block_by_number(&self, _block_num: u64) -> Result<Block> {
+        unimplemented!()
     }
 
     fn retrieve_tx_by_id(&self, _tx_id: String) -> Result<Envelope> {
@@ -97,41 +117,8 @@ impl super::BlockStore for BlockStore {
     fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
         unimplemented!()
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use crate::BlockStore;
-    use silk_proto::*;
-    use tempfile::TempDir;
-
-    fn create_blk(i: u64) -> Block {
-        let header = BlockHeader {
-            number: i,
-            previous_hash: format!("previous_hash_{:}", i).into_bytes(),
-            data_hash: format!("data_hash_{:}", i).into_bytes(),
-        };
-
-        let data = BlockData {
-            data: vec![format!("tx data: {:}", i).into_bytes()],
-        };
-        Block {
-            header: Some(header),
-            data: Some(data),
-            metadata: None,
-        }
-    }
-    #[test]
-    fn test_store() {
-        let temp_dir = TempDir::new().unwrap();
-        let dir = temp_dir.path().to_str().unwrap();
-        let mut store = crate::store::BlockStore::open(dir).unwrap();
-
-        for i in 0..1000 {
-            store.add_block(&create_blk(i)).unwrap();
-        }
-
-        let b111 = store.retrieve_block_by_number(111).unwrap();
-        assert_eq!(b111, create_blk(111))
+    fn shutdown() {
+        unimplemented!()
     }
 }

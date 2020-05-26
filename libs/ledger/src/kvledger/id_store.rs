@@ -1,19 +1,21 @@
-use rocksdb::DB;
-use error::*;
-use std::path::{Path, PathBuf};
 use byteorder::WriteBytesExt;
-use std::io::Write;
+use error::*;
+use rocksdb::DB;
 use silk_proto::Block;
+use std::io::Write;
+use std::path::PathBuf;
 
 pub struct IDStore {
-    db: DB
+    db: DB,
 }
 
 impl IDStore {
     pub fn new(path: impl Into<PathBuf>) -> Result<Self> {
         let path = path.into();
         let path = path.join("ledger_provider");
-        Ok(IDStore { db: rocksdb::DB::open_default(path)? })
+        Ok(IDStore {
+            db: rocksdb::DB::open_default(path)?,
+        })
     }
 
     pub fn create_ledger_id(&self, ledger_id: &String, block: &Block) -> Result<()> {
