@@ -184,3 +184,94 @@ impl BlockStore for Store {
         unimplemented!()
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use silk_proto::*;
+    use error::*;
+    use crate::store::Store;
+    use tempfile::TempDir;
+    use crate::BlockStore;
+
+    fn init() -> Result<Store> {
+        let temp_dir = TempDir::new().unwrap();
+        let mut store = Store::open(temp_dir.into_path())?;
+
+        store.add_block(&create_block(0, vec![], vec![create_tx("txo".to_string())?]))?;
+
+        for i in 1..=100 {
+            let info = store.get_blockchain_info()?;
+            let block = create_block(i as u64, info.current_block_hash, vec![create_tx(format!("tx_{:}", i))?]);
+            store.add_block(&block);
+        }
+        Ok(store)
+    }
+
+    #[test]
+    fn test_get_blockchain_info() {
+        let store = init().unwrap();
+    }
+    fn create_block(num: u64, prev_hash: Vec<u8>, txs: Vec<Transaction>) -> Block {
+        let data = txs
+            .iter()
+            .map(|t| utils::proto::marshal(t).unwrap())
+            .collect();
+
+
+
+        Block {
+            header: Some(BlockHeader {
+                number: num,
+                previous_hash: prev_hash,
+                data_hash: utils::hash::compute_vec_sha256(&data).to_vec(),
+            }),
+            data: Some(BlockData { data }),
+            metadata: None,
+        }
+    }
+    fn create_tx(txid: String) -> Result<Transaction> {
+        let payload = ContractProposalPayload {
+            contract_id: None,
+            input: None,
+            transient_map: Default::default(),
+            timeout: 0,
+        };
+
+        let proposal = Proposal {
+            header: Some(Header {
+                header_type: HeaderType::Invoke as i32,
+                version: 0,
+                timestamp: Some(utils::time::timestamp()),
+                channel_id: "chain_id".to_string(),
+                tx_id: txid,
+                tls_cert_hash: vec![],
+                creator: vec![],
+                nonce: utils::random::get_random_nonce(),
+            }),
+            payload: utils::proto::marshal(&payload)?,
+        };
+        let sp = SignedProposal {
+            proposal_bytes: utils::proto::marshal(&proposal)?,
+            signature: vec![],
+        };
+
+        let payload = ProposalResponsePayload {
+            results: vec![],
+            events: vec![],
+        };
+        let proposal_response = ProposalResponse {
+            version: 0,
+            timestamp: None,
+            response: None,
+            payload: utils::proto::marshal(&payload)?,
+            endorsement: None,
+        };
+
+        let tx = Transaction {
+            signed_proposal: Some(sp),
+            response: vec![proposal_response],
+        };
+        Ok(tx)
+    }
+}
