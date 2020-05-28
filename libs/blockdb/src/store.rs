@@ -41,42 +41,47 @@ impl BlockStore for Store {
         let mut batch = WriteBatch::default();
 
         if let (Some(header), Some(data)) = (block.header.clone(), block.data.clone()) {
-            if check_point.is_none() {
-                if header.number != 0 {
-                    return Err(from_str("block not is genesis block"));
-                }
-            } else {
-                let mut check_point = check_point.unwrap();
-                // the block has been saved
-                if check_point.block_num >= header.number {
-                    return Ok(());
-                }
+            let mut check_point = match check_point {
+                Some(cp) => {
+                    // the block has been saved
+                    if cp.block_num >= header.number {
+                        return Ok(());
+                    }
 
-                // lose blocks
-                if check_point.block_num + 1 < header.number {
-                    return Err(from_str("block number > checkpoint number + 1"));
+                    // lose blocks
+                    if cp.block_num + 1 < header.number {
+                        return Err(from_str("block number > checkpoint number + 1"));
+                    }
+                    cp
                 }
-
-                let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
-
-                check_point.block_num = header.number;
-                check_point.block_hash = hash.to_vec();
-                check_point.previous_block_hash = header.previous_hash;
-                let cp = serde_json::to_vec(&check_point)?;
-                batch.put(&construct_check_point_key(), &cp);
-                batch.put(
-                    &construct_block_hash_key(&hash),
-                    &utils::proto::marshal(block)?,
-                );
-                batch.put(&construct_block_num_key(header.number), &hash);
-
-                // record txs id mapping block hash
-                for evn in data.data {
-                    let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
-                    batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
+                None => CheckPoint{
+                    suffix: 0,
+                    offset: 0,
+                    block_num: 0,
+                    block_hash: vec![],
+                    previous_block_hash: vec![]
                 }
-                self.db.write(batch)?;
+            };
+            let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
+
+            check_point.block_num = header.number;
+            check_point.block_hash = hash.to_vec();
+            check_point.previous_block_hash = header.previous_hash;
+            let cp = serde_json::to_vec(&check_point)?;
+            batch.put(&construct_check_point_key(), &cp);
+            batch.put(
+                &construct_block_hash_key(&hash),
+                &utils::proto::marshal(block)?,
+            );
+            batch.put(&construct_block_num_key(header.number), &hash);
+
+            // record txs id mapping block hash
+            for evn in data.data {
+                let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
+                batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
             }
+            self.db.write(batch)?;
+            self.db.flush()?;
             Ok(())
         } else {
             Err(from_str("block header or data is null"))
@@ -211,6 +216,9 @@ mod tests {
     #[test]
     fn test_get_blockchain_info() {
         let store = init().unwrap();
+        let info = store.get_blockchain_info().unwrap();
+        assert_eq!(info.height, 100);
+        println!("{:?}", info);
     }
     fn create_block(num: u64, prev_hash: Vec<u8>, txs: Vec<Transaction>) -> Block {
         let data = txs
