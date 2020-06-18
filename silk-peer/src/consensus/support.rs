@@ -2,7 +2,6 @@ use super::*;
 use std::sync::Arc;
 
 use crate::event::Handler;
-use futures::AsyncReadExt;
 
 use tokio::sync::RwLock;
 

@@ -66,7 +66,7 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<BlockIterator>> {
+    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
         unimplemented!()
     }
 

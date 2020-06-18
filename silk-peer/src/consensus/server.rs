@@ -37,7 +37,7 @@ impl<S: IConsensusSupport> consensus_server::Consensus for Server<S> {
                     info!("start register contract [{:?}]", register);
                     let handler = Consensus::new(register.clone(), tx);
                     // TODO: register consensus to consensus_support
-                    self.support.register(handler.clone()).await;
+                    self.support.register(handler.clone()).await.map_err(into_status)?;
                     handler
                 }
                 _ => {
@@ -48,7 +48,7 @@ impl<S: IConsensusSupport> consensus_server::Consensus for Server<S> {
             Err(s) => return Err(s),
         };
 
-        self.support.update_chain().await;
+        self.support.update_chain().await.map_err(into_status)?;
 
         tokio::spawn(async move {
             while let Some(res) = stream.next().await {

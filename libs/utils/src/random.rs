@@ -1,4 +1,3 @@
-use error::*;
 use rand::{thread_rng, RngCore};
 
 // NonceSize is the default NonceSize

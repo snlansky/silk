@@ -17,8 +17,8 @@ pub struct CheckPoint {
 
 pub fn construct_block_num_key(block_num: u64) -> Vec<u8> {
     let mut v: Vec<u8> = Vec::with_capacity(1 + 8);
-    v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX as u8);
-    v.write_u64::<BigEndian>(block_num);
+    v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX as u8).unwrap();
+    v.write_u64::<BigEndian>(block_num).unwrap();
     v
 }
 

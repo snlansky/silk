@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate failure;
 use futures::future;
 
 #[macro_use]
