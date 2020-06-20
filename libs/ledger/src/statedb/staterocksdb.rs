@@ -58,8 +58,6 @@ pub struct RocksDBVersion {
 }
 
 impl VersionedDB for RocksDBVersion {
-    type Iter = KVScanner;
-
     fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>> {
         debug!("get_state(). ns={:}, key={:}", namespace, key);
         let db_val = self.db.get(encode_data_key(namespace, key))?;
@@ -93,11 +91,11 @@ impl VersionedDB for RocksDBVersion {
         _namespace: &String,
         _start_key: &String,
         _end_key: &String,
-    ) -> Result<Self::Iter> {
+    ) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
         unimplemented!()
     }
 
-    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Self::Iter> {
+    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
         unimplemented!()
     }
 
@@ -155,18 +153,6 @@ impl VersionedDB for RocksDBVersion {
     }
 
     fn open(&self) -> Result<()> {
-        unimplemented!()
-    }
-
-    fn close(&self) {
-        unimplemented!()
-    }
-}
-
-pub struct KVScanner {}
-
-impl ResultsIterator<VersionedKV> for KVScanner {
-    fn next(&self) -> Result<VersionedKV> {
         unimplemented!()
     }
 

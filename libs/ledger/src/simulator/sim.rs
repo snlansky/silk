@@ -1,9 +1,9 @@
 use crate::rwset::builder::{RWSetBuilder, TxSimulationResults};
-use crate::simulator::QueryResultsItr;
 use crate::statedb::{Height, VersionedDB, VersionedValue};
 use error::*;
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
+use silk_proto::Kv;
 
 pub struct BasedTxSimulator<V: VersionedDB> {
     tx_id: String,
@@ -61,32 +61,19 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
         self.rw_set_builder.get_tx_simulation_results()
     }
 
-    fn get_state_metadata(
-        &mut self,
-        _namespace: &String,
-        _key: &String,
-    ) -> Result<HashMap<String, Vec<u8>, RandomState>> {
+    fn get_state_metadata(&mut self, namespace: &String, key: &String) -> Result<HashMap<String, Vec<u8>, RandomState>> {
         unimplemented!()
     }
 
-    fn get_state_multiple_keys(
-        &mut self,
-        _namespace: &String,
-        _keys: Vec<String>,
-    ) -> Result<Vec<Vec<u8>>> {
+    fn get_state_multiple_keys(&mut self, namespace: &String, keys: Vec<String>) -> Result<Vec<Vec<u8>>> {
         unimplemented!()
     }
 
-    fn get_state_range_scan_iterator(
-        &mut self,
-        _namespace: &String,
-        _start_key: &String,
-        _end_key: &String,
-    ) -> Result<QueryResultsItr> {
+    fn get_state_range_scan_iterator(&mut self, namespace: &String, start_key: &String, end_key: &String) -> Result<Box<dyn Iterator<Item=Kv>>> {
         unimplemented!()
     }
 
-    fn execute_query(&mut self, _namespace: &String, _query: &String) -> Result<QueryResultsItr> {
+    fn execute_query(&mut self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=Kv>>> {
         unimplemented!()
     }
 

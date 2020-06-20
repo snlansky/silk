@@ -2,7 +2,6 @@
 extern crate log;
 
 use crate::simulator::TxSimulator;
-use crate::statedb::ResultsIterator;
 use error::*;
 use silk_proto::*;
 
@@ -39,7 +38,6 @@ pub trait LedgerProvider {
 // Ledger differs from the OrdererLedger in that Ledger locally maintain a bitmask
 // that tells apart valid transactions from invalid ones
 pub trait Ledger {
-    type BlockIter: ResultsIterator<Block>;
     type HQE: HistoryQueryExecutor;
 
     // get_blockchain_info returns basic info about blockchain
@@ -50,7 +48,7 @@ pub trait Ledger {
     // get_blocks_iterator returns an iterator that starts from `start_block_number`(inclusive).
     // The iterator is a blocking iterator i.e., it blocks till the next block gets available in the ledger
     // ResultsIterator contains type BlockHolder
-    fn get_blocks_iterator(&self, start_block_number: u64) -> Result<Self::BlockIter>;
+    fn get_blocks_iterator(&self, start_block_number: u64) -> Result<Box<dyn Iterator<Item=Block>>>;
     // get_transaction_by_id retrieves a transaction by id
     fn get_transaction_by_id(&self, tx_id: String) -> Result<ProcessedTransaction>;
     // get_block_by_hash returns a block given it's hash
@@ -83,10 +81,9 @@ pub trait QueryExecutor {}
 
 // HistoryQueryExecutor executes the history queries
 pub trait HistoryQueryExecutor {
-    type Iter: ResultsIterator<KeyModification>;
     // get_history_for_key retrieves the history of values for a key.
     // The returned ResultsIterator contains results of type *KeyModification which is defined in fabric-protos/ledger/queryresult.
-    fn get_history_for_key(namespace: String, key: String) -> Result<Self::Iter>;
+    fn get_history_for_key(namespace: String, key: String) -> Result<Box<dyn Iterator<Item=KeyModification>>>;
 }
 
 #[cfg(test)]

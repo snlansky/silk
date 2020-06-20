@@ -20,8 +20,6 @@ pub trait VersionedDBProvider {
 
 // VersionedDB lists methods that a db is supposed to implement
 pub trait VersionedDB {
-    type Iter: ResultsIterator<VersionedKV>;
-
     // get_state gets the value for given namespace and key. For a contract, the namespace corresponds to the contractId
     fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>>;
 
@@ -44,10 +42,10 @@ pub trait VersionedDB {
         namespace: &String,
         start_key: &String,
         end_key: &String,
-    ) -> Result<Self::Iter>;
+    ) -> Result<Box<dyn Iterator<Item=VersionedKV>>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
-    fn execute_query(&self, namespace: &String, query: &String) -> Result<Self::Iter>;
+    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>>;
 
     // apply_updates applies the batch to the underlying db.
     // height is the height of the highest transaction in the Batch that
@@ -109,12 +107,6 @@ impl VersionedValue {
         })?;
         Ok(bytes)
     }
-}
-
-// ResultsIterator iterates over query results
-pub trait ResultsIterator<T> {
-    fn next(&self) -> Result<T>;
-    fn close(&self);
 }
 
 // VersionedKV encloses key and corresponding VersionedValue
