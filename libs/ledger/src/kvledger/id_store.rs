@@ -18,7 +18,7 @@ impl IDStore {
         })
     }
 
-    pub fn create_ledger_id(&self, ledger_id: &String, block: &Block) -> Result<()> {
+    pub fn create_ledger_id(&self, ledger_id: &str, block: &Block) -> Result<()> {
         let key = self.encode_ledger_key(ledger_id);
         if self.db.get(&key)?.is_some() {
             return Err(from_str(format!("ledger {:} exist", ledger_id).as_str()));
@@ -28,16 +28,16 @@ impl IDStore {
         Ok(())
     }
 
-    pub fn ledger_id_exists(&self, ledger_id: &String) -> Result<bool> {
+    pub fn ledger_id_exists(&self, ledger_id: &str) -> Result<bool> {
         let key = self.encode_ledger_key(&ledger_id);
         let v = self.db.get(key)?;
         Ok(v.is_some())
     }
 
-    fn encode_ledger_key(&self, ledger_id: &String) -> Vec<u8> {
+    fn encode_ledger_key(&self, ledger_id: &str) -> Vec<u8> {
         let mut buf = vec![];
-        buf.write_u8('l' as u8).unwrap();
-        buf.write(ledger_id.as_bytes()).unwrap();
+        buf.write_u8(b'l').unwrap();
+        let _ = buf.write(ledger_id.as_bytes()).unwrap();
         buf
     }
 }
