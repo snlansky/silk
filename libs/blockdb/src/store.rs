@@ -1,7 +1,4 @@
-use crate::cp::{
-    construct_block_hash_key, construct_block_num_key, construct_check_point_key,
-    construct_tx_hash_key, CheckPoint,
-};
+use crate::keys;
 use crate::BlockStore;
 use error::*;
 use rocksdb::WriteBatch;
@@ -37,7 +34,7 @@ impl Store {
 
 impl BlockStore for Store {
     fn add_block(&mut self, block: &Block) -> Result<()> {
-        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
         let mut batch = WriteBatch::default();
 
         if let (Some(header), Some(data)) = (block.header.clone(), block.data.clone()) {
@@ -54,7 +51,7 @@ impl BlockStore for Store {
                     }
                     cp
                 }
-                None => CheckPoint {
+                None => keys::CheckPoint {
                     suffix: 0,
                     offset: 0,
                     block_num: 0,
@@ -68,17 +65,17 @@ impl BlockStore for Store {
             check_point.block_hash = hash.to_vec();
             check_point.previous_block_hash = header.previous_hash;
             let cp = serde_json::to_vec(&check_point)?;
-            batch.put(&construct_check_point_key(), &cp);
+            batch.put(&keys::construct_check_point_key(), &cp);
             batch.put(
-                &construct_block_hash_key(&hash),
+                &keys::construct_block_hash_key(&hash),
                 &utils::proto::marshal(block)?,
             );
-            batch.put(&construct_block_num_key(header.number), &hash);
+            batch.put(&keys::construct_block_num_key(header.number), &hash);
 
             // record txs id mapping block hash
             for evn in data.data {
                 let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
-                batch.put(&construct_tx_hash_key(tx_header.tx_id), &hash);
+                batch.put(&keys::construct_tx_hash_key(tx_header.tx_id), &hash);
             }
             self.db.write(batch)?;
             self.db.flush()?;
@@ -89,7 +86,7 @@ impl BlockStore for Store {
     }
 
     fn get_blockchain_info(&self) -> Result<BlockchainInfo> {
-        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
         match check_point {
             Some(cp) => Ok(BlockchainInfo {
                 height: cp.block_num,
@@ -109,7 +106,7 @@ impl BlockStore for Store {
     }
 
     fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>> {
-        let blk_bytes = self.db.get(&construct_block_hash_key(block_hash))?;
+        let blk_bytes = self.db.get(&keys::construct_block_hash_key(block_hash))?;
         if blk_bytes.is_none() {
             return Ok(None);
         }
@@ -119,14 +116,14 @@ impl BlockStore for Store {
     }
 
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
-        let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
+        let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
         match check_point {
             Some(cp) => {
                 let mut num = block_num;
                 if block_num > cp.block_num {
                     num = cp.block_num
                 }
-                let blk_bytes = self.db.get(&construct_block_num_key(num))?.unwrap();
+                let blk_bytes = self.db.get(&keys::construct_block_num_key(num))?.unwrap();
                 let blk = utils::proto::unmarshal(&blk_bytes)?;
                 Ok(blk)
             }
@@ -173,12 +170,12 @@ impl BlockStore for Store {
     }
 
     fn retrieve_block_by_txid(&self, tx_id: String) -> Result<Option<Block>> {
-        let hash = self.db.get(&construct_tx_hash_key(tx_id))?;
+        let hash = self.db.get(&keys::construct_tx_hash_key(tx_id))?;
         if hash.is_none() {
             return Ok(None);
         }
         let hash = hash.unwrap();
-        let blk_bytes = self.db.get(&construct_block_hash_key(&hash))?.unwrap();
+        let blk_bytes = self.db.get(&keys::construct_block_hash_key(&hash))?.unwrap();
         let blk = utils::proto::unmarshal(&blk_bytes)?;
         Ok(Some(blk))
     }

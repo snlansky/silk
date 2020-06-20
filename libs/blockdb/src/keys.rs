@@ -1,9 +1,9 @@
 use byteorder::{BigEndian, WriteBytesExt};
 use serde::{Deserialize, Serialize};
 
-pub const BLOCK_NUM_IDX_KEY_PREFIX: char = 'n';
-pub const BLOCK_HASH_IDX_KEY_PREFIX: char = 'h';
-pub const TX_ID_IDX_KEY_PREFIX: char = 't';
+pub const BLOCK_NUM_IDX_KEY_PREFIX: u8 = b'n';
+pub const BLOCK_HASH_IDX_KEY_PREFIX:u8 = b'h';
+pub const TX_ID_IDX_KEY_PREFIX: u8 =b't';
 pub const INDEX_CHECKPOINT_KEY_STR: &str = "index_check_point_key";
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,19 +17,19 @@ pub struct CheckPoint {
 
 pub fn construct_block_num_key(block_num: u64) -> Vec<u8> {
     let mut v: Vec<u8> = Vec::with_capacity(1 + 8);
-    v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX as u8).unwrap();
+    v.write_u8(BLOCK_NUM_IDX_KEY_PREFIX).unwrap();
     v.write_u64::<BigEndian>(block_num).unwrap();
     v
 }
 
 pub fn construct_block_hash_key(block_hash: &[u8]) -> Vec<u8> {
-    let mut v = vec![BLOCK_HASH_IDX_KEY_PREFIX as u8];
+    let mut v = vec![BLOCK_HASH_IDX_KEY_PREFIX];
     v.append(&mut block_hash.to_vec());
     v
 }
 
 pub fn construct_tx_hash_key(tx: String) -> Vec<u8> {
-    let mut v = vec![TX_ID_IDX_KEY_PREFIX as u8];
+    let mut v = vec![TX_ID_IDX_KEY_PREFIX];
     v.append(&mut tx.into_bytes());
     v
 }

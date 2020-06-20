@@ -1,5 +1,3 @@
-use super::statedb::*;
-use super::version::*;
 use dashmap::DashMap;
 use error::*;
 use rocksdb::{WriteBatch, DB};
@@ -9,10 +7,10 @@ use std::iter::Iterator;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-const DATA_KEY_PREFIX: char = 'd';
+const DATA_KEY_PREFIX: u8 = b'd';
 const NS_KEY_SEP: u8 = 0x00;
 const LAST_KEY_INDICATOR: u8 = 0x01;
-const SAVE_POINT_KEY: char = 's';
+const SAVE_POINT_KEY: u8 = b's';
 
 pub struct VersionedDBRocksProvider {
     db: Arc<DB>,
@@ -125,7 +123,7 @@ impl VersionedDB for RocksDBVersion {
         }
 
         if let Some(h) = height {
-            db_batch.put(vec![SAVE_POINT_KEY as u8], h.to_bytes());
+            db_batch.put(vec![SAVE_POINT_KEY], h.to_bytes());
         }
 
         self.db.write(db_batch)?;
@@ -133,7 +131,7 @@ impl VersionedDB for RocksDBVersion {
     }
 
     fn get_latest_save_point(&self) -> Result<Option<Height>> {
-        let bytes = self.db.get(vec![SAVE_POINT_KEY as u8])?;
+        let bytes = self.db.get(vec![SAVE_POINT_KEY])?;
         if bytes.is_none() {
             return Ok(None);
         }
@@ -167,7 +165,7 @@ impl VersionedDB for RocksDBVersion {
 #[warn(unused_unsafe)]
 fn encode_data_key(ns: &str, key: &str) -> Vec<u8> {
     let mut v: Vec<u8> = Vec::new();
-    v.push(DATA_KEY_PREFIX as u8);
+    v.push(DATA_KEY_PREFIX);
     unsafe {
         v.append(&mut ns.as_bytes().to_vec());
         v.push(NS_KEY_SEP);

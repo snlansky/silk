@@ -1,6 +1,5 @@
 use rcgen::{BasicConstraints, Certificate, CertificateParams, DnType, IsCa};
-use webpki::trust_anchor_util::cert_der_as_trust_anchor;
-use webpki::SignatureAlgorithm;
+use webpki::{SignatureAlgorithm, trust_anchor_util};
 use webpki::{DNSNameRef, Time};
 use webpki::{EndEntityCert, TLSServerTrustAnchors};
 
@@ -82,7 +81,7 @@ fn check_cert1<'a, 'b>(
     signature: &'b [u8],
 ) {
     println!("{}", cert.serialize_pem().unwrap());
-    let trust_anchor = cert_der_as_trust_anchor(&cert_der).unwrap();
+    let trust_anchor = trust_anchor_util::cert_der_as_trust_anchor(&cert_der).unwrap();
     let trust_anchor_list = &[trust_anchor];
     let trust_anchors = TLSServerTrustAnchors(trust_anchor_list);
     let end_entity_cert = EndEntityCert::from(&cert_der).unwrap();

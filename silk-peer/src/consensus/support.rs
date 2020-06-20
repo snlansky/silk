@@ -3,18 +3,18 @@ use std::sync::Arc;
 
 use crate::event::Handler;
 
-use tokio::sync::RwLock;
+use tokio::sync;
 
 #[derive(Clone)]
 pub struct ConsensusSupport {
-    handler_registry: Arc<RwLock<Option<Consensus>>>,
+    handler_registry: Arc<sync::RwLock<Option<Consensus>>>,
     eh: Arc<Box<dyn Handler>>,
 }
 
 impl ConsensusSupport {
     pub fn new(eh: Box<dyn Handler>) -> ConsensusSupport {
         ConsensusSupport {
-            handler_registry: Arc::new(RwLock::new(None)),
+            handler_registry: Arc::new(sync::RwLock::new(None)),
             eh: Arc::new(eh),
         }
     }

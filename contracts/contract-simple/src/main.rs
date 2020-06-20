@@ -1,4 +1,4 @@
-use contract::{start, Contract, ContractStub};
+use contract::{self, Contract, ContractStub};
 use silk_proto::Response;
 
 struct ContractSimple;
@@ -20,6 +20,6 @@ impl Contract for ContractSimple {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n*** start contract-simple ***");
-    start("contract-simple".to_string(), Box::new(ContractSimple)).await?;
+    contract::start("contract-simple".to_string(), Box::new(ContractSimple)).await?;
     Ok(())
 }

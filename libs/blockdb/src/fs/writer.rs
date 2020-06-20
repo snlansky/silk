@@ -7,7 +7,7 @@ use std::sync::Arc;
 use error::*;
 use std::ops::Range;
 
-use crate::cp::CheckPoint;
+use crate::keys::CheckPoint;
 use silk_proto::*;
 
 const BLOCK_FILE_THRESHOLD: u64 = 1024 * 1024 * 64;

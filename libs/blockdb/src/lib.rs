@@ -1,4 +1,4 @@
-mod cp;
+mod keys;
 mod fs;
 mod store;
 use error::*;

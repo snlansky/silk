@@ -1,8 +1,8 @@
 use error::*;
 
 use crate::rwset::builder::TxRwSet;
-use crate::rwset::key::{derive_hashed_data_ns, PubAndHashUpdates};
-use crate::statedb::{are_same, Height, UpdateBatch, VersionedDB};
+use crate::rwset::key::{self, PubAndHashUpdates};
+use crate::statedb::{self, Height, UpdateBatch, VersionedDB};
 use silk_proto::*;
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -101,7 +101,7 @@ impl<V: VersionedDB> Validator<V> {
                     committed_version.clone(),
                     ver
                 );
-                if !are_same(committed_version, ver) {
+                if !statedb::are_same(committed_version, ver) {
                     debug!("Version mismatch for key [{:?}:{:?}]. committed version = [{:?}], version in read set [{:?}]",
                            ns, kv_read.key, committed_version, kv_read.version);
                     return Ok(TxValidationCode::MvccReadConflict);
@@ -134,10 +134,10 @@ impl<V: VersionedDB> Validator<V> {
 
                     let committed_version = self
                         .vdb
-                        .get_version(&derive_hashed_data_ns(&ns, &coll), &hash)?;
+                        .get_version(&key::derive_hashed_data_ns(&ns, &coll), &hash)?;
 
                     let ver = kv_read_hash.version.clone().map(Height::from);
-                    if !are_same(committed_version, ver) {
+                    if !statedb::are_same(committed_version, ver) {
                         debug!("Version mismatch for key hash [{:?}:{:?}:{:?}]. committed version = [{:?}], version in hashed read set [{:?}]",
                                ns,
                                coll_hashed_rw_set.collection_name,
