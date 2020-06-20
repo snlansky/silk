@@ -26,7 +26,7 @@ pub fn hex_to_string(data: &[u8]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::hash::{compute_sha256, hex_to_string, parse_addr, compute_vec_sha256};
+    use crate::hash::{compute_sha256, compute_vec_sha256, hex_to_string, parse_addr};
 
     #[macro_use]
     #[test]
@@ -60,7 +60,11 @@ mod tests {
 
     #[test]
     fn test_vec_hash() {
-        let data = vec![vec![185, 77, 39, 185], vec![82, 215, 218, 125, 171], vec![144, 136, 247, 172, 226, 239, 205, 233]];
+        let data = vec![
+            vec![185, 77, 39, 185],
+            vec![82, 215, 218, 125, 171],
+            vec![144, 136, 247, 172, 226, 239, 205, 233],
+        ];
         let hash = compute_vec_sha256(&data);
         println!("{:?}", hash)
     }

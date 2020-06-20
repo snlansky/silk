@@ -1,9 +1,8 @@
-
+use crate::kvledger::history;
 use crate::simulator::TxSimulator;
 use crate::QueryExecutor;
 use error::*;
 use silk_proto::*;
-use crate::kvledger::history;
 
 pub struct KVLedger {}
 
@@ -24,7 +23,10 @@ impl crate::Ledger for KVLedger {
         unimplemented!()
     }
 
-    fn get_blocks_iterator(&self, _start_block_number: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
+    fn get_blocks_iterator(
+        &self,
+        _start_block_number: u64,
+    ) -> Result<Box<dyn Iterator<Item = Block>>> {
         unimplemented!()
     }
 
@@ -64,4 +66,3 @@ impl crate::Ledger for KVLedger {
         unimplemented!()
     }
 }
-

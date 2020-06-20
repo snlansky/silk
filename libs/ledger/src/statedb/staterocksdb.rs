@@ -91,11 +91,15 @@ impl VersionedDB for RocksDBVersion {
         _namespace: &String,
         _start_key: &String,
         _end_key: &String,
-    ) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
+    ) -> Result<Box<dyn Iterator<Item = VersionedKV>>> {
         unimplemented!()
     }
 
-    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
+    fn execute_query(
+        &self,
+        _namespace: &String,
+        _query: &String,
+    ) -> Result<Box<dyn Iterator<Item = VersionedKV>>> {
         unimplemented!()
     }
 

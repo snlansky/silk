@@ -66,7 +66,7 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
+    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
         unimplemented!()
     }
 
@@ -86,7 +86,11 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_tx_by_blocknum_txnum(&self, _block_num: u64, _tx_num: u64) -> Result<Option<Transaction>> {
+    fn retrieve_tx_by_blocknum_txnum(
+        &self,
+        _block_num: u64,
+        _tx_num: u64,
+    ) -> Result<Option<Transaction>> {
         unimplemented!()
     }
 

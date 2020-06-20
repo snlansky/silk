@@ -37,7 +37,10 @@ impl<S: IConsensusSupport> consensus_server::Consensus for Server<S> {
                     info!("start register contract [{:?}]", register);
                     let handler = Consensus::new(register.clone(), tx);
                     // TODO: register consensus to consensus_support
-                    self.support.register(handler.clone()).await.map_err(into_status)?;
+                    self.support
+                        .register(handler.clone())
+                        .await
+                        .map_err(into_status)?;
                     handler
                 }
                 _ => {

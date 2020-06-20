@@ -61,15 +61,18 @@ pub trait TxSimulator {
         namespace: &String,
         start_key: &String,
         end_key: &String,
-    ) -> Result<Box<dyn Iterator<Item=Kv>>>;
+    ) -> Result<Box<dyn Iterator<Item = Kv>>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type specific to the underlying data store.
     // Only used for state databases that support query
     // For a chaincode, the namespace corresponds to the chaincodeId
     // The returned ResultsIterator contains results of type *KV which is defined in fabric-protos/ledger/queryresult.
-    fn execute_query(&mut self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=Kv>>>;
+    fn execute_query(
+        &mut self,
+        namespace: &String,
+        query: &String,
+    ) -> Result<Box<dyn Iterator<Item = Kv>>>;
 
     // done releases resources occupied by the QueryExecutor
     fn done(&mut self);
 }
-

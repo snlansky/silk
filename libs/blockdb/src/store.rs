@@ -2,7 +2,7 @@ use crate::cp::{
     construct_block_hash_key, construct_block_num_key, construct_check_point_key,
     construct_tx_hash_key, CheckPoint,
 };
-use crate::{BlockStore};
+use crate::BlockStore;
 use error::*;
 use rocksdb::WriteBatch;
 use serde::de::DeserializeOwned;
@@ -25,8 +25,8 @@ impl Store {
     }
 
     fn get<T>(&self, key: &[u8]) -> Result<Option<T>>
-        where
-            T: DeserializeOwned,
+    where
+        T: DeserializeOwned,
     {
         match self.db.get(key)? {
             Some(ref dbv) => Ok(Some(serde_json::from_slice(dbv)?)),
@@ -54,13 +54,13 @@ impl BlockStore for Store {
                     }
                     cp
                 }
-                None => CheckPoint{
+                None => CheckPoint {
                     suffix: 0,
                     offset: 0,
                     block_num: 0,
                     block_hash: vec![],
-                    previous_block_hash: vec![]
-                }
+                    previous_block_hash: vec![],
+                },
             };
             let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
 
@@ -91,24 +91,20 @@ impl BlockStore for Store {
     fn get_blockchain_info(&self) -> Result<BlockchainInfo> {
         let check_point: Option<CheckPoint> = self.get(&construct_check_point_key())?;
         match check_point {
-            Some(cp) => {
-                Ok(BlockchainInfo {
-                    height: cp.block_num,
-                    current_block_hash: cp.block_hash,
-                    previous_block_hash: cp.previous_block_hash,
-                })
-            }
-            None => {
-                Ok(BlockchainInfo {
-                    height: 0,
-                    current_block_hash: vec![],
-                    previous_block_hash: vec![],
-                })
-            }
+            Some(cp) => Ok(BlockchainInfo {
+                height: cp.block_num,
+                current_block_hash: cp.block_hash,
+                previous_block_hash: cp.previous_block_hash,
+            }),
+            None => Ok(BlockchainInfo {
+                height: 0,
+                current_block_hash: vec![],
+                previous_block_hash: vec![],
+            }),
         }
     }
 
-    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
+    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
         unimplemented!()
     }
 
@@ -134,13 +130,11 @@ impl BlockStore for Store {
                 let blk = utils::proto::unmarshal(&blk_bytes)?;
                 Ok(blk)
             }
-            None => {
-                Ok(Block {
-                    header: None,
-                    data: None,
-                    metadata: None,
-                })
-            }
+            None => Ok(Block {
+                header: None,
+                data: None,
+                metadata: None,
+            }),
         }
     }
 
@@ -159,7 +153,11 @@ impl BlockStore for Store {
         Ok(None)
     }
 
-    fn retrieve_tx_by_blocknum_txnum(&self, block_num: u64, tx_num: u64) -> Result<Option<Transaction>> {
+    fn retrieve_tx_by_blocknum_txnum(
+        &self,
+        block_num: u64,
+        tx_num: u64,
+    ) -> Result<Option<Transaction>> {
         let blk = self.retrieve_block_by_number(block_num)?;
         if blk.data.is_none() {
             return Ok(None);
@@ -170,7 +168,7 @@ impl BlockStore for Store {
             return Ok(None);
         }
 
-        let (tx , _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
+        let (tx, _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
         Ok(Some(tx))
     }
 
@@ -190,24 +188,31 @@ impl BlockStore for Store {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use silk_proto::*;
-    use error::*;
     use crate::store::Store;
-    use tempfile::TempDir;
     use crate::BlockStore;
+    use error::*;
+    use silk_proto::*;
+    use tempfile::TempDir;
 
     fn init() -> Result<Store> {
         let temp_dir = TempDir::new().unwrap();
         let mut store = Store::open(temp_dir.into_path())?;
 
-        store.add_block(&create_block(0, vec![], vec![create_tx("txo".to_string())?]))?;
+        store.add_block(&create_block(
+            0,
+            vec![],
+            vec![create_tx("txo".to_string())?],
+        ))?;
 
         for i in 1..=100 {
             let info = store.get_blockchain_info()?;
-            let block = create_block(i as u64, info.current_block_hash, vec![create_tx(format!("tx_{:}", i))?]);
+            let block = create_block(
+                i as u64,
+                info.current_block_hash,
+                vec![create_tx(format!("tx_{:}", i))?],
+            );
             store.add_block(&block);
         }
         Ok(store)
@@ -225,8 +230,6 @@ mod tests {
             .iter()
             .map(|t| utils::proto::marshal(t).unwrap())
             .collect();
-
-
 
         Block {
             header: Some(BlockHeader {

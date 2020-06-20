@@ -42,10 +42,14 @@ pub trait VersionedDB {
         namespace: &String,
         start_key: &String,
         end_key: &String,
-    ) -> Result<Box<dyn Iterator<Item=VersionedKV>>>;
+    ) -> Result<Box<dyn Iterator<Item = VersionedKV>>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
-    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>>;
+    fn execute_query(
+        &self,
+        namespace: &String,
+        query: &String,
+    ) -> Result<Box<dyn Iterator<Item = VersionedKV>>>;
 
     // apply_updates applies the batch to the underlying db.
     // height is the height of the highest transaction in the Batch that
