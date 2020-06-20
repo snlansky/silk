@@ -2,11 +2,11 @@ use crate::cp::{
     construct_block_hash_key, construct_block_num_key, construct_check_point_key,
     construct_tx_hash_key, CheckPoint,
 };
-use crate::{BlockIterator, BlockStore};
+use crate::{BlockStore};
 use error::*;
 use rocksdb::WriteBatch;
 use serde::de::DeserializeOwned;
-use silk_proto::{Block, BlockchainInfo, Envelope, Proposal, Transaction, TxValidationCode};
+use silk_proto::{Block, BlockchainInfo, Transaction, TxValidationCode};
 use std::path::PathBuf;
 
 pub struct Store {
@@ -185,7 +185,7 @@ impl BlockStore for Store {
         Ok(Some(blk))
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, tx_id: String) -> Result<TxValidationCode> {
+    fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
         unimplemented!()
     }
 }

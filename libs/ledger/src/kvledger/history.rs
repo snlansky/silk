@@ -11,7 +11,7 @@ impl KVHistoryQueryExecutor {
 }
 
 impl HistoryQueryExecutor for KVHistoryQueryExecutor {
-    fn get_history_for_key(namespace: String, key: String) -> Result<Box<dyn Iterator<Item=KeyModification>>> {
+    fn get_history_for_key(_namespace: String, _key: String) -> Result<Box<dyn Iterator<Item=KeyModification>>> {
         unimplemented!()
     }
 }

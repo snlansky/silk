@@ -95,7 +95,7 @@ impl VersionedDB for RocksDBVersion {
         unimplemented!()
     }
 
-    fn execute_query(&self, namespace: &String, query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
+    fn execute_query(&self, _namespace: &String, _query: &String) -> Result<Box<dyn Iterator<Item=VersionedKV>>> {
         unimplemented!()
     }
 

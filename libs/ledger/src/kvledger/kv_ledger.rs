@@ -1,4 +1,4 @@
-use crate::kvledger::history::KVHistoryQueryExecutor;
+
 use crate::simulator::TxSimulator;
 use crate::QueryExecutor;
 use error::*;
@@ -20,31 +20,31 @@ impl crate::Ledger for KVLedger {
         unimplemented!()
     }
 
-    fn get_block_by_number(&self, block_number: u64) -> Result<Block> {
+    fn get_block_by_number(&self, _block_number: u64) -> Result<Block> {
         unimplemented!()
     }
 
-    fn get_blocks_iterator(&self, start_block_number: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
+    fn get_blocks_iterator(&self, _start_block_number: u64) -> Result<Box<dyn Iterator<Item=Block>>> {
         unimplemented!()
     }
 
-    fn get_transaction_by_id(&self, tx_id: String) -> Result<ProcessedTransaction> {
+    fn get_transaction_by_id(&self, _tx_id: String) -> Result<ProcessedTransaction> {
         unimplemented!()
     }
 
-    fn get_block_by_hash(&self, block_hash: Vec<u8>) -> Result<Block> {
+    fn get_block_by_hash(&self, _block_hash: Vec<u8>) -> Result<Block> {
         unimplemented!()
     }
 
-    fn get_block_by_tx_id(&self, tx_id: String) -> Result<Block> {
+    fn get_block_by_tx_id(&self, _tx_id: String) -> Result<Block> {
         unimplemented!()
     }
 
-    fn get_tx_validation_code_by_tx_id(&self, tx_id: String) -> Result<TxValidationCode> {
+    fn get_tx_validation_code_by_tx_id(&self, _tx_id: String) -> Result<TxValidationCode> {
         unimplemented!()
     }
 
-    fn new_tx_simulator(&self, txid: String) -> Result<Box<dyn TxSimulator>> {
+    fn new_tx_simulator(&self, _txid: String) -> Result<Box<dyn TxSimulator>> {
         unimplemented!()
     }
 
@@ -56,7 +56,7 @@ impl crate::Ledger for KVLedger {
         unimplemented!()
     }
 
-    fn commit_legacy(&self, block: Block) -> Result<()> {
+    fn commit_legacy(&self, _block: Block) -> Result<()> {
         unimplemented!()
     }
 

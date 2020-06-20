@@ -1,13 +1,12 @@
-use rcgen::{BasicConstraints, Certificate, CertificateParams, DnType, IsCa, PKCS_ED25519};
+use rcgen::{BasicConstraints, Certificate, CertificateParams, DnType, IsCa};
 use webpki::{EndEntityCert, TLSServerTrustAnchors};
 use webpki::trust_anchor_util::cert_der_as_trust_anchor;
 use webpki::SignatureAlgorithm;
 use webpki::{Time, DNSNameRef};
 
-use ring::rand::SystemRandom;
-use ring::signature;
-use ring::signature::{EcdsaKeyPair, EcdsaSigningAlgorithm,
-                      Ed25519KeyPair, RSA_PKCS1_SHA256, RsaKeyPair};
+
+
+
 
 pub struct Register {
     pub is_ca: bool,
