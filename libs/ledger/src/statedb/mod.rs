@@ -21,15 +21,15 @@ pub trait VersionedDBProvider {
 // VersionedDB lists methods that a db is supposed to implement
 pub trait VersionedDB {
     // get_state gets the value for given namespace and key. For a contract, the namespace corresponds to the contractId
-    fn get_state(&self, namespace: &String, key: &String) -> Result<Option<VersionedValue>>;
+    fn get_state(&self, namespace: &str, key: &str) -> Result<Option<VersionedValue>>;
 
     // get_version gets the version for given namespace and key. For a contract, the namespace corresponds to the contractId
-    fn get_version(&self, namespace: &String, key: &String) -> Result<Option<Height>>;
+    fn get_version(&self, namespace: &str, key: &str) -> Result<Option<Height>>;
 
     // get_state_multiple_keys gets the values for multiple keys in a single call
     fn get_state_multiple_keys(
         &self,
-        namespace: &String,
+        namespace: &str,
         keys: Vec<String>,
     ) -> Result<Vec<VersionedValue>>;
 
@@ -39,16 +39,16 @@ pub trait VersionedDB {
     // The returned ResultsIterator contains results of type *VersionedKV
     fn get_state_range_scan_iterator(
         &self,
-        namespace: &String,
-        start_key: &String,
-        end_key: &String,
+        namespace: &str,
+        start_key: &str,
+        end_key: &str,
     ) -> Result<Box<dyn Iterator<Item = VersionedKV>>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type *VersionedKV.
     fn execute_query(
         &self,
-        namespace: &String,
-        query: &String,
+        namespace: &str,
+        query: &str,
     ) -> Result<Box<dyn Iterator<Item = VersionedKV>>>;
 
     // apply_updates applies the batch to the underlying db.
@@ -65,7 +65,7 @@ pub trait VersionedDB {
     // TODO make the function validate_key_value return a specific error say ErrInvalidKeyValue
     // However, as of now, the both implementations of this function (leveldb and couchdb) are deterministic in returing an error
     // i.e., an error is returned only if the key-value are found to be invalid for the underlying db
-    fn validate_key_value(&self, key: &String, value: &[u8]) -> Result<()>;
+    fn validate_key_value(&self, key: &str, value: &[u8]) -> Result<()>;
 
     // bytes_key_supported returns true if the implementation (underlying db) supports the any bytes to be used as key.
     // For instance, leveldb supports any bytes for the key while the couchdb supports only valid utf-8 string

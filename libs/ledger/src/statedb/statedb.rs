@@ -26,14 +26,13 @@ impl UpdateBatch {
         }
     }
 
-    pub fn get(&self, ns: &String, key: &String) -> Option<VersionedValue> {
+    pub fn get(&self, ns: &str, key: &str) -> Option<VersionedValue> {
         self.updates
             .get(ns)
-            .and_then(|ns| ns.m.get(key))
-            .map(|vv| vv.clone())
+            .and_then(|ns|ns.m.get(key)).cloned()
     }
 
-    pub fn put(&mut self, ns: &String, key: &String, value: Vec<u8>, version: Height) {
+    pub fn put(&mut self, ns: &str, key: &str, value: Vec<u8>, version: Height) {
         self.put_val_and_metadata(ns, key, value, vec![], version);
     }
 
@@ -41,8 +40,8 @@ impl UpdateBatch {
     // TODO introducing a new function to limit the refactoring. Later in a separate CR, the 'Put' function above should be removed
     pub fn put_val_and_metadata(
         &mut self,
-        ns: &String,
-        key: &String,
+        ns: &str,
+        key: &str,
         value: Vec<u8>,
         metadata: Vec<u8>,
         version: Height,
@@ -59,12 +58,12 @@ impl UpdateBatch {
     }
 
     // update updates the batch with a latest entry for a namespace and a key
-    pub fn update(&mut self, ns: &String, key: &String, vv: VersionedValue) {
-        self.get_or_create_nsupdates(ns).m.insert(key.clone(), vv);
+    pub fn update(&mut self, ns: &str, key: &str, vv: VersionedValue) {
+        self.get_or_create_nsupdates(ns).m.insert(String::from(key), vv);
     }
 
     // delete deletes a Key and associated value
-    pub fn delete(&mut self, ns: &String, key: &String, version: Height) {
+    pub fn delete(&mut self, ns: &str, key: &str, version: Height) {
         self.update(
             ns,
             key,
@@ -77,7 +76,7 @@ impl UpdateBatch {
     }
 
     // exists checks whether the given key exists in the batch
-    pub fn exists(&self, ns: &String, key: &String) -> bool {
+    pub fn exists(&self, ns: &str, key: &str) -> bool {
         match self.updates.get(ns) {
             Some(ns) => ns.m.contains_key(key),
             None => false,
@@ -87,10 +86,10 @@ impl UpdateBatch {
     // get_updated_namespaces returns the names of the namespaces that are updated
     pub fn get_updated_namespaces(&self) -> Vec<String> {
         let keys = self.updates.keys();
-        keys.map(|s| s.clone()).collect()
+        keys.cloned().collect()
     }
 
-    pub fn get_updates(&self, ns: &String) -> Option<HashMap<String, VersionedValue>> {
+    pub fn get_updates(&self, ns: &str) -> Option<HashMap<String, VersionedValue>> {
         self.updates.get(ns).map(|s| s.m.clone())
     }
 
@@ -105,9 +104,9 @@ impl UpdateBatch {
         }
     }
 
-    fn get_or_create_nsupdates(&mut self, ns: &String) -> &mut NsUpdates {
+    fn get_or_create_nsupdates(&mut self, ns: &str) -> &mut NsUpdates {
         if !self.updates.contains_key(ns) {
-            self.updates.insert(ns.clone(), NsUpdates::new());
+            self.updates.insert(String::from(ns), NsUpdates::new());
         }
 
         self.updates.get_mut(ns).unwrap()

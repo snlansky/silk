@@ -6,17 +6,9 @@ use dashmap::DashMap;
 use failure::_core::time::Duration;
 use silk_proto::message::MessageType;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ContractSupport {
     handler_registry: Arc<DashMap<String, Contract>>,
-}
-
-impl ContractSupport {
-    pub fn new() -> ContractSupport {
-        ContractSupport {
-            handler_registry: Arc::new(DashMap::new()),
-        }
-    }
 }
 
 #[async_trait::async_trait]
@@ -29,12 +21,12 @@ impl IContractSupport for ContractSupport {
     }
 
     // PIN
-    fn deregister(&self, _name: &String) -> Result<()> {
+    fn deregister(&self, _name: &str) -> Result<()> {
         unimplemented!()
     }
 
     // PIN
-    fn launch(&self, name: &String) -> Option<Ref<String, Contract>> {
+    fn launch(&self, name: &str) -> Option<Ref<String, Contract>> {
         self.handler_registry.get(name)
     }
 
@@ -42,10 +34,10 @@ impl IContractSupport for ContractSupport {
     async fn execute(
         &self,
         tx_params: &TransactionParams,
-        contract: &String,
+        contract: &str,
     ) -> Result<(Response, Option<ContractEvent>)> {
         let msg = self.invoke(tx_params, contract).await?;
-        let resp = msg.response.ok_or(from_str("contract response is null"))?;
+        let resp = msg.response.ok_or_else(||from_str("contract response is null"))?;
         Ok((resp, msg.event))
     }
 
@@ -53,7 +45,7 @@ impl IContractSupport for ContractSupport {
     async fn invoke(
         &self,
         tx_params: &TransactionParams,
-        contract: &String,
+        contract: &str,
     ) -> Result<TransactionCompleted> {
         let ct = ContractTransaction {
             proposal: Some(tx_params.proposal.clone()),
@@ -65,8 +57,8 @@ impl IContractSupport for ContractSupport {
             content: payload,
         };
         let r = self
-            .launch(&contract)
-            .ok_or(from_str("contract not found"))?;
+            .launch(contract)
+            .ok_or_else(||from_str("contract not found"))?;
         let h = &*r;
         h.execute(tx_params, msg, Duration::from_secs(5)).await
     }

@@ -35,7 +35,7 @@ impl Contract {
             response,
             event,
         } = utils::proto::unmarshal(&msg.content)?;
-        let prop = proposal.ok_or(from_str("proposal is null"))?;
+        let prop = proposal.ok_or_else(||from_str("proposal is null"))?;
 
         if let Some(ctx) = self
             .transaction_context_registry
@@ -77,7 +77,7 @@ impl Contract {
         let ctx = self
             .transaction_context_registry
             .get(&msg.correlation_id)
-            .ok_or(from_str("transaction not found"))?;
+            .ok_or_else(||from_str("transaction not found"))?;
         let ctx = &*ctx;
         if let Some(m) = delegate(ctx, msg)? {
             let mut sender = self.sender.clone();

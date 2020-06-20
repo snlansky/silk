@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::fs::{self, File, OpenOptions};
+use std::fs::File;
 use std::io::{self, BufReader, Read, Seek, SeekFrom};
 use std::path::PathBuf;
 use std::sync::Arc;

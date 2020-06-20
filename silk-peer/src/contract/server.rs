@@ -36,7 +36,7 @@ impl<S: IContractSupport> contract_server::Contract for Server<S> {
                     let register: ContractRegister = utils::proto::unmarshal(&msg.content)
                         .map_err(|e| into_status(Box::new(e)))?;
                     info!("start register contract [{:?}]", register);
-                    let handler = Contract::new(register.clone(), tx);
+                    let handler = Contract::new(register, tx);
                     self.support
                         .register(handler.clone())
                         .map_err(into_status)?;

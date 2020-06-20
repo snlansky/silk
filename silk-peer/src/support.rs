@@ -8,15 +8,15 @@ use silk_proto::*;
 pub trait ISupport: Send + Sync + 'static {
     fn get_transaction_simulator(
         &self,
-        ledger: &String,
-        tx_id: &String,
+        ledger: &str,
+        tx_id: &str,
     ) -> Result<Option<TxSimulator>>;
     fn get_ledger_height(&self, channel_id: String) -> Result<u64>;
     fn get_transaction_by_id(&self, channel_id: String, _tx_id: String) -> Result<()>;
     async fn execute<'a>(
         &self,
         tx_params: &'a TransactionParams,
-        name: &'a String,
+        name: &'a str,
     ) -> Result<(Response, Option<ContractEvent>)>;
     async fn broadcast(&self, tx: &Transaction) -> Result<()>;
 }
@@ -43,8 +43,8 @@ impl<H: IContractSupport, T: IConsensusSupport> ISupport for Support<H, T> {
     // PIN
     fn get_transaction_simulator(
         &self,
-        _ledger: &String,
-        _tx_id: &String,
+        _ledger: &str,
+        _tx_id: &str,
     ) -> Result<Option<TxSimulator>> {
         Ok(Some(TxSimulator {}))
     }
@@ -63,7 +63,7 @@ impl<H: IContractSupport, T: IConsensusSupport> ISupport for Support<H, T> {
     async fn execute<'a>(
         &self,
         tx_params: &'a TransactionParams,
-        name: &'a String,
+        name: &'a str,
     ) -> Result<(Response, Option<ContractEvent>)> {
         self.contract_support.execute(tx_params, name).await
     }

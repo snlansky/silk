@@ -34,7 +34,7 @@ impl<'a> ContractStub<'a> {
         unimplemented!()
     }
 
-    async fn get_state(&mut self, _key: &String) -> Result<Vec<u8>> {
+    async fn get_state(&mut self, _key: &str) -> Result<Vec<u8>> {
         unimplemented!()
     }
 
@@ -42,7 +42,7 @@ impl<'a> ContractStub<'a> {
         unimplemented!()
     }
 
-    fn del_state(&mut self, _key: &String) -> Result<()> {
+    fn del_state(&mut self, _key: &str) -> Result<()> {
         unimplemented!()
     }
 

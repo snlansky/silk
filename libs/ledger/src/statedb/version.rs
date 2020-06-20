@@ -23,10 +23,10 @@ impl Height {
 
     pub fn to_bytes(&self) -> Vec<u8> {
         utils::proto::marshal(&VersionedHeight {
-            block_num: self.block_num.clone(),
-            tx_num: self.tx_num.clone(),
+            block_num: self.block_num,
+            tx_num: self.tx_num,
         })
-        .unwrap_or(vec![])
+        .unwrap_or_default()
     }
 
     // Compare return a -1, zero, or +1 based on whether this height is
@@ -66,7 +66,7 @@ pub fn are_same(h1: Option<Height>, h2: Option<Height>) -> bool {
         return false;
     }
 
-    return h1.unwrap().compare(h2.unwrap()) == 0;
+    h1.unwrap().compare(h2.unwrap()) == 0
 }
 
 #[cfg(test)]

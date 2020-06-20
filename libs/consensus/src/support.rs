@@ -29,7 +29,7 @@ impl<T: IConsensus> Support<T> {
         let sender = self.chains_configure.get(&name);
         let header = desc
             .header
-            .ok_or(from_str("ConsensusChainDescribe.Header is null"))?;
+            .ok_or_else(||from_str("ConsensusChainDescribe.Header is null"))?;
 
         match sender {
             Some(sender) => {
@@ -61,7 +61,7 @@ impl<T: IConsensus> Support<T> {
         let signed_prop = tx
             .signed_proposal
             .clone()
-            .ok_or(from_str("signed proposal is null"))?;
+            .ok_or_else(||from_str("signed proposal is null"))?;
 
         let header = utils::proto::unmarshal::<Proposal>(&signed_prop.proposal_bytes)?
             .header
@@ -70,15 +70,15 @@ impl<T: IConsensus> Support<T> {
         let chain = self
             .chains
             .get(&header.channel_id)
-            .ok_or(from_str("process transaction. but chain not create"))?;
+            .ok_or_else(||from_str("process transaction. but chain not create"))?;
         let chain = &*chain;
 
         match header.header_type {
             t if t == HeaderType::Invoke as i32 => {
-                chain.order(tx);
+                chain.order(tx)?;
             }
             t if t == HeaderType::CreateChannel as i32 => {
-                chain.configure(tx);
+                chain.configure(tx)?;
             }
             _ => {
                 error!("unhandled header type {:?}", header.header_type);

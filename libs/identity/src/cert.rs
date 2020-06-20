@@ -50,8 +50,8 @@ pub fn cert_params(
     params
         .distinguished_name
         .push(DnType::CommonName, register.common_name);
-    if alg.is_some() {
-        params.alg = alg.unwrap();
+    if let Some(alg) = alg {
+        params.alg = alg
     }
     if register.is_ca {
         params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
@@ -79,7 +79,7 @@ fn check_cert1<'a, 'b>(
     cert_der: &[u8],
     cert: &'a Certificate,
     alg: &SignatureAlgorithm,
-    signature: &'b Vec<u8>,
+    signature: &'b [u8],
 ) {
     println!("{}", cert.serialize_pem().unwrap());
     let trust_anchor = cert_der_as_trust_anchor(&cert_der).unwrap();

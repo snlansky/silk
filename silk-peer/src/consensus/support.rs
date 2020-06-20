@@ -28,7 +28,7 @@ impl IConsensusSupport for ConsensusSupport {
         Ok(())
     }
 
-    async fn deregister(&self, _name: &String) -> Result<()> {
+    async fn deregister(&self, _name: &str) -> Result<()> {
         unimplemented!()
     }
 

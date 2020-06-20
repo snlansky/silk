@@ -32,7 +32,7 @@ impl BlockStore {
         let cp = index.get_check_point()?;
 
         let blk_path = Arc::new(path.join("chain"));
-        fs::create_dir_all(&*blk_path.clone())?;
+        fs::create_dir_all(&*blk_path)?;
 
         // TODO: process sync block form files into index when index was clear.
         // or. index check point belong block files, we must clean index and sync again.

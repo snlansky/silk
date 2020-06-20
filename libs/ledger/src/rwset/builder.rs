@@ -18,29 +18,29 @@ impl RWSetBuilder {
     }
 
     // add_to_read_set adds a key and corresponding version to the read-set
-    pub fn add_to_read_set(&mut self, ns: &String, key: &String, version: Height) {
+    pub fn add_to_read_set(&mut self, ns: &str, key: &str, version: Height) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
         let ver = Version {
             block_num: version.block_num,
             tx_num: version.tx_num,
         };
         ns_rw_builder.read_map.insert(
-            key.clone(),
+            String::from(key),
             KvRead {
-                key: key.clone(),
+                key: String::from(key),
                 version: Some(ver),
             },
         );
     }
 
     // add_to_write_set adds a key and value to the write-set
-    pub fn add_to_write_set(&mut self, ns: &String, key: &String, value: Vec<u8>) {
+    pub fn add_to_write_set(&mut self, ns: &str, key: &str, value: Vec<u8>) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
 
         ns_rw_builder.write_map.insert(
-            key.clone(),
+            String::from(key),
             KvWrite {
-                key: key.clone(),
+                key: String::from(key),
                 is_delete: value.is_empty(),
                 value,
             },
@@ -48,12 +48,12 @@ impl RWSetBuilder {
     }
 
     // add_to_range_query_set adds a range query info for performing phantom read validation
-    pub fn add_to_range_query_set(&mut self, ns: &String, rqi: RangeQueryInfo) {
+    pub fn add_to_range_query_set(&mut self, ns: &str, rqi: RangeQueryInfo) {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
         let key = RangeQueryKey {
             start_key: rqi.start_key.clone(),
             end_key: rqi.end_key.clone(),
-            itr_exhausted: rqi.itr_exhausted.clone(),
+            itr_exhausted: rqi.itr_exhausted,
         };
         if !ns_rw_builder.range_queries_map.contains_key(&key) {
             ns_rw_builder.range_queries_map.insert(key.clone(), rqi);
@@ -81,27 +81,27 @@ impl RWSetBuilder {
         for builder in builders {
             ns_rw_sets.push(NsRwSet::from(builder));
         }
-        return TxRwSet { ns_rw_sets };
+        TxRwSet { ns_rw_sets }
     }
 
-    fn get_or_create_ns_rw_builder(&mut self, ns: &String) -> &mut NsRwBuilder {
+    fn get_or_create_ns_rw_builder(&mut self, ns: &str) -> &mut NsRwBuilder {
         if !self.map.contains_key(ns) {
-            self.map.insert(ns.clone(), NsRwBuilder::new(ns.clone()));
+            self.map.insert(String::from(ns), NsRwBuilder::new(String::from(ns)));
         }
         self.map.get_mut(ns).unwrap()
     }
 
     fn get_or_create_coll_hashed_rw_builder(
         &mut self,
-        ns: &String,
-        coll: &String,
+        ns: &str,
+        coll: &str,
     ) -> &mut CollHashRwBuilder {
         let ns_rw_builder = self.get_or_create_ns_rw_builder(ns);
         if !ns_rw_builder.coll_hash_rw_builder.contains_key(coll) {
             ns_rw_builder.coll_hash_rw_builder.insert(
-                coll.clone(),
+                String::from(coll),
                 CollHashRwBuilder {
-                    coll_name: coll.clone(),
+                    coll_name: String::from(coll),
                     read_map: Default::default(),
                     write_map: Default::default(),
                 },
@@ -159,7 +159,7 @@ impl From<NsRwBuilder> for NsRwSet {
         let coll_builders = get_values_by_sorted_keys(&value.coll_hash_rw_builder);
         let coll_hashed_rw_sets = coll_builders
             .into_iter()
-            .map(|builder| CollHashedRwSet::from(builder))
+            .map(CollHashedRwSet::from)
             .collect::<Vec<CollHashedRwSet>>();
 
         NsRwSet {

@@ -12,7 +12,7 @@ pub fn compute_sha256(data: &[u8]) -> Box<[u8]> {
     <Sha256 as DynDigest>::result_reset(&mut hasher)
 }
 
-pub fn compute_vec_sha256(data: &Vec<Vec<u8>>) -> Box<[u8]> {
+pub fn compute_vec_sha256(data: &[Vec<u8>]) -> Box<[u8]> {
     let mut hasher = Sha256::new();
     for d in data {
         <Sha256 as DynDigest>::input(&mut hasher, d);

@@ -12,7 +12,7 @@ impl Contract for ContractSimple {
         Response {
             status: 200,
             message: "ok".to_string(),
-            payload: "so easy".as_bytes().to_vec(),
+            payload: b"so easy".to_vec(),
         }
     }
 }

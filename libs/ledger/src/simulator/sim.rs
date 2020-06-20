@@ -21,7 +21,7 @@ impl<V: VersionedDB> BasedTxSimulator<V> {
 }
 
 impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
-    fn get_state(&mut self, namespace: &String, key: &String) -> Result<Vec<u8>> {
+    fn get_state(&mut self, namespace: &str, key: &str) -> Result<Vec<u8>> {
         let v = self.vdb.get_state(namespace, key)?;
         let vv = v.unwrap_or(VersionedValue {
             value: vec![],
@@ -36,24 +36,24 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
         Ok(vv.value)
     }
 
-    fn set_state(&mut self, namespace: &String, key: &String, value: Vec<u8>) -> Result<()> {
+    fn set_state(&mut self, namespace: &str, key: &str, value: Vec<u8>) -> Result<()> {
         self.rw_set_builder.add_to_write_set(namespace, key, value);
         Ok(())
     }
 
-    fn delete_state(&mut self, namespace: &String, key: &String) -> Result<()> {
+    fn delete_state(&mut self, namespace: &str, key: &str) -> Result<()> {
         self.set_state(namespace, key, vec![])
     }
 
     fn set_state_multiple_keys(
         &mut self,
-        _namespace: &String,
+        _namespace: &str,
         _kvs: HashMap<String, Vec<u8>, RandomState>,
     ) -> Result<()> {
         unimplemented!()
     }
 
-    fn execute_update(&mut self, _query: &String) -> Result<()> {
+    fn execute_update(&mut self, _query: &str) -> Result<()> {
         unimplemented!()
     }
 
@@ -63,15 +63,15 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
 
     fn get_state_metadata(
         &mut self,
-        _namespace: &String,
-        _key: &String,
+        _namespace: &str,
+        _key: &str,
     ) -> Result<HashMap<String, Vec<u8>, RandomState>> {
         unimplemented!()
     }
 
     fn get_state_multiple_keys(
         &mut self,
-        _namespace: &String,
+        _namespace: &str,
         _keys: Vec<String>,
     ) -> Result<Vec<Vec<u8>>> {
         unimplemented!()
@@ -79,17 +79,17 @@ impl<V: VersionedDB> super::TxSimulator for BasedTxSimulator<V> {
 
     fn get_state_range_scan_iterator(
         &mut self,
-        _namespace: &String,
-        _start_key: &String,
-        _end_key: &String,
+        _namespace: &str,
+        _start_key: &str,
+        _end_key: &str,
     ) -> Result<Box<dyn Iterator<Item = Kv>>> {
         unimplemented!()
     }
 
     fn execute_query(
         &mut self,
-        _namespace: &String,
-        _query: &String,
+        _namespace: &str,
+        _query: &str,
     ) -> Result<Box<dyn Iterator<Item = Kv>>> {
         unimplemented!()
     }

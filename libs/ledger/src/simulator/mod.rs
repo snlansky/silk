@@ -7,23 +7,23 @@ pub mod sim;
 
 pub trait TxSimulator {
     // get_state gets the value for given namespace and key. For a chaincode, the namespace corresponds to the chaincodeId
-    fn get_state(&mut self, namespace: &String, key: &String) -> Result<Vec<u8>>;
+    fn get_state(&mut self, namespace: &str, key: &str) -> Result<Vec<u8>>;
 
     // set_state sets the given value for the given namespace and key. For a chaincode, the namespace corresponds to the chaincodeId
-    fn set_state(&mut self, namespace: &String, key: &String, value: Vec<u8>) -> Result<()>;
+    fn set_state(&mut self, namespace: &str, key: &str, value: Vec<u8>) -> Result<()>;
 
     // delete_state deletes the given namespace and key
-    fn delete_state(&mut self, namespace: &String, key: &String) -> Result<()>;
+    fn delete_state(&mut self, namespace: &str, key: &str) -> Result<()>;
 
     // SetMultipleKeys sets the values for multiple keys in a single call
     fn set_state_multiple_keys(
         &mut self,
-        namespace: &String,
+        namespace: &str,
         kvs: HashMap<String, Vec<u8>>,
     ) -> Result<()>;
 
     // execute_update for supporting rich data model (see comments on QueryExecutor above)
-    fn execute_update(&mut self, query: &String) -> Result<()>;
+    fn execute_update(&mut self, query: &str) -> Result<()>;
 
     // get_tx_simulation_results encapsulates the results of the transaction simulation.
     // This should contain enough detail for
@@ -40,14 +40,14 @@ pub trait TxSimulator {
     // get_state_metadata returns the metadata for given namespace and key
     fn get_state_metadata(
         &mut self,
-        namespace: &String,
-        key: &String,
+        namespace: &str,
+        key: &str,
     ) -> Result<HashMap<String, Vec<u8>>>;
 
     // get_state_multiple_keys gets the values for multiple keys in a single call
     fn get_state_multiple_keys(
         &mut self,
-        namespace: &String,
+        namespace: &str,
         keys: Vec<String>,
     ) -> Result<Vec<Vec<u8>>>;
 
@@ -58,9 +58,9 @@ pub trait TxSimulator {
     // The returned ResultsIterator contains results of type *KV which is defined in fabric-protos/ledger/queryresult.
     fn get_state_range_scan_iterator(
         &mut self,
-        namespace: &String,
-        start_key: &String,
-        end_key: &String,
+        namespace: &str,
+        start_key: &str,
+        end_key: &str,
     ) -> Result<Box<dyn Iterator<Item = Kv>>>;
 
     // execute_query executes the given query and returns an iterator that contains results of type specific to the underlying data store.
@@ -69,8 +69,8 @@ pub trait TxSimulator {
     // The returned ResultsIterator contains results of type *KV which is defined in fabric-protos/ledger/queryresult.
     fn execute_query(
         &mut self,
-        namespace: &String,
-        query: &String,
+        namespace: &str,
+        query: &str,
     ) -> Result<Box<dyn Iterator<Item = Kv>>>;
 
     // done releases resources occupied by the QueryExecutor

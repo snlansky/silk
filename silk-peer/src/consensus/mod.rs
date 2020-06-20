@@ -22,7 +22,7 @@ pub trait IConsensus: Send + Sync + 'static {
 #[async_trait::async_trait]
 pub trait IConsensusSupport: Send + Sync + 'static {
     async fn register(&self, consensus: Consensus) -> Result<()>;
-    async fn deregister(&self, name: &String) -> Result<()>;
+    async fn deregister(&self, name: &str) -> Result<()>;
     async fn commit(&self, tx: &Transaction) -> Result<()>;
     async fn update_chain(&self) -> Result<()>;
 }

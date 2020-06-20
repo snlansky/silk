@@ -27,20 +27,20 @@ pub trait IContractSupport: Send + Sync + 'static {
     // PIN
     fn register(&self, contract: Contract) -> Result<()>;
     // PIN
-    fn deregister(&self, name: &String) -> Result<()>;
+    fn deregister(&self, name: &str) -> Result<()>;
     // PIN
-    fn launch(&self, name: &String) -> Option<Ref<String, Contract>>;
+    fn launch(&self, name: &str) -> Option<Ref<String, Contract>>;
     // PIN
     async fn execute(
         &self,
         tx_params: &TransactionParams,
-        contract: &String,
+        contract: &str,
     ) -> Result<(Response, Option<ContractEvent>)>;
     // PIN
     async fn invoke(
         &self,
         tx_params: &TransactionParams,
-        contract: &String,
+        contract: &str,
     ) -> Result<TransactionCompleted>;
 }
 

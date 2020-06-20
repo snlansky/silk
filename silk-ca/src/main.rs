@@ -1,6 +1,4 @@
 use actix_web::{get, post, App, HttpRequest, HttpServer, Responder};
-#[macro_use]
-extern crate actix_web;
 
 #[get("/ping")]
 async fn pong(_req: HttpRequest) -> impl Responder {

@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let handler = Box::new(EventHandler::new());
 
-    let contract_support = ContractSupport::new();
+    let contract_support = ContractSupport::default();
     let consensus_support = ConsensusSupport::new(handler);
     let support = support::Support::new(contract_support.clone(), consensus_support.clone());
 

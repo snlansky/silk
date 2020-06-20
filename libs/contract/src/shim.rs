@@ -10,7 +10,7 @@ use super::Contract;
 use crate::ContractStub;
 use silk_proto::message::MessageType;
 use std::sync::Arc;
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::Request;
 
 async fn run_register(
     client: &mut ContractClient<Channel>,
