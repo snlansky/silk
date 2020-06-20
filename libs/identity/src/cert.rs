@@ -112,10 +112,10 @@ fn check_cert1<'a, 'b>(cert_der :&[u8], cert :&'a Certificate, alg :&SignatureAl
 mod tests {
     use crate::cert::default_params;
     use rcgen::{Certificate, IsCa, BasicConstraints, CertificateParams, DnType, PKCS_ED25519};
-    use ring::signature;
+    
     use ring::signature::{EcdsaKeyPair, EcdsaSigningAlgorithm,
                           Ed25519KeyPair, RSA_PKCS1_SHA256, RsaKeyPair};
-    use webpki::{EndEntityCert, ED25519, ECDSA_P256_SHA256, TLSServerTrustAnchors, Time};
+    use webpki::{EndEntityCert, ED25519, TLSServerTrustAnchors, Time};
     use webpki::trust_anchor_util::cert_der_as_trust_anchor;
 
     #[test]
@@ -178,7 +178,7 @@ mod tests {
         // let key = crate::ed25519::Keypair::generate();
         // let buf = key.encode();
         // let kp = rcgen::KeyPair::try_from(&buf[..]).unwrap();
-        let sk = "MFMCAQEwBQYDK2VwBCIEIB/THOx4R6EF3m5GPzWw9y2ojw6czaurz1IiaZJR3Aq9oSMDIQA8URGFcDwhxtCb+rvt7LriOtqr1mZf+lTsDG+haxgXLw==";
+        let _sk = "MFMCAQEwBQYDK2VwBCIEIB/THOx4R6EF3m5GPzWw9y2ojw6czaurz1IiaZJR3Aq9oSMDIQA8URGFcDwhxtCb+rvt7LriOtqr1mZf+lTsDG+haxgXLw==";
 
     }
 }
