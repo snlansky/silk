@@ -12,7 +12,7 @@ pub trait TxMgr {
     fn commit() -> Result<()>;
 }
 
-pub struct UnlockedTxMgr<V: VersionedDB> {
+pub struct LockBasedTxMgr<V: VersionedDB> {
     vdb: V,
 }
 
