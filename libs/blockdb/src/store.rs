@@ -210,7 +210,7 @@ mod tests {
                 info.current_block_hash,
                 vec![create_tx(format!("tx_{:}", i))?],
             );
-            store.add_block(&block);
+            store.add_block(&block)?;
         }
         Ok(store)
     }
