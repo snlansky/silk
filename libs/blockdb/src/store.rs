@@ -223,7 +223,7 @@ mod tests {
         println!("{:?}", info);
     }
     fn create_block(num: u64, prev_hash: Vec<u8>, txs: Vec<Transaction>) -> Block {
-        let data = txs
+        let data: Vec<Vec<u8>> = txs
             .iter()
             .map(|t| utils::proto::marshal(t).unwrap())
             .collect();
