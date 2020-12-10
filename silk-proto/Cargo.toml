@@ -7,13 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = "0.1.1"
+tonic = "0.3.1"
 prost = "0.6"
-tokio = { version = "0.2", features = ["rt-threaded", "time", "stream", "fs", "macros", "uds"] }
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
-async-stream = "0.2"
+async-stream = "0.3.0"
 prost-types = "0.6"
 
 [build-dependencies]
-tonic-build = "0.1.1"
+tonic-build = "0.3.1"
 

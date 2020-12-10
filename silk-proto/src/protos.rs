@@ -371,6 +371,11 @@ pub mod consensus_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for ConsensusClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "ConsensusClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated server implementations."]
 pub mod consensus_server {
@@ -390,7 +395,6 @@ pub mod consensus_server {
         ) -> Result<tonic::Response<Self::RegisterStream>, tonic::Status>;
     }
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct ConsensusServer<T: Consensus> {
         inner: _Inner<T>,
     }
@@ -407,17 +411,23 @@ pub mod consensus_server {
             Self { inner }
         }
     }
-    impl<T: Consensus> Service<http::Request<HyperBody>> for ConsensusServer<T> {
+    impl<T, B> Service<http::Request<B>> for ConsensusServer<T>
+    where
+        T: Consensus,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/protos.Consensus/Register" => {
+                    #[allow(non_camel_case_types)]
                     struct RegisterSvc<T: Consensus>(pub Arc<T>);
                     impl<T: Consensus> tonic::server::StreamingService<super::Message> for RegisterSvc<T> {
                         type Response = super::Message;
@@ -429,7 +439,7 @@ pub mod consensus_server {
                             request: tonic::Request<tonic::Streaming<super::Message>>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.register(request).await };
+                            let fut = async move { (*inner).register(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -592,6 +602,11 @@ pub mod contract_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for ContractClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "ContractClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated server implementations."]
 pub mod contract_server {
@@ -611,7 +626,6 @@ pub mod contract_server {
         ) -> Result<tonic::Response<Self::RegisterStream>, tonic::Status>;
     }
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct ContractServer<T: Contract> {
         inner: _Inner<T>,
     }
@@ -628,17 +642,23 @@ pub mod contract_server {
             Self { inner }
         }
     }
-    impl<T: Contract> Service<http::Request<HyperBody>> for ContractServer<T> {
+    impl<T, B> Service<http::Request<B>> for ContractServer<T>
+    where
+        T: Contract,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/protos.Contract/Register" => {
+                    #[allow(non_camel_case_types)]
                     struct RegisterSvc<T: Contract>(pub Arc<T>);
                     impl<T: Contract> tonic::server::StreamingService<super::Message> for RegisterSvc<T> {
                         type Response = super::Message;
@@ -650,7 +670,7 @@ pub mod contract_server {
                             request: tonic::Request<tonic::Streaming<super::Message>>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.register(request).await };
+                            let fut = async move { (*inner).register(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -913,6 +933,11 @@ pub mod endorser_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for EndorserClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "EndorserClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated client implementations."]
 pub mod p2p_client {
@@ -973,6 +998,11 @@ pub mod p2p_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for P2pClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "P2pClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated server implementations."]
 pub mod endorser_server {
@@ -992,7 +1022,6 @@ pub mod endorser_server {
     }
     #[doc = " process message from client"]
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct EndorserServer<T: Endorser> {
         inner: _Inner<T>,
     }
@@ -1009,17 +1038,23 @@ pub mod endorser_server {
             Self { inner }
         }
     }
-    impl<T: Endorser> Service<http::Request<HyperBody>> for EndorserServer<T> {
+    impl<T, B> Service<http::Request<B>> for EndorserServer<T>
+    where
+        T: Endorser,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/protos.Endorser/ProcessProposal" => {
+                    #[allow(non_camel_case_types)]
                     struct ProcessProposalSvc<T: Endorser>(pub Arc<T>);
                     impl<T: Endorser> tonic::server::UnaryService<super::BatchSubmit> for ProcessProposalSvc<T> {
                         type Response = super::BatchResponse;
@@ -1029,7 +1064,7 @@ pub mod endorser_server {
                             request: tonic::Request<super::BatchSubmit>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.process_proposal(request).await };
+                            let fut = async move { (*inner).process_proposal(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1050,13 +1085,14 @@ pub mod endorser_server {
                     Box::pin(fut)
                 }
                 "/protos.Endorser/Ping" => {
+                    #[allow(non_camel_case_types)]
                     struct PingSvc<T: Endorser>(pub Arc<T>);
                     impl<T: Endorser> tonic::server::UnaryService<super::Empty> for PingSvc<T> {
                         type Response = super::Empty;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(&mut self, request: tonic::Request<super::Empty>) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.ping(request).await };
+                            let fut = async move { (*inner).ping(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1125,7 +1161,6 @@ pub mod p2p_server {
     }
     #[doc = " send and receive message to other peer nodes"]
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct P2pServer<T: P2p> {
         inner: _Inner<T>,
     }
@@ -1142,17 +1177,23 @@ pub mod p2p_server {
             Self { inner }
         }
     }
-    impl<T: P2p> Service<http::Request<HyperBody>> for P2pServer<T> {
+    impl<T, B> Service<http::Request<B>> for P2pServer<T>
+    where
+        T: P2p,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/protos.P2P/Broadcast" => {
+                    #[allow(non_camel_case_types)]
                     struct BroadcastSvc<T: P2p>(pub Arc<T>);
                     impl<T: P2p> tonic::server::StreamingService<super::Message> for BroadcastSvc<T> {
                         type Response = super::Message;
@@ -1164,7 +1205,7 @@ pub mod p2p_server {
                             request: tonic::Request<tonic::Streaming<super::Message>>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.broadcast(request).await };
+                            let fut = async move { (*inner).broadcast(request).await };
                             Box::pin(fut)
                         }
                     }

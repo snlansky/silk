@@ -12,6 +12,6 @@ contract = { path = "../../libs/contract" }
 failure = "0.1.6"
 tonic = "0.1.1"
 prost = "0.6"
-tokio = { version = "0.2", features = ["rt-threaded", "time", "stream", "fs", "macros", "uds"] }
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
 async-stream = "0.2"
+tokio = { version = "0.3", features = ["full"] }

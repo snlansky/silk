@@ -10,14 +10,14 @@ edition = "2018"
 silk-proto = { path = "../silk-proto" }
 utils = { path = "../libs/utils" }
 error = { path = "../libs/error" }
-failure = "0.1.6"
-tonic = "0.1.1"
+failure = "0.1.8"
+tonic = "0.3.1"
 prost = "0.6"
-tokio = { version = "0.2", features = ["rt-threaded", "time", "stream", "fs", "macros", "uds"] }
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
-async-stream = "0.2"
+async-stream = "0.3.0"
 crossbeam = "0.7"
 dashmap = "3.7.0"
-async-trait = "0.1.27"
+async-trait = "0.1.42"
 log = "0.4"
 env_logger = "0.7.1"
+tokio = { version = "0.3", features = ["full"] }

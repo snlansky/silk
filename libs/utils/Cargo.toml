@@ -14,7 +14,6 @@ hex = "0.3.2"
 crypto-hash = "0.3.3"
 tonic = "0.1.1"
 prost = "0.6"
-tokio = { version = "0.2", features = ["rt-threaded", "time", "stream", "fs", "macros", "uds"] }
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
 async-stream = "0.2"
 prost-types = "0.6"
