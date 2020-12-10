@@ -12,7 +12,7 @@ serde = { version = "1.0.89", features = ["derive"] }
 serde_json = "1.0.39"
 utils = { path = "../utils" }
 silk-proto = { path = "../../silk-proto" }
-rocksdb = "0.14.0"
+rocksdb = "0.15.0"
 error = { path = "../error" }
 bytes = "0.6.0"
 
