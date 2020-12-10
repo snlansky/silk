@@ -12,10 +12,10 @@ sha2 = "0.8.0"
 hex-literal = "0.2.1"
 hex = "0.3.2"
 crypto-hash = "0.3.3"
-tonic = "0.1.1"
+tonic = "0.3.1"
 prost = "0.6"
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
-async-stream = "0.2"
+async-stream = "0.3.0"
 prost-types = "0.6"
 silk-proto = { path = "../../silk-proto" }
 bytes = "0.6.0"
