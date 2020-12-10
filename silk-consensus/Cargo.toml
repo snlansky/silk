@@ -16,9 +16,9 @@ tonic = "0.3.1"
 prost = "0.6"
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
 async-stream = "0.3.0"
-crossbeam = "0.7"
-dashmap = "3.7.0"
-async-trait = "0.1.27"
+crossbeam = "0.8.0"
+dashmap = "3.11.10"
+async-trait = "0.1.42"
 log = "0.4"
-env_logger = "0.7.1"
+env_logger = "0.8.2"
 tokio = { version = "0.3", features = ["full"] }

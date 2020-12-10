@@ -14,9 +14,8 @@ utils = { path = "../utils" }
 silk-proto = { path = "../../silk-proto" }
 rocksdb = "0.14.0"
 error = { path = "../error" }
-bytes = "0.5"
+bytes = "0.6.0"
 
 [dev-dependencies]
 tempfile = "3.0.7"
 walkdir = "2.2.7"
-bytes = "0.5"
