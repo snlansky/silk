@@ -123,7 +123,7 @@ impl BlockStore for Store {
     }
 
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Option<Block>> {
-        let num = if block_num == std::u64::MIN {
+        let num = if block_num == std::u64::MAX {
             let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
             match check_point {
                 Some(cp) => cp.block_num,
@@ -167,15 +167,19 @@ impl BlockStore for Store {
             return Ok(None);
         }
 
-        let blk = blk.unwrap();
-        let txs = blk.data.unwrap();
-        let tx_bytes = txs.data.get(tx_num as usize);
-        if tx_bytes.is_none() {
-            return Ok(None);
-        }
+        match blk {
+            Some(blk) => {
+                let txs = blk.data.unwrap();
+                let tx_bytes = txs.data.get(tx_num as usize);
+                if tx_bytes.is_none() {
+                    return Ok(None);
+                }
 
-        let (tx, _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
-        Ok(Some(tx))
+                let (tx, _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
+                Ok(Some(tx))
+            }
+            None => Ok(None)
+        }
     }
 
     fn retrieve_block_by_txid(&self, tx_id: &str) -> Result<Option<Block>> {
