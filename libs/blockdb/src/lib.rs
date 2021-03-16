@@ -4,11 +4,6 @@ mod store;
 use error::*;
 use silk_proto::*;
 
-// ResultsIterator iterates over query results
-pub trait BlockIterator {
-    fn next(&self) -> Result<Block>;
-    fn close(&self);
-}
 
 // BlockStore - an interface for persisting and retrieving blocks
 // An implementation of this interface is expected to take an argument
