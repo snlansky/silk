@@ -108,8 +108,8 @@ impl BlockStore for Store {
         }
     }
 
-    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
-        unimplemented!()
+    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
+        Ok(Box::new(BlockIterator{curr: start_num}))
     }
 
     fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>> {
@@ -192,6 +192,19 @@ impl BlockStore for Store {
     }
 
     fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
+        unimplemented!()
+    }
+}
+
+// ResultsIterator iterates over query results
+pub struct  BlockIterator {
+    curr: u64
+}
+
+impl Iterator for BlockIterator {
+    type Item = Block;
+
+    fn next(&mut self) -> Option<Self::Item> {
         unimplemented!()
     }
 }
