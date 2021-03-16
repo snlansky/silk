@@ -108,7 +108,7 @@ impl BlockStore for Store {
         }
     }
 
-    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
+    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Result<Option<Block>>>>> {
         Ok(Box::new(BlockIterator{curr: start_num}))
     }
 
@@ -202,7 +202,7 @@ pub struct  BlockIterator {
 }
 
 impl Iterator for BlockIterator {
-    type Item = Block;
+    type Item = Result<Option<Block>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         unimplemented!()

@@ -10,7 +10,7 @@ use silk_proto::*;
 pub trait BlockStore {
     fn add_block(&mut self, block: &Block) -> Result<()>;
     fn get_blockchain_info(&self) -> Result<BlockchainInfo>;
-    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>>;
+    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Result<Option<Block>>>>>;
     fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>>;
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Option<Block>>; // blockNum of math.MaxUint64 will return last block
     fn retrieve_tx_by_id(&self, tx_id: &str) -> Result<Option<Transaction>>;

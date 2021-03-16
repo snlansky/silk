@@ -66,7 +66,7 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item = Block>>> {
+    fn retrieve_blocks(&self, _start_num: u64) -> Result<Box<dyn Iterator<Item = Result<Option<Block>>>>> {
         unimplemented!()
     }
 
@@ -138,7 +138,7 @@ mod tests {
             store.add_block(&create_blk(i)).unwrap();
         }
 
-        let b111 = store.retrieve_block_by_number(111).unwrap();
+        let b111 = store.retrieve_block_by_number(111).unwrap().unwrap();
         assert_eq!(b111, create_blk(111))
     }
 }
