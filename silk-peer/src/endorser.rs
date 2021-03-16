@@ -23,12 +23,17 @@ impl<S: ISupport> Server<S> {
 
     async fn process(&self, signed_proposal: SignedProposal) -> Result<ProposalResponse> {
         let proposal: Proposal = utils::proto::unmarshal(&signed_proposal.proposal_bytes)?;
-        let header = proposal.header.clone().ok_or_else(||from_str("header is null"))?;
+        let header = proposal
+            .header
+            .clone()
+            .ok_or_else(|| from_str("header is null"))?;
 
         self.verify(&signed_proposal, &header.creator)?;
 
         let payload: ContractProposalPayload = utils::proto::unmarshal(&proposal.payload)?;
-        let contract = payload.contract_id.ok_or_else(||from_str("contract id is null"))?;
+        let contract = payload
+            .contract_id
+            .ok_or_else(|| from_str("contract id is null"))?;
         if payload.input.is_none() {
             return Err(from_str("input is null"));
         }
@@ -36,7 +41,7 @@ impl<S: ISupport> Server<S> {
         let tx_simulator = self
             .support
             .get_transaction_simulator(&header.channel_id, &header.tx_id)?
-            .ok_or_else(||from_str("simulator not found"))?;
+            .ok_or_else(|| from_str("simulator not found"))?;
 
         let tx_params = TransactionParams {
             tx_id: header.tx_id.clone(),

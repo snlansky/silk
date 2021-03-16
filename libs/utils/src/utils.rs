@@ -11,10 +11,10 @@ pub fn get_tx_header_from_data(data: &[u8]) -> Result<(Transaction, Header)> {
     let signed_proposal = tx
         .signed_proposal
         .clone()
-        .ok_or_else(||from_str("transaction signed proposal is null"))?;
+        .ok_or_else(|| from_str("transaction signed proposal is null"))?;
     let proposal = proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes)?;
     let tx_header = proposal
         .header
-        .ok_or_else(||from_str("transaction header is null"))?;
+        .ok_or_else(|| from_str("transaction header is null"))?;
     Ok((tx, tx_header))
 }

@@ -37,7 +37,9 @@ impl IContractSupport for ContractSupport {
         contract: &str,
     ) -> Result<(Response, Option<ContractEvent>)> {
         let msg = self.invoke(tx_params, contract).await?;
-        let resp = msg.response.ok_or_else(||from_str("contract response is null"))?;
+        let resp = msg
+            .response
+            .ok_or_else(|| from_str("contract response is null"))?;
         Ok((resp, msg.event))
     }
 
@@ -58,7 +60,7 @@ impl IContractSupport for ContractSupport {
         };
         let r = self
             .launch(contract)
-            .ok_or_else(||from_str("contract not found"))?;
+            .ok_or_else(|| from_str("contract not found"))?;
         let h = &*r;
         h.execute(tx_params, msg, Duration::from_secs(5)).await
     }

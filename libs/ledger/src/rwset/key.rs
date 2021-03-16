@@ -176,13 +176,7 @@ pub fn apply_write_set(tx_rwset: TxRwSet, height: Height) -> Result<UpdateBatch>
             if key_ops.is_delete() {
                 batch.delete(&ns, &key, height);
             } else {
-                batch.put_val_and_metadata(
-                    &ns,
-                    &key,
-                    key_ops.value,
-                    key_ops.metadata,
-                    height,
-                );
+                batch.put_val_and_metadata(&ns, &key, key_ops.value, key_ops.metadata, height);
             }
         } else {
             // TODO

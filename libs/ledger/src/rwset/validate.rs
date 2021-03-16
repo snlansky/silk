@@ -26,15 +26,17 @@ impl<V: VersionedDB> Validator<V> {
 
             for (index, proto_msg) in data.data.iter().enumerate() {
                 let tx: Transaction = utils::proto::unmarshal(proto_msg)?;
-                let proposal = tx.signed_proposal.ok_or_else(||from_str("proposal is null"))?;
+                let proposal = tx
+                    .signed_proposal
+                    .ok_or_else(|| from_str("proposal is null"))?;
                 let tx_header = utils::proto::unmarshal::<Proposal>(&proposal.proposal_bytes)?
                     .header
-                    .ok_or_else(||from_str("transaction header is null"))?;
+                    .ok_or_else(|| from_str("transaction header is null"))?;
 
                 let resp = tx
                     .response
                     .get(0)
-                    .ok_or_else(||from_str("transaction proposal response list is null"))?;
+                    .ok_or_else(|| from_str("transaction proposal response list is null"))?;
                 let payload: ProposalResponsePayload = utils::proto::unmarshal(&resp.payload)?;
                 let tx_read_write_set: TxReadWriteSet = utils::proto::unmarshal(&payload.results)?;
                 let tx_rw_set = TxRwSet::try_from(tx_read_write_set)?;
@@ -48,7 +50,8 @@ impl<V: VersionedDB> Validator<V> {
 
                 if validation_code == TxValidationCode::Valid {
                     debug!("Block [{:?}] Transaction index [{:?}] TxId [{:?}] marked as valid by state validator.  [{:?}]", header.number, index, tx_header.tx_id, validation_code);
-                    let _ = updates.apply_write_set(tx_rw_set, Height::new(header.number, index as u64));
+                    let _ = updates
+                        .apply_write_set(tx_rw_set, Height::new(header.number, index as u64));
                 } else {
                     warn!("Block [{:?}] Transaction index [{:?}] TxId [{:?}] marked as invalid by state validator. Reason code [{:?}]",
                           header.number, index, tx_header.tx_id, validation_code);

@@ -1,9 +1,8 @@
-mod keys;
 mod fs;
+mod keys;
 mod store;
 use error::*;
 use silk_proto::*;
-
 
 // BlockStore - an interface for persisting and retrieving blocks
 // An implementation of this interface is expected to take an argument

@@ -91,8 +91,8 @@ impl Index {
 
 #[cfg(test)]
 mod tests {
-    use crate::keys::{construct_block_hash_key, construct_block_num_key};
     use crate::fs::index::{BlockIndexInfo, FilePointer, Index};
+    use crate::keys::{construct_block_hash_key, construct_block_num_key};
     use rocksdb::DB;
     use silk_proto::*;
     use tempfile::TempDir;

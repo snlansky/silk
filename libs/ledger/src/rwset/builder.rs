@@ -86,7 +86,8 @@ impl RWSetBuilder {
 
     fn get_or_create_ns_rw_builder(&mut self, ns: &str) -> &mut NsRwBuilder {
         if !self.map.contains_key(ns) {
-            self.map.insert(String::from(ns), NsRwBuilder::new(String::from(ns)));
+            self.map
+                .insert(String::from(ns), NsRwBuilder::new(String::from(ns)));
         }
         self.map.get_mut(ns).unwrap()
     }

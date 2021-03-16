@@ -1,10 +1,10 @@
-use std::mem::size_of;
 use byteorder::{BigEndian, WriteBytesExt};
 use serde::{Deserialize, Serialize};
+use std::mem::size_of;
 
 pub const BLOCK_NUM_IDX_KEY_PREFIX: u8 = b'n';
-pub const BLOCK_HASH_IDX_KEY_PREFIX:u8 = b'h';
-pub const TX_ID_IDX_KEY_PREFIX: u8 =b't';
+pub const BLOCK_HASH_IDX_KEY_PREFIX: u8 = b'h';
+pub const TX_ID_IDX_KEY_PREFIX: u8 = b't';
 pub const INDEX_CHECKPOINT_KEY_STR: &str = "index_check_point_key";
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,19 +41,18 @@ pub fn construct_check_point_key() -> Vec<u8> {
     INDEX_CHECKPOINT_KEY_STR.as_bytes().to_vec()
 }
 
-
 #[cfg(test)]
 mod tests {
+    use crate::keys::{construct_block_hash_key, construct_block_num_key, construct_tx_hash_key};
     use byteorder::{BigEndian, WriteBytesExt};
     use std::mem::size_of;
-    use crate::keys::{construct_block_num_key, construct_block_hash_key, construct_tx_hash_key};
 
     #[test]
     fn test() {
         let k = construct_block_num_key(12100000000);
         assert_eq!(vec![110, 0, 0, 0, 2, 209, 55, 89, 0], k);
 
-        let k = construct_block_hash_key(&vec![1,2,3]);
+        let k = construct_block_hash_key(&vec![1, 2, 3]);
         assert_eq!(vec![104, 1, 2, 3], k);
 
         let k = construct_tx_hash_key("abc");

@@ -1,5 +1,5 @@
 use rcgen::{BasicConstraints, Certificate, CertificateParams, DnType, IsCa};
-use webpki::{SignatureAlgorithm, trust_anchor_util};
+use webpki::{trust_anchor_util, SignatureAlgorithm};
 use webpki::{DNSNameRef, Time};
 use webpki::{EndEntityCert, TLSServerTrustAnchors};
 

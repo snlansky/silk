@@ -27,9 +27,7 @@ impl UpdateBatch {
     }
 
     pub fn get(&self, ns: &str, key: &str) -> Option<VersionedValue> {
-        self.updates
-            .get(ns)
-            .and_then(|ns|ns.m.get(key)).cloned()
+        self.updates.get(ns).and_then(|ns| ns.m.get(key)).cloned()
     }
 
     pub fn put(&mut self, ns: &str, key: &str, value: Vec<u8>, version: Height) {
@@ -59,7 +57,9 @@ impl UpdateBatch {
 
     // update updates the batch with a latest entry for a namespace and a key
     pub fn update(&mut self, ns: &str, key: &str, vv: VersionedValue) {
-        self.get_or_create_nsupdates(ns).m.insert(String::from(key), vv);
+        self.get_or_create_nsupdates(ns)
+            .m
+            .insert(String::from(key), vv);
     }
 
     // delete deletes a Key and associated value

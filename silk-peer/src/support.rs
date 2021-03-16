@@ -6,11 +6,7 @@ use silk_proto::*;
 
 #[async_trait::async_trait]
 pub trait ISupport: Send + Sync + 'static {
-    fn get_transaction_simulator(
-        &self,
-        ledger: &str,
-        tx_id: &str,
-    ) -> Result<Option<TxSimulator>>;
+    fn get_transaction_simulator(&self, ledger: &str, tx_id: &str) -> Result<Option<TxSimulator>>;
     fn get_ledger_height(&self, channel_id: String) -> Result<u64>;
     fn get_transaction_by_id(&self, channel_id: String, _tx_id: String) -> Result<()>;
     async fn execute<'a>(

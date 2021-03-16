@@ -175,7 +175,10 @@ impl BlockStore for Store {
             return Ok(None);
         }
         let hash = hash.unwrap();
-        let blk_bytes = self.db.get(&keys::construct_block_hash_key(&hash))?.unwrap();
+        let blk_bytes = self
+            .db
+            .get(&keys::construct_block_hash_key(&hash))?
+            .unwrap();
         let blk = utils::proto::unmarshal(&blk_bytes)?;
         Ok(Some(blk))
     }
