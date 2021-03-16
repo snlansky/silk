@@ -74,11 +74,14 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
+    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Option<Block>> {
         let fp = self.index.get_fp_by_number(block_num)?;
         match fp {
-            Some(fp) => self.reader.read_blk(fp),
-            None => Ok(self.latest.clone()),
+            Some(fp) => {
+                let blk = self.reader.read_blk(fp)?;
+                Ok(Some(blk))
+            }
+            None => Ok(Some(self.latest.clone())),
         }
     }
 

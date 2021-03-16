@@ -54,6 +54,8 @@ impl Index {
             block_hash: hash.to_vec(),
             block_num: header.number,
             previous_block_hash: header.previous_hash.clone(),
+            // TODO: set tx total count
+            tx_total_count: 0,
         };
         let cp = serde_json::to_vec(&check_point)?;
         batch.put(&construct_check_point_key(), &cp);

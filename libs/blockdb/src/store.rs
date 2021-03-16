@@ -57,6 +57,7 @@ impl BlockStore for Store {
                     block_num: 0,
                     block_hash: vec![],
                     previous_block_hash: vec![],
+                    tx_total_count: 0,
                 },
             };
             let hash = utils::hash::compute_sha256(&utils::proto::marshal(&header)?);
@@ -64,19 +65,25 @@ impl BlockStore for Store {
             check_point.block_num = header.number;
             check_point.block_hash = hash.to_vec();
             check_point.previous_block_hash = header.previous_hash;
+            check_point.tx_total_count += data.data.len() as u128;
+
             let cp = serde_json::to_vec(&check_point)?;
             batch.put(&keys::construct_check_point_key(), &cp);
-            batch.put(
-                &keys::construct_block_hash_key(&hash),
-                &utils::proto::marshal(block)?,
-            );
+
+            // mapping block hash -> block
+            batch.put(&keys::construct_block_hash_key(&hash), &utils::proto::marshal(block)?);
+
+            // mapping block num -> block hash
             batch.put(&keys::construct_block_num_key(header.number), &hash);
 
             // record txs id mapping block hash
             for evn in data.data {
                 let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
+
+                // mapping tx_id -> block hash
                 batch.put(&keys::construct_tx_hash_key(&tx_header.tx_id), &hash);
             }
+
             self.db.write(batch)?;
             self.db.flush()?;
             Ok(())
@@ -115,39 +122,39 @@ impl BlockStore for Store {
         Ok(Some(block))
     }
 
-    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Block> {
-        let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
-        match check_point {
-            Some(cp) => {
-                let mut num = block_num;
-                if block_num > cp.block_num {
-                    num = cp.block_num
-                }
-                let blk_bytes = self.db.get(&keys::construct_block_num_key(num))?.unwrap();
-                let blk = utils::proto::unmarshal(&blk_bytes)?;
-                Ok(blk)
+    fn retrieve_block_by_number(&self, block_num: u64) -> Result<Option<Block>> {
+        let num = if block_num == std::u64::MIN {
+            let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
+            match check_point {
+                Some(cp) => cp.block_num,
+                None => 0,
             }
-            None => Ok(Block {
-                header: None,
-                data: None,
-                metadata: None,
-            }),
+        } else {
+            block_num
+        };
+
+        let hash = self.db.get(&keys::construct_block_num_key(num))?;
+        match hash {
+            Some(hash) => self.retrieve_block_by_hash(&hash),
+            None => Ok(None)
         }
     }
 
     fn retrieve_tx_by_id(&self, tx_id: &str) -> Result<Option<Transaction>> {
         let blk = self.retrieve_block_by_txid(tx_id)?;
-        if blk.is_none() {
-            return Ok(None);
-        }
-        let blk = blk.unwrap();
-        for env in blk.data.unwrap().data {
-            let (tx, header) = utils::utils::get_tx_header_from_data(&env)?;
-            if header.tx_id.eq(&tx_id) {
-                return Ok(Some(tx));
+
+        match blk {
+            Some(blk) => {
+                for env in blk.data.unwrap().data {
+                    let (tx, header) = utils::utils::get_tx_header_from_data(&env)?;
+                    if header.tx_id.eq(&tx_id) {
+                        return Ok(Some(tx));
+                    }
+                }
+                Ok(None)
             }
+            None => Ok(None)
         }
-        Ok(None)
     }
 
     fn retrieve_tx_by_blocknum_txnum(
@@ -156,9 +163,11 @@ impl BlockStore for Store {
         tx_num: u64,
     ) -> Result<Option<Transaction>> {
         let blk = self.retrieve_block_by_number(block_num)?;
-        if blk.data.is_none() {
+        if blk.is_none() {
             return Ok(None);
         }
+
+        let blk = blk.unwrap();
         let txs = blk.data.unwrap();
         let tx_bytes = txs.data.get(tx_num as usize);
         if tx_bytes.is_none() {
@@ -171,16 +180,11 @@ impl BlockStore for Store {
 
     fn retrieve_block_by_txid(&self, tx_id: &str) -> Result<Option<Block>> {
         let hash = self.db.get(&keys::construct_tx_hash_key(tx_id))?;
-        if hash.is_none() {
-            return Ok(None);
+
+        match hash {
+            Some(hash) => self.retrieve_block_by_hash(&hash),
+            None => Ok(None)
         }
-        let hash = hash.unwrap();
-        let blk_bytes = self
-            .db
-            .get(&keys::construct_block_hash_key(&hash))?
-            .unwrap();
-        let blk = utils::proto::unmarshal(&blk_bytes)?;
-        Ok(Some(blk))
     }
 
     fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {

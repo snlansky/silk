@@ -14,6 +14,7 @@ pub struct CheckPoint {
     pub block_num: u64,
     pub block_hash: Vec<u8>,
     pub previous_block_hash: Vec<u8>,
+    pub tx_total_count: u128,
 }
 
 pub fn construct_block_num_key(block_num: u64) -> Vec<u8> {
