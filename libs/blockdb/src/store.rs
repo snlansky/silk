@@ -71,7 +71,10 @@ impl BlockStore for Store {
             batch.put(&keys::construct_check_point_key(), &cp);
 
             // mapping block hash -> block
-            batch.put(&keys::construct_block_hash_key(&hash), &utils::proto::marshal(block)?);
+            batch.put(
+                &keys::construct_block_hash_key(&hash),
+                &utils::proto::marshal(block)?,
+            );
 
             // mapping block num -> block hash
             batch.put(&keys::construct_block_num_key(header.number), &hash);
@@ -108,8 +111,11 @@ impl BlockStore for Store {
         }
     }
 
-    fn retrieve_blocks(&self, start_num: u64) -> Result<Box<dyn Iterator<Item = Result<Option<Block>>>>> {
-        Ok(Box::new(BlockIterator{curr: start_num}))
+    fn retrieve_blocks(
+        &self,
+        start_num: u64,
+    ) -> Result<Box<dyn Iterator<Item = Result<Option<Block>>>>> {
+        Ok(Box::new(BlockIterator { curr: start_num }))
     }
 
     fn retrieve_block_by_hash(&self, block_hash: &[u8]) -> Result<Option<Block>> {
@@ -124,7 +130,8 @@ impl BlockStore for Store {
 
     fn retrieve_block_by_number(&self, block_num: u64) -> Result<Option<Block>> {
         let num = if block_num == std::u64::MAX {
-            let check_point: Option<keys::CheckPoint> = self.get(&keys::construct_check_point_key())?;
+            let check_point: Option<keys::CheckPoint> =
+                self.get(&keys::construct_check_point_key())?;
             match check_point {
                 Some(cp) => cp.block_num,
                 None => 0,
@@ -136,7 +143,7 @@ impl BlockStore for Store {
         let hash = self.db.get(&keys::construct_block_num_key(num))?;
         match hash {
             Some(hash) => self.retrieve_block_by_hash(&hash),
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 
@@ -153,7 +160,7 @@ impl BlockStore for Store {
                 }
                 Ok(None)
             }
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 
@@ -178,7 +185,7 @@ impl BlockStore for Store {
                 let (tx, _) = utils::utils::get_tx_header_from_data(tx_bytes.unwrap())?;
                 Ok(Some(tx))
             }
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 
@@ -187,7 +194,7 @@ impl BlockStore for Store {
 
         match hash {
             Some(hash) => self.retrieve_block_by_hash(&hash),
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 
@@ -197,8 +204,8 @@ impl BlockStore for Store {
 }
 
 // ResultsIterator iterates over query results
-pub struct  BlockIterator {
-    curr: u64
+pub struct BlockIterator {
+    curr: u64,
 }
 
 impl Iterator for BlockIterator {
