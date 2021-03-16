@@ -82,7 +82,7 @@ impl crate::BlockStore for BlockStore {
         }
     }
 
-    fn retrieve_tx_by_id(&self, _tx_id: String) -> Result<Option<Transaction>> {
+    fn retrieve_tx_by_id(&self, _tx_id: &str) -> Result<Option<Transaction>> {
         unimplemented!()
     }
 
@@ -94,7 +94,7 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_block_by_txid(&self, _tx_id: String) -> Result<Option<Block>> {
+    fn retrieve_block_by_txid(&self, _tx_id: &str) -> Result<Option<Block>> {
         unimplemented!()
     }
 

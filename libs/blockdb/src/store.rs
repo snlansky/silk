@@ -75,7 +75,7 @@ impl BlockStore for Store {
             // record txs id mapping block hash
             for evn in data.data {
                 let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
-                batch.put(&keys::construct_tx_hash_key(tx_header.tx_id), &hash);
+                batch.put(&keys::construct_tx_hash_key(&tx_header.tx_id), &hash);
             }
             self.db.write(batch)?;
             self.db.flush()?;
@@ -135,8 +135,8 @@ impl BlockStore for Store {
         }
     }
 
-    fn retrieve_tx_by_id(&self, tx_id: String) -> Result<Option<Transaction>> {
-        let blk = self.retrieve_block_by_txid(tx_id.clone())?;
+    fn retrieve_tx_by_id(&self, tx_id: &str) -> Result<Option<Transaction>> {
+        let blk = self.retrieve_block_by_txid(tx_id)?;
         if blk.is_none() {
             return Ok(None);
         }
@@ -169,7 +169,7 @@ impl BlockStore for Store {
         Ok(Some(tx))
     }
 
-    fn retrieve_block_by_txid(&self, tx_id: String) -> Result<Option<Block>> {
+    fn retrieve_block_by_txid(&self, tx_id: &str) -> Result<Option<Block>> {
         let hash = self.db.get(&keys::construct_tx_hash_key(tx_id))?;
         if hash.is_none() {
             return Ok(None);
