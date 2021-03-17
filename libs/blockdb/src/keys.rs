@@ -45,8 +45,6 @@ pub fn construct_check_point_key() -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use crate::keys::{construct_block_hash_key, construct_block_num_key, construct_tx_hash_key};
-    
-    
 
     #[test]
     fn test() {
