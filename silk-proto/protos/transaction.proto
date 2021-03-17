@@ -31,6 +31,11 @@ message Transaction {
     repeated ProposalResponse response = 2;
 }
 
+message TxIDIndexValProto {
+    bytes block_hash = 1;
+    int32 tx_validation_code = 2;
+}
+
 
 enum TxValidationCode {
     VALID = 0;

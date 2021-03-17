@@ -3,7 +3,7 @@ use crate::BlockStore;
 use error::*;
 use rocksdb::WriteBatch;
 use serde::de::DeserializeOwned;
-use silk_proto::{Block, BlockchainInfo, Transaction, TxValidationCode};
+use silk_proto::{Block, BlockchainInfo, Transaction, TxValidationCode, TxIdIndexValProto, tx_validation_code_from};
 use std::path::PathBuf;
 
 pub struct Store {
@@ -28,6 +28,18 @@ impl Store {
         match self.db.get(key)? {
             Some(ref dbv) => Ok(Some(serde_json::from_slice(dbv)?)),
             None => Ok(None),
+        }
+    }
+
+    fn get_tx_validation_code_by_txid(&self, tx_id: &str) -> Result<TxIdIndexValProto> {
+        let tx_index_val = self.db.get(&keys::construct_tx_hash_key(tx_id))?;
+
+        match tx_index_val {
+            Some(tx_index_val) => {
+                let index_val: TxIdIndexValProto = utils::proto::unmarshal(&tx_index_val)?;
+                Ok(index_val)
+            },
+            None => Ok(TxIdIndexValProto{block_hash:vec![], tx_validation_code: TxValidationCode::NilEnvelope as i32}),
         }
     }
 }
@@ -83,8 +95,13 @@ impl BlockStore for Store {
             for evn in data.data {
                 let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
 
-                // mapping tx_id -> block hash
-                batch.put(&keys::construct_tx_hash_key(&tx_header.tx_id), &hash);
+                // mapping tx_id -> TxIdIndexValProto
+                let index_val = TxIdIndexValProto{
+                    block_hash: hash.to_vec(),
+                    tx_validation_code: TxValidationCode::Valid as i32,
+                };
+                debug!("tx: {:?} index value: {:?}", tx_header.tx_id, index_val);
+                batch.put(&keys::construct_tx_hash_key(&tx_header.tx_id), &utils::proto::marshal(&index_val)?);
             }
 
             self.db.write(batch)?;
@@ -190,16 +207,17 @@ impl BlockStore for Store {
     }
 
     fn retrieve_block_by_txid(&self, tx_id: &str) -> Result<Option<Block>> {
-        let hash = self.db.get(&keys::construct_tx_hash_key(tx_id))?;
+        let tx_index_val = self.get_tx_validation_code_by_txid(tx_id).unwrap();
 
-        match hash {
-            Some(hash) => self.retrieve_block_by_hash(&hash),
-            None => Ok(None),
+        if tx_index_val.block_hash.is_empty() {
+            return Ok(None);
         }
+
+        self.retrieve_block_by_hash(&tx_index_val.block_hash)
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, _tx_id: String) -> Result<TxValidationCode> {
-        unimplemented!()
+    fn retrieve_tx_validationcode_by_txid(&self, tx_id: &str) -> Result<TxValidationCode> {
+        self.get_tx_validation_code_by_txid(tx_id).map(|v|tx_validation_code_from(v.tx_validation_code) )
     }
 }
 
@@ -231,7 +249,7 @@ mod tests {
         store.add_block(&create_block(
             0,
             vec![],
-            vec![create_tx("txo".to_string())?],
+            vec![create_tx("tx_0".to_string())?],
         ))?;
 
         for i in 1..=100 {
@@ -246,13 +264,7 @@ mod tests {
         Ok(store)
     }
 
-    #[test]
-    fn test_get_blockchain_info() {
-        let store = init().unwrap();
-        let info = store.get_blockchain_info().unwrap();
-        assert_eq!(info.height, 100);
-        println!("{:?}", info);
-    }
+
     fn create_block(num: u64, prev_hash: Vec<u8>, txs: Vec<Transaction>) -> Block {
         let data: Vec<Vec<u8>> = txs
             .iter()
@@ -269,6 +281,7 @@ mod tests {
             metadata: None,
         }
     }
+
     fn create_tx(txid: String) -> Result<Transaction> {
         let payload = ContractProposalPayload {
             contract_id: None,
@@ -312,5 +325,106 @@ mod tests {
             response: vec![proposal_response],
         };
         Ok(tx)
+    }
+
+    #[test]
+    fn test_get_blockchain_info() {
+        let store = init().unwrap();
+        let info = store.get_blockchain_info().unwrap();
+        assert_eq!(info.height, 100);
+        println!("{:?}", info);
+    }
+
+    #[test]
+    fn test_retrieve_blocks() {}
+
+    #[test]
+    fn test_retrieve_block_by_hash() {
+        let store = init().unwrap();
+        let info = store.get_blockchain_info().unwrap();
+
+        let blk = store.retrieve_block_by_hash(&info.current_block_hash).unwrap().unwrap();
+        println!("{:?}", blk);
+        let mut hash = blk.header.unwrap().previous_hash;
+        while  hash.len() > 0 {
+            let blk = store.retrieve_block_by_hash(&hash).unwrap().unwrap();
+            let header = blk.header.unwrap();
+            println!("{:?} : {:?} {:?}", header.number, header.data_hash.len(), header.previous_hash.len());
+            hash = header.previous_hash;
+        }
+    }
+
+    #[test]
+    fn test_retrieve_block_by_number() {
+        let store = init().unwrap();
+
+        for i in 0..=100 {
+            let blk = store.retrieve_block_by_number(i).unwrap().unwrap();
+            let header = blk.header.unwrap();
+            println!("{:?} : {:?} {:?}", header.number, header.data_hash.len(), header.previous_hash);
+            assert_eq!(i, header.number)
+        }
+
+        let blk1000 = store.retrieve_block_by_number(1000).unwrap();
+        assert!(blk1000.is_none())
+    }
+
+
+    #[test]
+    fn test_retrieve_tx_by_id() {
+        let store = init().unwrap();
+
+        let tx = store.retrieve_tx_by_id("tx1").unwrap();
+        assert!(tx.is_none());
+
+        let tx = store.retrieve_tx_by_id("tx_12").unwrap().unwrap();
+        println!("{:?}", tx);
+
+        let signed_proposal = tx
+            .signed_proposal.unwrap();
+
+        let proposal = utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes).unwrap();
+        println!("{:?}", proposal)
+    }
+
+    #[test]
+    fn test_retrieve_tx_by_blocknum_txnum() {
+        let store = init().unwrap();
+
+        let tx = store.retrieve_tx_by_blocknum_txnum(99, 2).unwrap();
+        assert!(tx.is_none());
+
+        let tx = store.retrieve_tx_by_blocknum_txnum(100, 1).unwrap();
+        assert!(tx.is_none());
+
+        let tx = store.retrieve_tx_by_blocknum_txnum(10, 0).unwrap().unwrap();
+        println!("{:?}", tx)
+    }
+
+
+
+    #[test]
+    fn test_retrieve_block_by_txid() {
+        let store = init().unwrap();
+
+        let blk = store.retrieve_block_by_txid("tx1").unwrap();
+        assert!(blk.is_none());
+
+        let blk = store.retrieve_block_by_txid("tx_99").unwrap().unwrap();
+        println!("{:?}", blk);
+    }
+
+    #[test]
+    fn test_retrieve_tx_validationcode_by_txid() {
+        let store = init().unwrap();
+
+        let code = store.retrieve_tx_validationcode_by_txid("tx1").unwrap();
+        assert_eq!(code, TxValidationCode::NilEnvelope);
+
+
+        for i in 0..=100 {
+            let code = store.retrieve_tx_validationcode_by_txid(&format!("tx_{:}", i)).unwrap();
+            assert_eq!(code, TxValidationCode::Valid)
+        }
     }
 }

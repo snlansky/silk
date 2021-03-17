@@ -951,6 +951,7 @@ dependencies = [
  "bytes 0.6.0",
  "error",
  "futures 0.3.8",
+ "log",
  "rocksdb 0.15.0",
  "serde",
  "serde_json",

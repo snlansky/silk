@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 mod fs;
 mod keys;
 mod store;
@@ -23,7 +26,7 @@ pub trait BlockStore {
         tx_num: u64,
     ) -> Result<Option<Transaction>>;
     fn retrieve_block_by_txid(&self, tx_id: &str) -> Result<Option<Block>>;
-    fn retrieve_tx_validationcode_by_txid(&self, tx_id: String) -> Result<TxValidationCode>;
+    fn retrieve_tx_validationcode_by_txid(&self, tx_id: &str) -> Result<TxValidationCode>;
     fn shutdown() {}
 }
 

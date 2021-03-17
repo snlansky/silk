@@ -15,6 +15,7 @@ silk-proto = { path = "../../silk-proto" }
 rocksdb = "0.15.0"
 error = { path = "../error" }
 bytes = "0.6.0"
+log = "0.4"
 
 [dev-dependencies]
 tempfile = "3.1.0"

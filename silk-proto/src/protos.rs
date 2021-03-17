@@ -1367,6 +1367,13 @@ pub struct Transaction {
     #[prost(message, repeated, tag = "2")]
     pub response: ::std::vec::Vec<ProposalResponse>,
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TxIdIndexValProto {
+    #[prost(bytes, tag = "1")]
+    pub block_hash: std::vec::Vec<u8>,
+    #[prost(int32, tag = "2")]
+    pub tx_validation_code: i32,
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum TxValidationCode {
