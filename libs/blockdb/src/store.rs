@@ -225,7 +225,7 @@ impl BlockStore for Store {
         self.retrieve_block_by_hash(&tx_index_val.block_hash)
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, tx_id: &str) -> Result<TxValidationCode> {
+    fn retrieve_tx_validation_code_by_txid(&self, tx_id: &str) -> Result<TxValidationCode> {
         self.get_tx_validation_code_by_txid(tx_id)
             .map(|v| tx_validation_code_from(v.tx_validation_code))
     }
@@ -434,10 +434,10 @@ mod tests {
     }
 
     #[test]
-    fn test_retrieve_tx_validationcode_by_txid() {
+    fn test_retrieve_tx_validation_code_by_txid() {
         let store = init().unwrap();
 
-        let code = store.retrieve_tx_validationcode_by_txid("tx1").unwrap();
+        let code = store.retrieve_tx_validation_code_by_txid("tx1").unwrap();
         assert_eq!(code, TxValidationCode::NilEnvelope);
 
         for i in 0..=100 {

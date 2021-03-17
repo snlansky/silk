@@ -104,7 +104,7 @@ impl crate::BlockStore for BlockStore {
         unimplemented!()
     }
 
-    fn retrieve_tx_validationcode_by_txid(&self, _tx_id: &str) -> Result<TxValidationCode> {
+    fn retrieve_tx_validation_code_by_txid(&self, _tx_id: &str) -> Result<TxValidationCode> {
         unimplemented!()
     }
 }
