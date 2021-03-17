@@ -80,7 +80,7 @@ impl Contract {
             .ok_or_else(|| from_str("transaction not found"))?;
         let ctx = &*ctx;
         if let Some(m) = delegate(ctx, msg)? {
-            let mut sender = self.sender.clone();
+            let sender = self.sender.clone();
             sender.send(Ok(m)).await?;
         }
 
@@ -112,7 +112,7 @@ impl Handler for Contract {
         msg: Message,
         _timeout: Duration,
     ) -> Result<TransactionCompleted> {
-        let mut sender = self.sender.clone();
+        let sender = self.sender.clone();
         let _registry = self.transaction_context_registry.clone();
 
         let key = msg.correlation_id.clone();

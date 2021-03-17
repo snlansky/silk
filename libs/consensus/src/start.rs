@@ -25,7 +25,7 @@ pub async fn start<T: IConsensus>(
         content: utils::proto::marshal(&reg).unwrap(),
     };
 
-    let (mut tx, rx) = mpsc::channel(1000);
+    let (tx, rx) = mpsc::channel(1000);
     // send register message to peer
     tx.send(msg).await?;
 

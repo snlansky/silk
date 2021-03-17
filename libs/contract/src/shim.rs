@@ -17,7 +17,7 @@ async fn run_register(
     name: String,
     contract: Arc<Box<dyn Contract>>,
 ) -> Result<(), Box<dyn Error>> {
-    let (mut tx, rx) = mpsc::channel(1000);
+    let (tx, rx) = mpsc::channel(1000);
 
     let reg = ContractRegister {
         name,

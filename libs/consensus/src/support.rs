@@ -34,7 +34,7 @@ impl<T: IConsensus> Support<T> {
         match sender {
             Some(sender) => {
                 let sender = &*sender;
-                let mut sender = sender.clone();
+                let sender = sender.clone();
                 sender.send(header).await?;
             }
             None => {

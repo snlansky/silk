@@ -21,7 +21,7 @@ impl Consensus {
     }
 
     pub async fn send(&self, msg: Message) -> Result<()> {
-        let mut sender = self.sender.clone();
+        let sender = self.sender.clone();
         sender.send(Ok(msg)).await?;
         Ok(())
     }
