@@ -3,7 +3,10 @@ use crate::BlockStore;
 use error::*;
 use rocksdb::WriteBatch;
 use serde::de::DeserializeOwned;
-use silk_proto::{Block, BlockchainInfo, Transaction, TxValidationCode, TxIdIndexValProto, tx_validation_code_from};
+use silk_proto::{
+    tx_validation_code_from, Block, BlockchainInfo, Transaction, TxIdIndexValProto,
+    TxValidationCode,
+};
 use std::path::PathBuf;
 
 pub struct Store {
@@ -38,8 +41,11 @@ impl Store {
             Some(tx_index_val) => {
                 let index_val: TxIdIndexValProto = utils::proto::unmarshal(&tx_index_val)?;
                 Ok(index_val)
-            },
-            None => Ok(TxIdIndexValProto{block_hash:vec![], tx_validation_code: TxValidationCode::NilEnvelope as i32}),
+            }
+            None => Ok(TxIdIndexValProto {
+                block_hash: vec![],
+                tx_validation_code: TxValidationCode::NilEnvelope as i32,
+            }),
         }
     }
 }
@@ -96,12 +102,15 @@ impl BlockStore for Store {
                 let (_, tx_header) = utils::utils::get_tx_header_from_data(&evn)?;
 
                 // mapping tx_id -> TxIdIndexValProto
-                let index_val = TxIdIndexValProto{
+                let index_val = TxIdIndexValProto {
                     block_hash: hash.to_vec(),
                     tx_validation_code: TxValidationCode::Valid as i32,
                 };
                 debug!("tx: {:?} index value: {:?}", tx_header.tx_id, index_val);
-                batch.put(&keys::construct_tx_hash_key(&tx_header.tx_id), &utils::proto::marshal(&index_val)?);
+                batch.put(
+                    &keys::construct_tx_hash_key(&tx_header.tx_id),
+                    &utils::proto::marshal(&index_val)?,
+                );
             }
 
             self.db.write(batch)?;
@@ -217,7 +226,8 @@ impl BlockStore for Store {
     }
 
     fn retrieve_tx_validationcode_by_txid(&self, tx_id: &str) -> Result<TxValidationCode> {
-        self.get_tx_validation_code_by_txid(tx_id).map(|v|tx_validation_code_from(v.tx_validation_code) )
+        self.get_tx_validation_code_by_txid(tx_id)
+            .map(|v| tx_validation_code_from(v.tx_validation_code))
     }
 }
 
@@ -263,7 +273,6 @@ mod tests {
         }
         Ok(store)
     }
-
 
     fn create_block(num: u64, prev_hash: Vec<u8>, txs: Vec<Transaction>) -> Block {
         let data: Vec<Vec<u8>> = txs
@@ -343,13 +352,21 @@ mod tests {
         let store = init().unwrap();
         let info = store.get_blockchain_info().unwrap();
 
-        let blk = store.retrieve_block_by_hash(&info.current_block_hash).unwrap().unwrap();
+        let blk = store
+            .retrieve_block_by_hash(&info.current_block_hash)
+            .unwrap()
+            .unwrap();
         println!("{:?}", blk);
         let mut hash = blk.header.unwrap().previous_hash;
-        while  hash.len() > 0 {
+        while hash.len() > 0 {
             let blk = store.retrieve_block_by_hash(&hash).unwrap().unwrap();
             let header = blk.header.unwrap();
-            println!("{:?} : {:?} {:?}", header.number, header.data_hash.len(), header.previous_hash.len());
+            println!(
+                "{:?} : {:?} {:?}",
+                header.number,
+                header.data_hash.len(),
+                header.previous_hash.len()
+            );
             hash = header.previous_hash;
         }
     }
@@ -361,14 +378,18 @@ mod tests {
         for i in 0..=100 {
             let blk = store.retrieve_block_by_number(i).unwrap().unwrap();
             let header = blk.header.unwrap();
-            println!("{:?} : {:?} {:?}", header.number, header.data_hash.len(), header.previous_hash);
+            println!(
+                "{:?} : {:?} {:?}",
+                header.number,
+                header.data_hash.len(),
+                header.previous_hash
+            );
             assert_eq!(i, header.number)
         }
 
         let blk1000 = store.retrieve_block_by_number(1000).unwrap();
         assert!(blk1000.is_none())
     }
-
 
     #[test]
     fn test_retrieve_tx_by_id() {
@@ -380,10 +401,10 @@ mod tests {
         let tx = store.retrieve_tx_by_id("tx_12").unwrap().unwrap();
         println!("{:?}", tx);
 
-        let signed_proposal = tx
-            .signed_proposal.unwrap();
+        let signed_proposal = tx.signed_proposal.unwrap();
 
-        let proposal = utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes).unwrap();
+        let proposal =
+            utils::proto::unmarshal::<Proposal>(&signed_proposal.proposal_bytes).unwrap();
         println!("{:?}", proposal)
     }
 
@@ -400,8 +421,6 @@ mod tests {
         let tx = store.retrieve_tx_by_blocknum_txnum(10, 0).unwrap().unwrap();
         println!("{:?}", tx)
     }
-
-
 
     #[test]
     fn test_retrieve_block_by_txid() {
@@ -421,9 +440,10 @@ mod tests {
         let code = store.retrieve_tx_validationcode_by_txid("tx1").unwrap();
         assert_eq!(code, TxValidationCode::NilEnvelope);
 
-
         for i in 0..=100 {
-            let code = store.retrieve_tx_validationcode_by_txid(&format!("tx_{:}", i)).unwrap();
+            let code = store
+                .retrieve_tx_validationcode_by_txid(&format!("tx_{:}", i))
+                .unwrap();
             assert_eq!(code, TxValidationCode::Valid)
         }
     }
