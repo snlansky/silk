@@ -1,7 +1,7 @@
 use error::*;
-use ledger::kvledger::kv_ledger_provider::Provider;
+
 use ledger::ledger_mgmt::LedgerMgr;
-use ledger::statedb::VersionedDBRocksProvider;
+
 use ledger::{ledger_mgmt, LedgerProvider};
 use silk_proto::Block;
 
@@ -14,7 +14,7 @@ impl<P: LedgerProvider> Peer<P> {
         Peer { ledger_mgr }
     }
 
-    pub fn create_channel(cid: &str, block: Block) -> Result<()> {
+    pub fn create_channel(_cid: &str, _block: Block) -> Result<()> {
         Ok(())
     }
 }

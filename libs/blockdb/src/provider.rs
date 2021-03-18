@@ -1,5 +1,5 @@
 use crate::store::Store;
-use crate::BlockStore;
+
 use error::*;
 
 pub struct LevelDBBlockStoreProvider {}
@@ -13,15 +13,15 @@ impl LevelDBBlockStoreProvider {
 impl crate::BlockStoreProvider for LevelDBBlockStoreProvider {
     type S = Store;
 
-    fn create_block_store(ledger_id: &str) -> Result<Self::S> {
+    fn create_block_store(_ledger_id: &str) -> Result<Self::S> {
         unimplemented!()
     }
 
-    fn open_block_store(ledger_id: &str) -> Result<Self::S> {
+    fn open_block_store(_ledger_id: &str) -> Result<Self::S> {
         unimplemented!()
     }
 
-    fn exists(ledger_id: &str) -> Result<bool> {
+    fn exists(_ledger_id: &str) -> Result<bool> {
         unimplemented!()
     }
 
