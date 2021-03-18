@@ -14,6 +14,7 @@ members = [
     "libs/error",
     "libs/ledger",
     "libs/identity",
+    "libs/peer",
     "fuzz",
 
     "contracts/contract-simple",
