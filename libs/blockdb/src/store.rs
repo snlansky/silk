@@ -442,7 +442,7 @@ mod tests {
 
         for i in 0..=100 {
             let code = store
-                .retrieve_tx_validationcode_by_txid(&format!("tx_{:}", i))
+                .retrieve_tx_validation_code_by_txid(&format!("tx_{:}", i))
                 .unwrap();
             assert_eq!(code, TxValidationCode::Valid)
         }
