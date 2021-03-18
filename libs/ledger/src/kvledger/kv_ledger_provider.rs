@@ -46,11 +46,11 @@ impl<VP: VersionedDBProvider> crate::LedgerProvider for Provider<VP> {
         Ok(kvl)
     }
 
-    fn open(&self, _ledger_id: String) -> Result<Self::L> {
+    fn open(&self, _ledger_id: &str) -> Result<Self::L> {
         unimplemented!()
     }
 
-    fn exists(&self, _ledger_id: String) -> Result<bool> {
+    fn exists(&self, _ledger_id: &str) -> Result<bool> {
         unimplemented!()
     }
 

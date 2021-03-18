@@ -26,9 +26,9 @@ pub trait LedgerProvider {
     // The chain id retrieved from the genesis block is treated as a ledger id
     fn create(&self, genesis_block: &Block) -> Result<Self::L>;
     // open opens an already created ledger
-    fn open(&self, ledger_id: String) -> Result<Self::L>;
+    fn open(&self, ledger_id: &str) -> Result<Self::L>;
     // exists tells whether the ledger with given id exists
-    fn exists(&self, ledger_id: String) -> Result<bool>;
+    fn exists(&self, ledger_id: &str) -> Result<bool>;
     // list lists the ids of the existing ledgers
     fn list(&self) -> Result<Vec<String>>;
     // close closes the PeerLedgerProvider
