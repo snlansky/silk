@@ -23,7 +23,7 @@ impl<P: LedgerProvider> LedgerMgr<P> {
     pub fn open_ledger(&self, id: &str) -> Result<Arc<P::L>> {
         debug!("open ledger {:?}", id);
         if self.opened_ledgers.contains_key(id) {
-           return Err(from_str(&format!("ledger {:?} already opened", id)));
+            return Err(from_str(&format!("ledger {:?} already opened", id)));
         }
 
         let l = Arc::new(self.ledger_provider.open(id)?);
@@ -39,7 +39,7 @@ pub fn new() -> Result<LedgerMgr<Provider<VersionedDBRocksProvider>>> {
     let vp = VersionedDBRocksProvider::new(&init.root_fs_path);
     let provider = Provider::new(init, vp)?;
     // Ok(LedgerMgr::new(provider))
-    let l = LedgerMgr{
+    let l = LedgerMgr {
         opened_ledgers: DashMap::new(),
         ledger_provider: provider,
     };
