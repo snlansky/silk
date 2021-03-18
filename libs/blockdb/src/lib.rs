@@ -3,8 +3,8 @@ extern crate log;
 
 mod fs;
 mod keys;
-mod store;
 pub mod provider;
+mod store;
 use error::*;
 use silk_proto::*;
 

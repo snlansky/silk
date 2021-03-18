@@ -3,10 +3,10 @@ use crate::{Initializer, LedgerProvider};
 use dashmap::DashMap;
 
 use crate::statedb::VersionedDBRocksProvider;
+use blockdb::provider::LevelDBBlockStoreProvider;
 use error::*;
 use silk_proto::Block;
 use std::sync::Arc;
-use blockdb::provider::LevelDBBlockStoreProvider;
 
 pub struct LedgerMgr<P: LedgerProvider> {
     opened_ledgers: DashMap<String, Arc<P::L>>,

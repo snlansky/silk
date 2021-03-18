@@ -86,7 +86,8 @@ pub trait QueryExecutor {}
 pub trait HistoryQueryExecutor {
     // get_history_for_key retrieves the history of values for a key.
     // The returned ResultsIterator contains results of type *KeyModification which is defined in fabric-protos/ledger/queryresult.
-    fn get_history_for_key(&self,
+    fn get_history_for_key(
+        &self,
         namespace: String,
         key: String,
     ) -> Result<Box<dyn Iterator<Item = KeyModification>>>;

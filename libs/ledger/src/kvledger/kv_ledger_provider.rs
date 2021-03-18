@@ -2,10 +2,10 @@ use crate::kvledger::id_store::IDStore;
 use crate::kvledger::kv_ledger::KVLedger;
 use crate::statedb::VersionedDBProvider;
 use crate::Initializer;
+use blockdb::BlockStoreProvider;
 use error::*;
 use silk_proto::Block;
 use utils::utils;
-use blockdb::BlockStoreProvider;
 
 pub struct Provider<VP: VersionedDBProvider, BSP: BlockStoreProvider> {
     id_store: IDStore,

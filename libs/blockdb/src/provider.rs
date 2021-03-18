@@ -1,10 +1,8 @@
-use crate::BlockStore;
 use crate::store::Store;
+use crate::BlockStore;
 use error::*;
 
-pub struct LevelDBBlockStoreProvider {
-
-}
+pub struct LevelDBBlockStoreProvider {}
 
 impl LevelDBBlockStoreProvider {
     pub fn new() -> Self {
