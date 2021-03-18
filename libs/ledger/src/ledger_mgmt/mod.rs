@@ -6,6 +6,7 @@ use crate::statedb::VersionedDBRocksProvider;
 use error::*;
 use silk_proto::Block;
 use std::sync::Arc;
+use blockdb::provider::LevelDBBlockStoreProvider;
 
 pub struct LedgerMgr<P: LedgerProvider> {
     opened_ledgers: DashMap<String, Arc<P::L>>,
@@ -32,16 +33,18 @@ impl<P: LedgerProvider> LedgerMgr<P> {
     }
 }
 
-pub fn new() -> Result<LedgerMgr<Provider<VersionedDBRocksProvider>>> {
-    let init = Initializer {
-        root_fs_path: "/var/silk/production".to_string(),
-    };
-    let vp = VersionedDBRocksProvider::new(&init.root_fs_path);
-    let provider = Provider::new(init, vp)?;
-    // Ok(LedgerMgr::new(provider))
-    let l = LedgerMgr {
-        opened_ledgers: DashMap::new(),
-        ledger_provider: provider,
-    };
-    Ok(l)
+impl LedgerMgr<Provider<VersionedDBRocksProvider, LevelDBBlockStoreProvider>> {
+    pub fn new() -> Result<Self> {
+        let init = Initializer {
+            root_fs_path: "/var/silk/production".to_string(),
+        };
+        let vp = VersionedDBRocksProvider::new(&init.root_fs_path);
+        let bsp = LevelDBBlockStoreProvider::new();
+        let provider = Provider::new(init, vp, bsp)?;
+        let l = LedgerMgr {
+            opened_ledgers: DashMap::new(),
+            ledger_provider: provider,
+        };
+        Ok(l)
+    }
 }

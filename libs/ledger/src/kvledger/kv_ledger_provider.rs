@@ -5,20 +5,21 @@ use crate::Initializer;
 use error::*;
 use silk_proto::Block;
 use utils::utils;
+use blockdb::BlockStoreProvider;
 
-pub struct Provider<VP: VersionedDBProvider> {
+pub struct Provider<VP: VersionedDBProvider, BSP: BlockStoreProvider> {
     id_store: IDStore,
-    block_store_provider: String,
+    block_store_provider: BSP,
     vdb_provider: VP,
     history_db_provider: String,
 }
 
-impl<VP: VersionedDBProvider> Provider<VP> {
-    pub fn new(init: Initializer, provider: VP) -> Result<Self> {
+impl<VP: VersionedDBProvider, BSP: BlockStoreProvider> Provider<VP, BSP> {
+    pub fn new(init: Initializer, vdb_provider: VP, block_store_provider: BSP) -> Result<Self> {
         let p = Provider {
             id_store: IDStore::new(&init.root_fs_path)?,
-            block_store_provider: "".to_string(),
-            vdb_provider: provider,
+            block_store_provider,
+            vdb_provider,
             history_db_provider: "".to_string(),
         };
 
@@ -26,7 +27,7 @@ impl<VP: VersionedDBProvider> Provider<VP> {
     }
 }
 
-impl<VP: VersionedDBProvider> crate::LedgerProvider for Provider<VP> {
+impl<VP: VersionedDBProvider, BSP: BlockStoreProvider> crate::LedgerProvider for Provider<VP, BSP> {
     type L = KVLedger;
 
     fn create(&self, genesis_block: &Block) -> Result<Self::L> {

@@ -4,8 +4,18 @@ extern crate log;
 mod fs;
 mod keys;
 mod store;
+pub mod provider;
 use error::*;
 use silk_proto::*;
+
+pub trait BlockStoreProvider {
+    type S: BlockStore;
+    fn create_block_store(ledger_id: &str) -> Result<Self::S>;
+    fn open_block_store(ledger_id: &str) -> Result<Self::S>;
+    fn exists(ledger_id: &str) -> Result<bool>;
+    fn list() -> Result<Vec<String>>;
+    fn close();
+}
 
 // BlockStore - an interface for persisting and retrieving blocks
 // An implementation of this interface is expected to take an argument

@@ -10,6 +10,7 @@ edition = "2018"
 silk-proto = { path = "../../silk-proto" }
 utils = { path = "../utils" }
 error = { path = "../error" }
+blockdb = { path = "../blockdb" }
 rocksdb = "0.14.0"
 dashmap = "3.11.10"
 byteorder = "1.3.2"
